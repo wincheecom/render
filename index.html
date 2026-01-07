@@ -1941,7 +1941,9 @@
                 
                 if (document.getElementById('sales-operations').classList.contains('active')) {
                     updateMultiselectDropdown();
-                    loadSalesPublishedTasks();
+                    (async () => {
+                        await loadSalesPublishedTasks();
+                    })();
                 }
                 
                 if (document.getElementById('warehouse-operations').classList.contains('active')) {
@@ -2424,9 +2426,9 @@
                         .sort((a, b) => b.profit - a.profit)
                         .slice(0, 10);
                     
-                    const monthlySales = this.getMonthlySalesData();
-                    const monthlyShipments = this.getMonthlyShipmentsData();
-                    const monthlyProfit = this.getMonthlyProfitData();
+                    const monthlySales = await this.getMonthlySalesData();
+                    const monthlyShipments = await this.getMonthlyShipmentsData();
+                    const monthlyProfit = await this.getMonthlyProfitData();
                     
                     const avgProfitMargin = totalSales > 0 ? ((totalProfit / totalSales) * 100) : 0;
                     
@@ -2461,9 +2463,9 @@
                 }
             }
             
-            static getMonthlySalesData() {
-                const history = this.getHistory();
-                const products = this.getAllProducts();
+            static async getMonthlySalesData() {
+                const history = await this.getHistory();
+                const products = await this.getAllProducts();
                 const now = new Date();
                 const monthlyData = {};
                 
@@ -2490,8 +2492,8 @@
                 return monthlyData;
             }
             
-            static getMonthlyShipmentsData() {
-                const history = this.getHistory();
+            static async getMonthlyShipmentsData() {
+                const history = await this.getHistory();
                 const now = new Date();
                 const monthlyData = {};
                 
@@ -2515,9 +2517,9 @@
                 return monthlyData;
             }
             
-            static getMonthlyProfitData() {
-                const history = this.getHistory();
-                const products = this.getAllProducts();
+            static async getMonthlyProfitData() {
+                const history = await this.getHistory();
+                const products = await this.getAllProducts();
                 const now = new Date();
                 const monthlyData = {};
                 
@@ -2747,7 +2749,7 @@
             });
         }
 
-        function switchModule(moduleId) {
+        async function switchModule(moduleId) {
             // 隐藏所有模块
             const moduleContents = document.querySelectorAll('.module-content');
             moduleContents.forEach(content => content.classList.remove('active'));
@@ -2764,7 +2766,7 @@
                     initProductAddModule();
                     break;
                 case 'sales-operations':
-                    initSalesOperations();
+                    await initSalesOperations();
                     break;
                 case 'warehouse-operations':
                     loadWarehouseTasksList();
@@ -2805,7 +2807,7 @@
                 document.getElementById('todayTasks').textContent = todayTasks;
                 
                 updateRecentActivities(activities);
-                updateWarehouseStats();
+                await updateWarehouseStats();
             } catch (error) {
                 console.error('更新总览数据失败:', error);
                 Utils.showAlert('更新总览数据失败，请稍后重试', 'error');
@@ -3512,7 +3514,7 @@
         // ============================================
         // 销售运营模块
         // ============================================
-        function initSalesOperations() {
+        async function initSalesOperations() {
             taskCart = [];
             selectedProduct = null;
             
@@ -3574,7 +3576,7 @@
                 }
             });
             
-            loadSalesPublishedTasks();
+            await loadSalesPublishedTasks();
         }
 
         // 初始化任务本体码上传
@@ -4222,8 +4224,8 @@
             updateTaskCart();
         }
 
-        function loadSalesPublishedTasks() {
-            const tasks = DataManager.getAllTasks();
+        async function loadSalesPublishedTasks() {
+            const tasks = await DataManager.getAllTasks();
             const sortedTasks = tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             const tbody = document.getElementById('publishedTasksBody');
             
@@ -4328,7 +4330,9 @@
             if (success) {
                 Utils.showAlert('任务删除成功！', 'success', function() {
                     updateDashboard();
-                    loadSalesPublishedTasks();
+                    (async () => {
+                        await loadSalesPublishedTasks();
+                    })();
                 });
             }
         }
@@ -4408,7 +4412,9 @@
                     submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
                     
                     await updateDashboard();
-                    loadSalesPublishedTasks();
+                    (async () => {
+                        await loadSalesPublishedTasks();
+                    })();
                     
                     taskCart = [];
                     selectedProduct = null;
@@ -5128,8 +5134,8 @@
             });
         }
 
-        function downloadSalesRanking() {
-            const stats = DataManager.getStatisticsData(currentStatisticsFilter);
+        async function downloadSalesRanking() {
+            const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
             let csvContent = "排名,产品名称,货号,销量,销售额\n";
             
             stats.salesRanking.forEach((item, index) => {
@@ -5140,8 +5146,8 @@
             Utils.downloadCSV(csvContent, `销量排行_${date}.csv`);
         }
 
-        function downloadProfitRanking() {
-            const stats = DataManager.getStatisticsData(currentStatisticsFilter);
+        async function downloadProfitRanking() {
+            const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
             let csvContent = "排名,产品名称,货号,利润,利润率\n";
             
             stats.profitRanking.forEach((item, index) => {
@@ -5152,8 +5158,8 @@
             Utils.downloadCSV(csvContent, `利润排行_${date}.csv`);
         }
 
-        function downloadShipmentList() {
-            const stats = DataManager.getStatisticsData(currentStatisticsFilter);
+        async function downloadShipmentList() {
+            const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
             let csvContent = "任务号,完成时间,商品种类,商品数量\n";
             
             stats.filteredHistory.forEach(task => {
@@ -5165,8 +5171,9 @@
             Utils.downloadCSV(csvContent, `发货清单_${date}.csv`);
         }
 
-        function downloadSalesReport() {
-            const stats = DataManager.getStatisticsData(currentStatisticsFilter);
+        async function downloadSalesReport() {
+            const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
+            const products = await DataManager.getAllProducts();
             let csvContent = "产品名称,货号,销量,销售额\n";
             
             const allStats = {};
@@ -5182,7 +5189,7 @@
                     }
                     allStats[item.productId].quantity += item.quantity;
                     
-                    const product = DataManager.getAllProducts().find(p => p.id === item.productId);
+                    const product = products.find(p => p.id === item.productId);
                     if (product) {
                         allStats[item.productId].sales += product.salePrice * item.quantity;
                     }
@@ -5197,8 +5204,9 @@
             Utils.downloadCSV(csvContent, `销售报表_${date}.csv`);
         }
 
-        function downloadProfitReport() {
-            const stats = DataManager.getStatisticsData(currentStatisticsFilter);
+        async function downloadProfitReport() {
+            const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
+            const products = await DataManager.getAllProducts();
             let csvContent = "产品名称,货号,销量,进货成本,销售额,利润,利润率\n";
             
             const allStats = {};
@@ -5216,7 +5224,7 @@
                     }
                     allStats[item.productId].quantity += item.quantity;
                     
-                    const product = DataManager.getAllProducts().find(p => p.id === item.productId);
+                    const product = products.find(p => p.id === item.productId);
                     if (product) {
                         allStats[item.productId].cost += product.purchasePrice * item.quantity;
                         allStats[item.productId].sales += product.salePrice * item.quantity;
@@ -5234,10 +5242,10 @@
             Utils.downloadCSV(csvContent, `利润报表_${date}.csv`);
         }
 
-        function downloadAllData() {
-            const products = DataManager.getAllProducts();
-            const tasks = DataManager.getAllTasks();
-            const history = DataManager.getHistory();
+        async function downloadAllData() {
+            const products = await DataManager.getAllProducts();
+            const tasks = await DataManager.getAllTasks();
+            const history = await DataManager.getHistory();
             
             let csvContent = "=== 产品数据 ===\n";
             csvContent += "货号,产品名称,库存,进货价,销售价,利润率\n";
