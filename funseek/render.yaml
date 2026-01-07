@@ -5,7 +5,6 @@ services:
     region: singapore  # Set region to match database
     buildCommand: npm install
     startCommand: npm start
-    rootDir: funseek
     envVars:
       - key: NODE_ENV
         value: production
