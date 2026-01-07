@@ -15,8 +15,8 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open 6.html",
-            "file": "/Users/zhouyun/Downloads/funseek/6.html"
+            "name": "Open index.html",
+            "file": "${workspaceFolder}/index.html"
         }
     ]
 }
