@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: funseek-shipment
+    env: node
+    region: singapore  # Set region to match database
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: funseek
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: funseek-db
+          property: host
+      - key: DB_USER
+        fromDatabase:
+          name: funseek-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: funseek-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: funseek-db
+          property: database
+      - key: DB_PORT
+        fromDatabase:
+          name: funseek-db
+          property: port
+
+
+databases:
+  - name: funseek-db
+    region: singapore
+    databaseName: funseek
+    user: postgres
