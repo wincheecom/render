@@ -15,7 +15,11 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["shipment", "management", "inventory"],
+  "keywords": [
+    "shipment",
+    "management",
+    "inventory"
+  ],
   "author": "Funseek",
   "license": "MIT"
 }
