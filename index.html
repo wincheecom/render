@@ -2223,18 +2223,28 @@
             }
             
             static async updateTask(taskId, updates) {
-                const tasks = this.getAllTasks();
-                const taskIndex = tasks.findIndex(t => t.id === taskId);
-                if (taskIndex !== -1) {
-                    tasks[taskIndex] = { ...tasks[taskIndex], ...updates };
-                    this.saveTasks(tasks);
+                try {
+                    const response = await fetch(`${this.API_BASE}/api/tasks/${taskId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updates)
+                    });
+                    
+                    if (!response.ok) {
+                        console.error('更新任务失败:', response.statusText);
+                        return false;
+                    }
+                    
                     return true;
+                } catch (error) {
+                    console.error('更新任务失败:', error);
+                    return false;
                 }
-                return false;
             }
             
-            static deleteTask(taskId) {
-                const tasks = this.getAllTasks();
+            static async deleteTask(taskId) {
                 try {
                     const response = await fetch(`${this.API_BASE}/api/tasks/${taskId}`, {
                         method: 'DELETE'
@@ -2306,6 +2316,7 @@
                     return await response.json();
                 } catch (error) {
                     console.error('获取历史记录失败:', error);
+                    Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
                     return [];
                 }
             }
@@ -2317,6 +2328,7 @@
                     return await response.json();
                 } catch (error) {
                     console.error('获取活动记录失败:', error);
+                    Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
                     return [];
                 }
             }
@@ -2770,46 +2782,56 @@
             updateDashboard();
         }
 
-        function updateDashboard() {
-            const products = DataManager.getAllProducts();
-            const tasks = DataManager.getAllTasks();
-            const history = DataManager.getHistory();
-            const activities = DataManager.getActivities();
-            
-            document.getElementById('totalProducts').textContent = products.length;
-            
-            const pendingTasksCount = tasks.filter(t => t.status === 'pending').length;
-            document.getElementById('pendingTasks').textContent = pendingTasksCount;
-            
-            const completedCount = history.length;
-            document.getElementById('completedTasks').textContent = completedCount;
-            
-            const today = new Date().toDateString();
-            const todayTasks = tasks.filter(t => {
-                const taskDate = new Date(t.createdAt).toDateString();
-                return taskDate === today;
-            }).length;
-            document.getElementById('todayTasks').textContent = todayTasks;
-            
-            updateRecentActivities(activities);
-            updateWarehouseStats();
+        async function updateDashboard() {
+            try {
+                const products = await DataManager.getAllProducts();
+                const tasks = await DataManager.getAllTasks();
+                const history = await DataManager.getHistory();
+                const activities = await DataManager.getActivities();
+                
+                document.getElementById('totalProducts').textContent = products.length;
+                
+                const pendingTasksCount = tasks.filter(t => t.status === 'pending').length;
+                document.getElementById('pendingTasks').textContent = pendingTasksCount;
+                
+                const completedCount = history.length;
+                document.getElementById('completedTasks').textContent = completedCount;
+                
+                const today = new Date().toDateString();
+                const todayTasks = tasks.filter(t => {
+                    const taskDate = new Date(t.createdAt).toDateString();
+                    return taskDate === today;
+                }).length;
+                document.getElementById('todayTasks').textContent = todayTasks;
+                
+                updateRecentActivities(activities);
+                updateWarehouseStats();
+            } catch (error) {
+                console.error('更新总览数据失败:', error);
+                Utils.showAlert('更新总览数据失败，请稍后重试', 'error');
+            }
         }
 
-        function updateWarehouseStats() {
-            const tasks = DataManager.getAllTasks();
-            const history = DataManager.getHistory();
-            
-            const pendingTasksCount = tasks.filter(t => t.status === 'pending').length;
-            document.getElementById('warehousePendingTasks').textContent = pendingTasksCount;
-            
-            const today = new Date().toDateString();
-            const todayTasks = tasks.filter(t => {
-                const taskDate = new Date(t.createdAt).toDateString();
-                return taskDate === today;
-            }).length;
-            document.getElementById('warehouseTodayTasks').textContent = todayTasks;
-            
-            document.getElementById('warehouseCompletedTasks').textContent = history.length;
+        async function updateWarehouseStats() {
+            try {
+                const tasks = await DataManager.getAllTasks();
+                const history = await DataManager.getHistory();
+                
+                const pendingTasksCount = tasks.filter(t => t.status === 'pending').length;
+                document.getElementById('warehousePendingTasks').textContent = pendingTasksCount;
+                
+                const today = new Date().toDateString();
+                const todayTasks = tasks.filter(t => {
+                    const taskDate = new Date(t.createdAt).toDateString();
+                    return taskDate === today;
+                }).length;
+                document.getElementById('warehouseTodayTasks').textContent = todayTasks;
+                
+                document.getElementById('warehouseCompletedTasks').textContent = history.length;
+            } catch (error) {
+                console.error('更新仓库统计数据失败:', error);
+                Utils.showAlert('更新仓库统计数据失败，请稍后重试', 'error');
+            }
         }
 
         function updateRecentActivities(activities) {
@@ -3092,56 +3114,61 @@
             `).join('');
         }
 
-        function loadAllProductsInProductAdd() {
-            const products = DataManager.getAllProducts();
-            const tbody = document.getElementById('productTable');
-            
-            if (!tbody) return;
-            
-            if (products.length === 0) {
-                tbody.innerHTML = `
+        async function loadAllProductsInProductAdd() {
+            try {
+                const products = await DataManager.getAllProducts();
+                const tbody = document.getElementById('productTable');
+                
+                if (!tbody) return;
+                
+                if (products.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-2x mb-3"></i>
+                                <p>暂无产品数据</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = products.map(product => {
+                    return `
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-5">
-                            <i class="fas fa-inbox fa-2x mb-3"></i>
-                            <p>暂无产品数据</p>
+                        <td>
+                            ${product.image ? 
+                                `<img src="${product.image}" alt="${product.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;">` : 
+                                '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
+                            }
+                        </td>
+                        <td><code>${product.code}</code></td>
+                        <td>${product.name}</td>
+                        <td>${product.supplier || ''}</td>
+                        <td>
+                            <span class="badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}">
+                                ${product.stock}
+                            </span>
+                        </td>
+                        <td>${Utils.formatCurrency(product.purchasePrice)}</td>
+                        <td>${Utils.formatCurrency(product.salePrice)}</td>
+                        <td>${Utils.formatProfitMargin(product.profitMargin)}</td>
+                        <td>
+                            <div class="d-flex gap-4">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
-                `;
-                return;
+                `}).join('');
+            } catch (error) {
+                console.error('加载产品列表失败:', error);
+                Utils.showAlert('加载产品列表失败，请稍后重试', 'error');
             }
-            
-            tbody.innerHTML = products.map(product => {
-                return `
-                <tr>
-                    <td>
-                        ${product.image ? 
-                            `<img src="${product.image}" alt="${product.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;">` : 
-                            '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
-                        }
-                    </td>
-                    <td><code>${product.code}</code></td>
-                    <td>${product.name}</td>
-                    <td>${product.supplier || ''}</td>
-                    <td>
-                        <span class="badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}">
-                            ${product.stock}
-                        </span>
-                    </td>
-                    <td>${Utils.formatCurrency(product.purchasePrice)}</td>
-                    <td>${Utils.formatCurrency(product.salePrice)}</td>
-                    <td>${Utils.formatProfitMargin(product.profitMargin)}</td>
-                    <td>
-                        <div class="d-flex gap-4">
-                            <button class="btn btn-sm btn-outline-primary" onclick="editProduct('${product.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
         }
 
         function loadGalleryProducts() {
@@ -3465,13 +3492,19 @@
             }
         }
 
-        function addToTaskFromList(productId) {
+        async function addToTaskFromList(productId) {
             switchModule('sales-operations');
             
-            setTimeout(() => {
-                const product = DataManager.getAllProducts().find(p => p.id === productId);
-                if (product) {
-                    selectSingleProduct(product.id, product.name, product.code, product.image);
+            setTimeout(async () => {
+                try {
+                    const products = await DataManager.getAllProducts();
+                    const product = products.find(p => p.id === productId);
+                    if (product) {
+                        selectSingleProduct(product.id, product.name, product.code, product.image);
+                    }
+                } catch (error) {
+                    console.error('加载产品数据失败:', error);
+                    Utils.showAlert('加载产品数据失败，请稍后重试', 'error');
                 }
             }, 100);
         }
@@ -4133,40 +4166,50 @@
             `}).join('');
         }
 
-        function updateCartItem(index, delta) {
+        async function updateCartItem(index, delta) {
             if (!taskCart[index]) return;
             
             const newQuantity = taskCart[index].quantity + delta;
             if (newQuantity < 1) return;
             
-            const products = DataManager.getAllProducts();
-            const product = products.find(p => p.id === taskCart[index].productId);
-            if (product && product.stock < newQuantity) {
-                Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
-                return;
+            try {
+                const products = await DataManager.getAllProducts();
+                const product = products.find(p => p.id === taskCart[index].productId);
+                if (product && product.stock < newQuantity) {
+                    Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
+                    return;
+                }
+                
+                taskCart[index].quantity = newQuantity;
+                updateTaskCart();
+            } catch (error) {
+                console.error('检查库存失败:', error);
+                Utils.showAlert('检查库存失败，请稍后重试', 'error');
             }
-            
-            taskCart[index].quantity = newQuantity;
-            updateTaskCart();
         }
         
-        function updateTaskCartItemValue(index, value) {
+        async function updateTaskCartItemValue(index, value) {
             if (!taskCart[index]) return;
             
             const newQuantity = parseInt(value);
             if (isNaN(newQuantity) || newQuantity < 1) return;
             
-            const products = DataManager.getAllProducts();
-            const product = products.find(p => p.id === taskCart[index].productId);
-            if (product && product.stock < newQuantity) {
-                Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
-                // 恢复输入框的值为当前数量
+            try {
+                const products = await DataManager.getAllProducts();
+                const product = products.find(p => p.id === taskCart[index].productId);
+                if (product && product.stock < newQuantity) {
+                    Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
+                    // 恢复输入框的值为当前数量
+                    updateTaskCart();
+                    return;
+                }
+                
+                taskCart[index].quantity = newQuantity;
                 updateTaskCart();
-                return;
+            } catch (error) {
+                console.error('检查库存失败:', error);
+                Utils.showAlert('检查库存失败，请稍后重试', 'error');
             }
-            
-            taskCart[index].quantity = newQuantity;
-            updateTaskCart();
         }
 
         function removeCartItem(index) {
@@ -4290,7 +4333,7 @@
             }
         }
 
-        function createShipmentTask() {
+        async function createShipmentTask() {
             const submitBtn = document.querySelector('#taskForm button[type="submit"]');
             if (!submitBtn) return;
             
@@ -4306,65 +4349,65 @@
                 return;
             }
             
-            const products = DataManager.getAllProducts();
-            let stockError = '';
-            let hasInsufficientStock = false;
-            
-            for (const item of taskCart) {
-                const product = products.find(p => p.id === item.productId);
-                if (!product) {
-                    stockError = `商品 ${item.productName} 不存在`;
-                    hasInsufficientStock = true;
-                    break;
-                }
-                if (product.stock < item.quantity) {
-                    stockError = `商品 ${item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})`;
-                    hasInsufficientStock = true;
-                    break;
-                }
-            }
-            
-            if (hasInsufficientStock) {
-                Utils.showAlert(stockError, 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
-                return;
-            }
-            
-            const taskData = {
-                items: taskCart.map(item => ({
-                    productId: item.productId,
-                    productName: item.productName,
-                    productCode: item.productCode,
-                    productImage: item.productImage,
-                    quantity: item.quantity
-                })),
-                bodyCodeImage: taskBodyCodePreview || '',
-                bodyCodeFileName: taskBodyCodeFileName || '',
-                bodyCodeType: taskBodyCodeType || null,
-                barcodeImage: taskBarcodePreview || '',
-                barcodeFileName: taskBarcodeFileName || '',
-                barcodeType: taskBarcodeType || null,
-                warningCodeImage: taskWarningCodePreview || '',
-                warningCodeFileName: taskWarningCodeFileName || '',
-                warningCodeType: taskWarningCodeType || null,
-                labelImage: taskLabelPreview || '',
-                labelFileName: taskLabelFileName || '',
-                labelType: taskLabelType || null
-            };
-            
             try {
-                const newTask = DataManager.addTask(taskData);
+                const products = await DataManager.getAllProducts();
+                let stockError = '';
+                let hasInsufficientStock = false;
                 
                 for (const item of taskCart) {
-                    DataManager.updateProductStock(item.productId, item.quantity);
+                    const product = products.find(p => p.id === item.productId);
+                    if (!product) {
+                        stockError = `商品 ${item.productName} 不存在`;
+                        hasInsufficientStock = true;
+                        break;
+                    }
+                    if (product.stock < item.quantity) {
+                        stockError = `商品 ${item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})`;
+                        hasInsufficientStock = true;
+                        break;
+                    }
                 }
                 
-                Utils.showAlert(`发货任务创建成功！任务号：${newTask.taskNumber}`, 'success', function() {
+                if (hasInsufficientStock) {
+                    Utils.showAlert(stockError, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                    return;
+                }
+                
+                const taskData = {
+                    items: taskCart.map(item => ({
+                        productId: item.productId,
+                        productName: item.productName,
+                        productCode: item.productCode,
+                        productImage: item.productImage,
+                        quantity: item.quantity
+                    })),
+                    bodyCodeImage: taskBodyCodePreview || '',
+                    bodyCodeFileName: taskBodyCodeFileName || '',
+                    bodyCodeType: taskBodyCodeType || null,
+                    barcodeImage: taskBarcodePreview || '',
+                    barcodeFileName: taskBarcodeFileName || '',
+                    barcodeType: taskBarcodeType || null,
+                    warningCodeImage: taskWarningCodePreview || '',
+                    warningCodeFileName: taskWarningCodeFileName || '',
+                    warningCodeType: taskWarningCodeType || null,
+                    labelImage: taskLabelPreview || '',
+                    labelFileName: taskLabelFileName || '',
+                    labelType: taskLabelType || null
+                };
+                
+                const newTask = await DataManager.addTask(taskData);
+                
+                for (const item of taskCart) {
+                    await DataManager.updateProductStock(item.productId, item.quantity);
+                }
+                
+                Utils.showAlert(`发货任务创建成功！任务号：${newTask.taskNumber}`, 'success', async function() {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
                     
-                    updateDashboard();
+                    await updateDashboard();
                     loadSalesPublishedTasks();
                     
                     taskCart = [];
@@ -4392,156 +4435,161 @@
         // ============================================
         // 仓库发货模块
         // ============================================
-        function loadWarehouseTasksList() {
-            updateWarehouseStats();
-            
-            const tasks = DataManager.getAllTasks();
-            const pendingTasks = tasks.filter(t => t.status === 'pending');
-            const container = document.getElementById('warehouseTasks');
-            
-            if (!container) return;
-            
-            if (pendingTasks.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-check-circle fa-2x mb-3"></i>
-                        <p>暂无待发货任务</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = pendingTasks.map(task => {
-                const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
-                const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
-                const isExpanded = expandedTaskId === task.id;
-                
-                return `
-                <div class="task-card" id="task-${task.id}">
-                    <div class="task-card-header">
-                        <div class="task-left-section">
-                            <div class="task-image-container">
-                                ${firstItemImage ? 
-                                    `<img src="${firstItemImage}" alt="产品图片" class="task-image">` : 
-                                    '<div class="task-image d-flex align-items-center justify-content-center text-muted"><i class="fas fa-image fa-2x"></i></div>'
-                                }
-                            </div>
-                            <div>
-                                <div class="task-title">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                <div class="task-date">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-middle-section">
-                            <div class="task-quantity-container">
-                                <div class="task-quantity-value">${itemCount}</div>
-                                <div class="task-quantity-label">总数量</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-right-section">
-                            <div class="d-flex gap-8">
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
-                                    删除
-                                </button>
-                                <button class="btn btn-sm btn-primary" onclick="toggleTaskDetail('${task.id}')">
-                                    ${isExpanded ? '隐藏详情' : '处理发货'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        async function loadWarehouseTasksList() {
+            await updateWarehouseStats();
                     
-                    <!-- 任务文件显示区域 - 默认隐藏，点击处理发货后显示 -->
-                    ${isExpanded ? `
-                        <div class="task-files-list" style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin-top: 12px; min-height: 180px; position: relative; overflow: visible;">
-                            <h6 style="margin: 0 0 12px 0; color: #495057; font-size: 0.95rem;">任务文件</h6>
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; flex-wrap: wrap;">
-                                ${task.bodyCodeImage ? 
-                                    `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="previewTaskBodyCode('${task.id}')" style="width: 100%;">
-                                            <i class="fas fa-barcode"></i> 本体码
-                                        </button>
-                                        <div class="preview-content">
-                                            ${task.bodyCodeType === 'pdf' ? 
-                                                `<div class="preview-pdf">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <p>PDF文件</p>
-                                                    <p>${task.bodyCodeFileName}</p>
-                                                </div>` : 
-                                                `<img src="${task.bodyCodeImage}" class="preview-image" alt="本体码预览">`
-                                            }
-                                        </div>
-                                    </div>` : 
-                                    '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无本体码</span></div>'
-                                }
-                                
-                                ${task.barcodeImage ? 
-                                    `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                        <button class="btn btn-sm btn-outline-info" onclick="previewTaskBarcode('${task.id}')" style="width: 100%;">
-                                            <i class="fas fa-barcode"></i> 条码
-                                        </button>
-                                        <div class="preview-content">
-                                            ${task.barcodeType === 'pdf' ? 
-                                                `<div class="preview-pdf">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <p>PDF文件</p>
-                                                    <p>${task.barcodeFileName}</p>
-                                                </div>` : 
-                                                `<img src="${task.barcodeImage}" class="preview-image" alt="条码预览">`
-                                            }
-                                        </div>
-                                    </div>` : 
-                                    '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无条码</span></div>'
-                                }
-                                
-                                ${task.warningCodeImage ? 
-                                    `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                        <button class="btn btn-sm btn-outline-warning" onclick="previewTaskWarningCode('${task.id}')" style="width: 100%;">
-                                            <i class="fas fa-exclamation-triangle"></i> 警示码
-                                        </button>
-                                        <div class="preview-content">
-                                            ${task.warningCodeType === 'pdf' ? 
-                                                `<div class="preview-pdf">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <p>PDF文件</p>
-                                                    <p>${task.warningCodeFileName}</p>
-                                                </div>` : 
-                                                `<img src="${task.warningCodeImage}" class="preview-image" alt="警示码预览">`
-                                            }
-                                        </div>
-                                    </div>` : 
-                                    '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无警示码</span></div>'
-                                }
-                                
-                                ${task.labelImage ? 
-                                    `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                        <button class="btn btn-sm btn-outline-success" onclick="previewTaskLabel('${task.id}')" style="width: 100%;">
-                                            <i class="fas fa-tag"></i> 箱唛
-                                        </button>
-                                        <div class="preview-content">
-                                            ${task.labelType === 'pdf' ? 
-                                                `<div class="preview-pdf">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <p>PDF文件</p>
-                                                    <p>${task.labelFileName}</p>
-                                                </div>` : 
-                                                `<img src="${task.labelImage}" class="preview-image" alt="箱唛预览">`
-                                            }
-                                        </div>
-                                    </div>` : 
-                                    '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无箱唛</span></div>'
-                                }
+            try {
+                const tasks = await DataManager.getAllTasks();
+                const pendingTasks = tasks.filter(t => t.status === 'pending');
+                const container = document.getElementById('warehouseTasks');
+                        
+                if (!container) return;
+                        
+                if (pendingTasks.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <p>暂无待发货任务</p>
+                        </div>
+                    `;
+                    return;
+                }
+                        
+                container.innerHTML = pendingTasks.map(task => {
+                    const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
+                    const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
+                    const isExpanded = expandedTaskId === task.id;
+                            
+                    return `
+                    <div class="task-card" id="task-${task.id}">
+                        <div class="task-card-header">
+                            <div class="task-left-section">
+                                <div class="task-image-container">
+                                    ${firstItemImage ? 
+                                        \`<img src="\${firstItemImage}" alt="产品图片" class="task-image">\` : 
+                                        '<div class="task-image d-flex align-items-center justify-content-center text-muted"><i class="fas fa-image fa-2x"></i></div>'
+                                    }
+                                </div>
+                                <div>
+                                    <div class="task-title">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
+                                    <div class="task-date">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                </div>
+                            </div>
+                                    
+                            <div class="task-middle-section">
+                                <div class="task-quantity-container">
+                                    <div class="task-quantity-value">${itemCount}</div>
+                                    <div class="task-quantity-label">总数量</div>
+                                </div>
+                            </div>
+                                    
+                            <div class="task-right-section">
+                                <div class="d-flex gap-8">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')}>
+                                        删除
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" onclick="toggleTaskDetail('${task.id}')}>
+                                        \${isExpanded ? '隐藏详情' : '处理发货'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="d-flex justify-end mt-16">
-                            <button class="btn btn-success btn-complete-shipment" onclick="completeShipment('${task.id}')">
-                                完成发货
-                            </button>
-                        </div>
-                    ` : ''}
-                </div>
-            `}).join('');
+                                
+                        <!-- 任务文件显示区域 - 默认隐藏，点击处理发货后显示 -->
+                        \${isExpanded ? `
+                            <div class="task-files-list" style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin-top: 12px; min-height: 180px; position: relative; overflow: visible;">
+                                <h6 style="margin: 0 0 12px 0; color: #495057; font-size: 0.95rem;">任务文件</h6>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                                    \${task.bodyCodeImage ? 
+                                        \`<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="previewTaskBodyCode('${task.id}')}" style="width: 100%;">
+                                                <i class="fas fa-barcode"></i> 本体码
+                                            </button>
+                                            <div class="preview-content">
+                                                \${task.bodyCodeType === 'pdf' ? 
+                                                    \`<div class="preview-pdf">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                        <p>PDF文件</p>
+                                                        <p>\${task.bodyCodeFileName}</p>
+                                                    </div>\` : 
+                                                    \`<img src="\${task.bodyCodeImage}" class="preview-image" alt="本体码预览">\`
+                                                }
+                                            </div>
+                                        </div>\` : 
+                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无本体码</span></div>'
+                                    }
+                                            
+                                    \${task.barcodeImage ? 
+                                        \`<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                            <button class="btn btn-sm btn-outline-info" onclick="previewTaskBarcode('${task.id}')}" style="width: 100%;">
+                                                <i class="fas fa-barcode"></i> 条码
+                                            </button>
+                                            <div class="preview-content">
+                                                \${task.barcodeType === 'pdf' ? 
+                                                    \`<div class="preview-pdf">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                        <p>PDF文件</p>
+                                                        <p>\${task.barcodeFileName}</p>
+                                                    </div>\` : 
+                                                    \`<img src="\${task.barcodeImage}" class="preview-image" alt="条码预览">\`
+                                                }
+                                            </div>
+                                        </div>\` : 
+                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无条码</span></div>'
+                                    }
+                                            
+                                    \${task.warningCodeImage ? 
+                                        \`<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                            <button class="btn btn-sm btn-outline-warning" onclick="previewTaskWarningCode('${task.id}')}" style="width: 100%;">
+                                                <i class="fas fa-exclamation-triangle"></i> 警示码
+                                            </button>
+                                            <div class="preview-content">
+                                                \${task.warningCodeType === 'pdf' ? 
+                                                    \`<div class="preview-pdf">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                        <p>PDF文件</p>
+                                                        <p>\${task.warningCodeFileName}</p>
+                                                    </div>\` : 
+                                                    \`<img src="\${task.warningCodeImage}" class="preview-image" alt="警示码预览">\`
+                                                }
+                                            </div>
+                                        </div>\` : 
+                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无警示码</span></div>'
+                                    }
+                                            
+                                    \${task.labelImage ? 
+                                        \`<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                            <button class="btn btn-sm btn-outline-success" onclick="previewTaskLabel('${task.id}')}" style="width: 100%;">
+                                                <i class="fas fa-tag"></i> 箱唛
+                                            </button>
+                                            <div class="preview-content">
+                                                \${task.labelType === 'pdf' ? 
+                                                    \`<div class="preview-pdf">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                        <p>PDF文件</p>
+                                                        <p>\${task.labelFileName}</p>
+                                                    </div>\` : 
+                                                    \`<img src="\${task.labelImage}" class="preview-image" alt="箱唛预览">\`
+                                                }
+                                            </div>
+                                        </div>\` : 
+                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无箱唛</span></div>'
+                                    }
+                                </div>
+                            </div>
+                                    
+                            <div class="d-flex justify-end mt-16">
+                                <button class="btn btn-success btn-complete-shipment" onclick="completeShipment('${task.id}')}>
+                                    完成发货
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `}).join('');
+            } catch (error) {
+                console.error('加载仓库任务列表失败:', error);
+                Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
+            }
         }
 
         function toggleTaskDetail(taskId) {
@@ -4554,58 +4602,68 @@
             loadWarehouseTasksList();
         }
 
-        function deleteWarehouseTask(taskId) {
+        async function deleteWarehouseTask(taskId) {
             if (!confirm('确定要删除这个待发货任务吗？删除后商品库存将恢复。')) {
                 return;
             }
             
-            const success = DataManager.deleteTask(taskId);
-            if (success) {
-                Utils.showAlert('任务删除成功！商品库存已恢复。', 'success', function() {
-                    if (expandedTaskId === taskId) {
-                        expandedTaskId = null;
-                    }
-                    
-                    updateDashboard();
-                    loadWarehouseTasksList();
-                });
+            try {
+                const success = await DataManager.deleteTask(taskId);
+                if (success) {
+                    Utils.showAlert('任务删除成功！商品库存已恢复。', 'success', async function() {
+                        if (expandedTaskId === taskId) {
+                            expandedTaskId = null;
+                        }
+                        
+                        await updateDashboard();
+                        loadWarehouseTasksList();
+                    });
+                }
+            } catch (error) {
+                console.error('删除任务失败:', error);
+                Utils.showAlert('删除任务失败，请稍后重试', 'error');
             }
         }
 
-        function completeShipment(taskId) {
+        async function completeShipment(taskId) {
             if (!confirm('确定要标记此任务为"已完成"吗？')) {
                 return;
             }
             
-            const success = DataManager.updateTask(taskId, {
-                status: 'completed',
-                completedAt: new Date().toISOString()
-            });
-            
-            if (success) {
-                const task = DataManager.getTaskById(taskId);
-                const products = DataManager.getAllProducts();
-                const taskWithPrice = {
-                    ...task,
-                    items: task.items.map(item => {
-                        const product = products.find(p => p.id === item.productId);
-                        return {
-                            ...item,
-                            purchasePrice: product ? product.purchasePrice : 0,
-                            salePrice: product ? product.salePrice : 0
-                        };
-                    })
-                };
-                DataManager.addToHistory(taskWithPrice);
-                
-                DataManager.deleteTask(taskId);
-                
-                Utils.showAlert('任务已完成发货！', 'success', function() {
-                    expandedTaskId = null;
-                    
-                    updateDashboard();
-                    loadWarehouseTasksList();
+            try {
+                const success = await DataManager.updateTask(taskId, {
+                    status: 'completed',
+                    completedAt: new Date().toISOString()
                 });
+                
+                if (success) {
+                    const task = await DataManager.getTaskById(taskId);
+                    const products = await DataManager.getAllProducts();
+                    const taskWithPrice = {
+                        ...task,
+                        items: task.items.map(item => {
+                            const product = products.find(p => p.id === item.productId);
+                            return {
+                                ...item,
+                                purchasePrice: product ? product.purchasePrice : 0,
+                                salePrice: product ? product.salePrice : 0
+                            };
+                        })
+                    };
+                    await DataManager.addToHistory(taskWithPrice);
+                    
+                    await DataManager.deleteTask(taskId);
+                    
+                    Utils.showAlert('任务已完成发货！', 'success', async function() {
+                        expandedTaskId = null;
+                        
+                        await updateDashboard();
+                        loadWarehouseTasksList();
+                    });
+                }
+            } catch (error) {
+                console.error('完成发货任务失败:', error);
+                Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
             }
         }
 
@@ -4832,20 +4890,26 @@
         // ============================================
         // 统计分析模块
         // ============================================
-        function loadStatisticsData() {
-            const stats = DataManager.getStatisticsData(currentStatisticsFilter);
-            
-            document.getElementById('dayShipments').textContent = DataManager.getStatisticsData('day').totalShipments;
-            document.getElementById('daySales').textContent = Utils.formatCurrency(DataManager.getStatisticsData('day').totalSales);
-            document.getElementById('dayProfit').textContent = Utils.formatCurrency(DataManager.getStatisticsData('day').totalProfit);
-            document.getElementById('avgProfitMargin').textContent = `${stats.avgProfitMargin}%`;
-            
-            updateSalesRanking(stats.salesRanking);
-            updateProfitRanking(stats.profitRanking);
-            
-            updateShipmentChart(stats.monthlyShipments);
-            updateSalesChart(stats.monthlySales);
-            updateProfitChart(stats.monthlyProfit);
+        async function loadStatisticsData() {
+            try {
+                const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
+                
+                const dayStats = await DataManager.getStatisticsData('day');
+                document.getElementById('dayShipments').textContent = dayStats.totalShipments;
+                document.getElementById('daySales').textContent = Utils.formatCurrency(dayStats.totalSales);
+                document.getElementById('dayProfit').textContent = Utils.formatCurrency(dayStats.totalProfit);
+                document.getElementById('avgProfitMargin').textContent = `${stats.avgProfitMargin}%`;
+                
+                updateSalesRanking(stats.salesRanking);
+                updateProfitRanking(stats.profitRanking);
+                
+                updateShipmentChart(stats.monthlyShipments);
+                updateSalesChart(stats.monthlySales);
+                updateProfitChart(stats.monthlyProfit);
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+                Utils.showAlert('加载统计数据失败，请稍后重试', 'error');
+            }
         }
 
         function filterStatistics(filter) {
