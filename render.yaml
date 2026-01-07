@@ -2,7 +2,7 @@ services:
   - type: web
     name: funseek-shipment
     env: node
-    region: singapore  # Set region to match database
+    region: singapore
     buildCommand: npm install
     startCommand: npm start
     rootDir: funseek
