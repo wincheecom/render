@@ -5,6 +5,7 @@ services:
     region: singapore  # Set region to match database
     buildCommand: npm install
     startCommand: npm start
+    rootDir: .
     envVars:
       - key: NODE_ENV
         value: production
