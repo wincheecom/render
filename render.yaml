@@ -2,7 +2,7 @@ services:
   - type: web
     name: funseek-shipment
     env: node
-   # Render deployment configuration file
+      # Render deployment configuration file
     region: singapore
     buildCommand: npm install
     startCommand: npm start
