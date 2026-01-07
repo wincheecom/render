@@ -2,11 +2,9 @@ services:
   - type: web
     name: funseek-shipment
     env: node
-# Render deployment configuration file
     region: singapore
     buildCommand: npm install
     startCommand: npm start
-    rootDir: funseek
     envVars:
       - key: NODE_ENV
         value: production
