@@ -265,10 +265,10 @@ app.get('/api/activities', async (req, res) => {
 
 app.post('/api/activities', async (req, res) => {
   try {
-    const { time, type, details, user } = req.body;
+    const { time, type, details, username } = req.body;
     const result = await db.query(
-      'INSERT INTO activities (time, type, details, user, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-      [time, type, details, user]
+      'INSERT INTO activities (time, type, details, username, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      [time, type, details, username]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -333,7 +333,7 @@ app.listen(PORT, async () => {
         time VARCHAR(255),
         type VARCHAR(50),
         details TEXT,
-        user VARCHAR(255),
+        username VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
