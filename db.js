@@ -7,21 +7,32 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false
+  },
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000
 });
 
 // 测试数据库连接
-pool.query('SELECT NOW()', async (err, res) => {
-  if (err) {
-    console.error('数据库连接失败:', err.stack);
-    // 检查是否是数据库不存在的错误
-    if (err.code === '3D000' || err.message.includes('does not exist')) {
-      console.log('数据库不存在，请确保数据库已正确创建');
+setTimeout(() => {
+  pool.query('SELECT NOW()', async (err, res) => {
+    if (err) {
+      console.error('数据库连接失败:', err.stack);
+      // 检查错误类型
+      if (err.code === 'ENOTFOUND') {
+        console.log('无法解析数据库主机地址，请检查网络连接和数据库配置');
+      } else if (err.code === '3D000' || err.message.includes('does not exist')) {
+        console.log('数据库不存在，请确保数据库已正确创建');
+      } else {
+        console.log('数据库连接失败，错误详情：', err.message);
+      }
+    } else {
+      console.log('数据库连接成功');
+      await initializeDatabase();
     }
-  } else {
-    console.log('数据库连接成功');
-    await initializeDatabase();
-  }
-});
+  });
+}, 1000);
 
 // 初始化数据库，添加示例数据
 async function initializeDatabase() {
