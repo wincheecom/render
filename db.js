@@ -19,6 +19,8 @@ setTimeout(async () => {
     try {
       const res = await pool.query('SELECT NOW()');
       console.log('数据库连接成功');
+      // 等待片刻确保表已创建
+      await new Promise(resolve => setTimeout(resolve, 3000));
       await initializeDatabase();
       break; // 成功则退出循环
     } catch (err) {
@@ -45,7 +47,7 @@ setTimeout(async () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
-}, 1000);
+}, 4000);  // 延长初始延迟时间以确保 server.js 中的表创建先执行
 
 // 初始化数据库，添加示例数据
 async function initializeDatabase() {
