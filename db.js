@@ -11,10 +11,20 @@ const pool = new Pool({
 });
 
 // 测试数据库连接
-setTimeout(() => {
-  pool.query('SELECT NOW()', async (err, res) => {
-    if (err) {
-      console.error('数据库连接失败:', err.stack);
+setTimeout(async () => {
+  let attempts = 0;
+  const maxAttempts = 5;
+  
+  while (attempts < maxAttempts) {
+    try {
+      const res = await pool.query('SELECT NOW()');
+      console.log('数据库连接成功');
+      await initializeDatabase();
+      break; // 成功则退出循环
+    } catch (err) {
+      attempts++;
+      console.error(`数据库连接失败 (尝试 ${attempts}/${maxAttempts}):`, err.stack);
+      
       // 检查错误类型
       if (err.code === 'ENOTFOUND') {
         console.log('无法解析数据库主机地址，请检查网络连接和数据库配置');
@@ -23,11 +33,16 @@ setTimeout(() => {
       } else {
         console.log('数据库连接失败，错误详情：', err.message);
       }
-    } else {
-      console.log('数据库连接成功');
-      await initializeDatabase();
+      
+      if (attempts >= maxAttempts) {
+        console.log('已达到最大重试次数，放弃连接');
+        break;
+      }
+      
+      // 等待一段时间再重试
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
-  });
+  }
 }, 1000);
 
 // 初始化数据库，添加示例数据
