@@ -265,7 +265,7 @@ app.get('/api/activities', async (req, res) => {
 
 app.post('/api/activities', async (req, res) => {
   try {
-    const { time, type, details, actor } = req.body;  // Changed 'username' to 'actor'
+    const { time, type, details, actor } = req.body;
     const result = await db.query(
       'INSERT INTO activities ("time", "type", "details", "actor", "created_at") VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
       [time, type, details, actor]
