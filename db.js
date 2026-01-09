@@ -28,6 +28,8 @@ setTimeout(async () => {
       // 检查错误类型
       if (err.code === 'ENOTFOUND') {
         console.log('无法解析数据库主机地址，请检查网络连接和数据库配置');
+        console.log('可能的原因：数据库实例已被删除、重建或地址已更改');
+        console.log('请登录 Render 控制台获取最新的数据库连接信息');
       } else if (err.code === '3D000' || err.message.includes('does not exist')) {
         console.log('数据库不存在，请确保数据库已正确创建');
       } else {
