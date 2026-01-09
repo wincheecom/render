@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -278,11 +279,21 @@ app.post('/api/activities', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, async () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Visit http://localhost:${PORT} to access the application`);
-  
-  // Initialize database tables if they don't exist
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`端口 ${PORT} 已被占用，请使用不同的端口`);
+  } else {
+    console.log('服务器启动错误', err);
+  }
+});
+
+// Initialize database tables if they don't exist
+setTimeout(async () => {
   try {
     // Create tables individually to avoid any parsing issues
     await db.query(
@@ -345,6 +356,8 @@ app.listen(PORT, async () => {
     // 如果是数据库不存在的错误，给出更明确的提示
     if (err.code === '3D000') {
       console.log('提示：错误代码 3D000 表示数据库不存在，请检查数据库配置');
+    } else if (err.code === 'ENOTFOUND') {
+      console.log('提示：无法解析数据库主机地址，请检查网络连接和数据库配置');
     }
   }
-});
+}, 2000);
