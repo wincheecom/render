@@ -49,7 +49,7 @@ app.get('/adminer', (req, res) => {
             <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
                 Note: For security reasons, this application doesn't host Adminer directly. 
                 You'll be redirected to the official Adminer website. Use the connection 
-                details above to connect to your PostgreSQL database.
+                details above to connect to your database.
             </p>
         </div>
     </body>
