@@ -65,8 +65,8 @@ app.get('/', (req, res) => {
 // API routes for products
 app.get('/api/products', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM products ORDER BY created_at DESC');
-    res.json(result.rows);
+    const [rows] = await db.query('SELECT * FROM products ORDER BY `created_at` DESC');
+    res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -76,11 +76,13 @@ app.get('/api/products', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   try {
     const { product_code, product_name, product_supplier, quantity, purchase_price, sale_price } = req.body;
-    const result = await db.query(
-      'INSERT INTO products (product_code, product_name, product_supplier, quantity, purchase_price, sale_price, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *',
+    const [result] = await db.query(
+      'INSERT INTO products (product_code, product_name, product_supplier, quantity, purchase_price, sale_price, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
       [product_code, product_name, product_supplier, quantity, purchase_price, sale_price]
     );
-    res.json(result.rows[0]);
+    // 获取插入的记录
+    const [rows] = await db.query('SELECT * FROM products WHERE id = ?', [result.insertId]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -90,8 +92,8 @@ app.post('/api/products', async (req, res) => {
 // API routes for tasks
 app.get('/api/tasks', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM tasks ORDER BY created_at DESC');
-    res.json(result.rows);
+    const [rows] = await db.query('SELECT * FROM tasks ORDER BY `created_at` DESC');
+    res.json(rows);
   } catch (err) { 
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -101,11 +103,13 @@ app.get('/api/tasks', async (req, res) => {
 app.post('/api/tasks', async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
-    const result = await db.query(
-      'INSERT INTO tasks (task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
+    const [result] = await db.query(
+      'INSERT INTO tasks (task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
       [task_number, status, JSON.stringify(items), body_code_image, barcode_image, warning_code_image, label_image]
     );
-    res.json(result.rows[0]);
+    // 获取插入的记录
+    const [rows] = await db.query('SELECT * FROM tasks WHERE id = ?', [result.insertId]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -120,26 +124,26 @@ app.put('/api/tasks/:id', async (req, res) => {
     // 构建动态更新查询
     const updateFields = [];
     const values = [];
-    let paramIndex = 2;
     
     for (const [key, value] of Object.entries(updates)) {
       if (key !== 'id') {
-        updateFields.push(`${key} = $${paramIndex}`);
+        updateFields.push(`${key} = ?`);
         values.push(key === 'items' ? JSON.stringify(value) : value);
-        paramIndex++;
       }
     }
     
-    values.unshift(id); // id is the first parameter
+    values.push(id); // id is the last parameter
     
-    const query = `UPDATE tasks SET ${updateFields.join(', ')} WHERE id = $1 RETURNING *`;
-    const result = await db.query(query, values);
+    const query = `UPDATE tasks SET ${updateFields.join(', ')} WHERE id = ?`;
+    const [result] = await db.query(query, values);
     
-    if (result.rows.length === 0) {
+    if (result.affectedRows === 0) {
       return res.status(404).json({ error: '任务未找到' });
     }
     
-    res.json(result.rows[0]);
+    // 获取更新后的记录
+    const [rows] = await db.query('SELECT * FROM tasks WHERE id = ?', [id]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -151,23 +155,23 @@ app.delete('/api/tasks/:id', async (req, res) => {
     const { id } = req.params;
     
     // 获取任务数据
-    const taskResult = await db.query('SELECT * FROM tasks WHERE id = $1', [id]);
+    const [taskResult] = await db.query('SELECT * FROM tasks WHERE id = ?', [id]);
     
-    if (taskResult.rows.length === 0) {
+    if (taskResult.length === 0) {
       return res.status(404).json({ error: '任务未找到' });
     }
     
-    const task = taskResult.rows[0];
+    const task = taskResult[0];
     
     // 将任务数据移动到历史表
     await db.query(
       `INSERT INTO history (task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, created_at, completed_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [task.task_number, task.status, task.items, task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.created_at, task.completed_at || new Date().toISOString()]
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [task.task_number, task.status, task.items, task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image]
     );
     
     // 从任务表中删除
-    await db.query('DELETE FROM tasks WHERE id = $1', [id]);
+    await db.query('DELETE FROM tasks WHERE id = ?', [id]);
     
     res.json({ message: '任务已移动到历史记录' });
   } catch (err) {
@@ -185,26 +189,26 @@ app.put('/api/products/:id', async (req, res) => {
     // 构建动态更新查询
     const updateFields = [];
     const values = [];
-    let paramIndex = 2;
     
     for (const [key, value] of Object.entries(updates)) {
       if (key !== 'id') {
-        updateFields.push(`${key} = $${paramIndex}`);
+        updateFields.push(`${key} = ?`);
         values.push(value);
-        paramIndex++;
       }
     }
     
-    values.unshift(id); // id is the first parameter
+    values.push(id); // id is the last parameter
     
-    const query = `UPDATE products SET ${updateFields.join(', ')} WHERE id = $1 RETURNING *`;
-    const result = await db.query(query, values);
+    const query = `UPDATE products SET ${updateFields.join(', ')} WHERE id = ?`;
+    const [result] = await db.query(query, values);
     
-    if (result.rows.length === 0) {
+    if (result.affectedRows === 0) {
       return res.status(404).json({ error: '产品未找到' });
     }
     
-    res.json(result.rows[0]);
+    // 获取更新后的记录
+    const [rows] = await db.query('SELECT * FROM products WHERE id = ?', [id]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -214,9 +218,9 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
+    const [result] = await db.query('DELETE FROM products WHERE id = ?', [id]);
     
-    if (result.rows.length === 0) {
+    if (result.affectedRows === 0) {
       return res.status(404).json({ error: '产品未找到' });
     }
     
@@ -230,8 +234,8 @@ app.delete('/api/products/:id', async (req, res) => {
 // API routes for history
 app.get('/api/history', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM history ORDER BY created_at DESC');
-    res.json(result.rows);
+    const [rows] = await db.query('SELECT * FROM history ORDER BY `created_at` DESC');
+    res.json(rows);
   } catch (err) { 
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -241,11 +245,13 @@ app.get('/api/history', async (req, res) => {
 app.post('/api/history', async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at } = req.body;
-    const result = await db.query(
-      'INSERT INTO history (task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, created_at, completed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8) RETURNING *',
-      [task_number, status, JSON.stringify(items), body_code_image, barcode_image, warning_code_image, label_image, completed_at || new Date().toISOString()]
+    const [result] = await db.query(
+      'INSERT INTO history (task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, created_at, completed_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+      [task_number, status, JSON.stringify(items), body_code_image, barcode_image, warning_code_image, label_image]
     );
-    res.json(result.rows[0]);
+    // 获取插入的记录
+    const [rows] = await db.query('SELECT * FROM history WHERE id = ?', [result.insertId]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -255,8 +261,8 @@ app.post('/api/history', async (req, res) => {
 // API routes for activities
 app.get('/api/activities', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM activities ORDER BY created_at DESC');
-    res.json(result.rows);
+    const [rows] = await db.query('SELECT * FROM activities ORDER BY `created_at` DESC');
+    res.json(rows);
   } catch (err) { 
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -266,11 +272,13 @@ app.get('/api/activities', async (req, res) => {
 app.post('/api/activities', async (req, res) => {
   try {
     const { time, type, details, username } = req.body;
-    const result = await db.query(
-      'INSERT INTO activities (time, type, details, username, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+    const [result] = await db.query(
+      'INSERT INTO activities (time, type, details, actor, created_at) VALUES (?, ?, ?, ?, NOW())',
       [time, type, details, username]
     );
-    res.json(result.rows[0]);
+    // 获取插入的记录
+    const [rows] = await db.query('SELECT * FROM activities WHERE id = ?', [result.insertId]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '服务器错误' });
@@ -284,59 +292,60 @@ app.listen(PORT, async () => {
   
   // Initialize database tables if they don't exist
   try {
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
+    // Create tables individually to avoid any parsing issues
+    await db.query(
+      `CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
         product_code VARCHAR(255) NOT NULL,
         product_name VARCHAR(255) NOT NULL,
         product_supplier VARCHAR(255),
-        quantity INTEGER DEFAULT 0,
+        quantity INT DEFAULT 0,
         purchase_price DECIMAL(10, 2),
         sale_price DECIMAL(10, 2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+      )`
+    );
     
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS tasks (
-        id SERIAL PRIMARY KEY,
+    await db.query(
+      `CREATE TABLE IF NOT EXISTS tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
         task_number VARCHAR(255) NOT NULL,
         status VARCHAR(50) DEFAULT 'pending',
-        items JSONB,
-        body_code_image TEXT,
-        barcode_image TEXT,
-        warning_code_image TEXT,
-        label_image TEXT,
+        items TEXT,
+        body_code_image LONGTEXT,
+        barcode_image LONGTEXT,
+        warning_code_image LONGTEXT,
+        label_image LONGTEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        completed_at TIMESTAMP
-      );
-    `);
+        completed_at TIMESTAMP NULL
+      )`
+    );
     
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS history (
-        id SERIAL PRIMARY KEY,
+    await db.query(
+      `CREATE TABLE IF NOT EXISTS history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
         task_number VARCHAR(255) NOT NULL,
         status VARCHAR(50),
-        items JSONB,
-        body_code_image TEXT,
-        barcode_image TEXT,
-        warning_code_image TEXT,
-        label_image TEXT,
+        items TEXT,
+        body_code_image LONGTEXT,
+        barcode_image LONGTEXT,
+        warning_code_image LONGTEXT,
+        label_image LONGTEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        completed_at TIMESTAMP
-      );
-    `);
+        completed_at TIMESTAMP NULL
+      )`
+    );
     
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS activities (
-        id SERIAL PRIMARY KEY,
+    await db.query(
+      `CREATE TABLE IF NOT EXISTS activities (
+        id INT AUTO_INCREMENT PRIMARY KEY,
         time VARCHAR(255),
         type VARCHAR(50),
         details TEXT,
-        username VARCHAR(255),
+        actor VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+      )`
+    );
     
     console.log('数据库表初始化完成');
   } catch (err) {
