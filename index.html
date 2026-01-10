@@ -1763,11 +1763,11 @@
                 <!-- 已移除：<h1 class="page-title">统计分析</h1> -->
                 
                 <div class="time-filter">
-                    <button class="time-btn active" onclick="filterStatistics('day')">今日</button>
-                    <button class="time-btn" onclick="filterStatistics('week')">本周</button>
-                    <button class="time-btn" onclick="filterStatistics('month')">本月</button>
-                    <button class="time-btn" onclick="filterStatistics('year')">本年</button>
-                    <button class="time-btn" onclick="filterStatistics('all')">全部</button>
+                    <button class="time-btn active" onclick="filterStatistics('day', this)">今日</button>
+                    <button class="time-btn" onclick="filterStatistics('week', this)">本周</button>
+                    <button class="time-btn" onclick="filterStatistics('month', this)">本月</button>
+                    <button class="time-btn" onclick="filterStatistics('year', this)">本年</button>
+                    <button class="time-btn" onclick="filterStatistics('all', this)">全部</button>
                 </div>
                 
                 <!-- 重新排版统计分析内容 -->
@@ -2867,7 +2867,8 @@
                     document.getElementById('currentModule').textContent = modules[moduleId].name;
                     
                     // 在移动端点击菜单后关闭侧边栏
-                    if (window.innerWidth <= 992) {document.getElementById('sidebar').classList.remove('active');
+                    if (window.innerWidth <= 992) {
+                        document.getElementById('sidebar').classList.remove('active');
                     }
                 });
             });
@@ -3655,7 +3656,8 @@
                 }
             }
         }
-
+    }
+    
         async function addToTaskFromList(productId) {
             switchModule('sales-operations');
             
@@ -4678,11 +4680,11 @@
                                     
                             <div class="task-right-section">
                                 <div class="d-flex gap-8">
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')}>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
                                         删除
                                     </button>
-                                    <button class="btn btn-sm btn-primary" onclick="toggleTaskDetail('${task.id}')}>
-                                        \${isExpanded ? '隐藏详情' : '处理发货'}
+                                    <button class="btn btn-sm btn-primary" onclick="toggleTaskDetail('${task.id}')">
+                                        ${isExpanded ? '隐藏详情' : '处理发货'}
                                     </button>
                                 </div>
                             </div>
@@ -5111,16 +5113,15 @@
             }
         }
 
-        function filterStatistics(filter) {
+        function filterStatistics(filter, clickedButton) {
             currentStatisticsFilter = filter;
             
             document.querySelectorAll('.time-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            const target = event.target;
-            if (target) {
-                target.classList.add('active');
+            if (clickedButton) {
+                clickedButton.classList.add('active');
             }
             
             loadStatisticsData();
