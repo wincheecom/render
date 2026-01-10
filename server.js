@@ -168,7 +168,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
     );
     
     // 从任务表中删除
-    await db.query('DELETE FROM tasks WHERE "id" = $1 RETURNING *', [id]);
+    await db.query('DELETE FROM tasks WHERE "id" = $1', [id]);
     
     res.json({ message: '任务已移动到历史记录' });
   } catch (err) {
