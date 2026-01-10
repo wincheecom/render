@@ -2867,8 +2867,7 @@
                     document.getElementById('currentModule').textContent = modules[moduleId].name;
                     
                     // 在移动端点击菜单后关闭侧边栏
-                    if (window.innerWidth <= 992) {
-                        document.getElementById('sidebar').classList.remove('active');
+                    if (window.innerWidth <= 992) {document.getElementById('sidebar').classList.remove('active');
                     }
                 });
             });
@@ -4894,6 +4893,8 @@
                             <h3>${task.bodyCodeFileName}</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             } else {
                 printWindow.document.write(`
@@ -4913,6 +4914,8 @@
                             <h3>任务本体码</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             }
             printWindow.document.close();
@@ -4945,6 +4948,8 @@
                             <h3>${task.barcodeFileName}</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             } else {
                 printWindow.document.write(`
@@ -4964,6 +4969,8 @@
                             <h3>任务条码</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             }
             printWindow.document.close();
@@ -4996,6 +5003,8 @@
                             <h3>${task.warningCodeFileName}</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             } else {
                 printWindow.document.write(`
@@ -5015,6 +5024,8 @@
                             <h3>任务警示码</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             }
             printWindow.document.close();
@@ -5047,6 +5058,8 @@
                             <h3>${task.labelFileName}</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             } else {
                 printWindow.document.write(`
@@ -5066,6 +5079,8 @@
                             <h3>任务箱唛</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
+                    </body>
+                    </html>
                 `);
             }
             printWindow.document.close();
@@ -5571,6 +5586,8 @@
         }
 
         // ============================================
+        // 全球导出函数
+        // ============================================
         // 全局导出函数
         // ============================================
         window.switchProductView = switchProductView;
@@ -5597,21 +5614,13 @@
         window.downloadProfitRanking = downloadProfitRanking;
         window.downloadShipmentList = downloadShipmentList;
         window.downloadSalesReport = downloadSalesReport;
-
         window.downloadProfitReport = downloadProfitReport;
-
         window.downloadAllData = downloadAllData;
-
         window.toggleProductSelection = toggleProductSelection;
-
         window.removeSelectedProduct = removeSelectedProduct;
-
         window.resetTaskBodyCodeUpload = resetTaskBodyCodeUpload;
-
         window.resetTaskWarningCodeUpload = resetTaskWarningCodeUpload;
-
         window.resetTaskLabelUpload = resetTaskLabelUpload;
-
     </script>
 </body>
 </html>
