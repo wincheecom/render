@@ -2197,7 +2197,31 @@
                 try {
                     const response = await fetch(`${this.API_BASE}/api/tasks`);
                     if (!response.ok) throw new Error('获取任务列表失败');
-                    return await response.json();
+                    const tasks = await response.json();
+                    
+                    // 将数据库字段映射到前端期望的字段名
+                    return tasks.map(task => {
+                        return {
+                            id: task.id,
+                            taskNumber: task.task_number || task.taskNumber,
+                            status: task.status,
+                            items: task.items || [],
+                            bodyCodeImage: task.body_code_image || task.bodyCodeImage || '',
+                            bodyCodeFileName: task.body_code_file_name || task.bodyCodeFileName || '',
+                            bodyCodeType: task.body_code_type || task.bodyCodeType || null,
+                            barcodeImage: task.barcode_image || task.barcodeImage || '',
+                            barcodeFileName: task.barcode_file_name || task.barcodeFileName || '',
+                            barcodeType: task.barcode_type || task.barcodeType || null,
+                            warningCodeImage: task.warning_code_image || task.warningCodeImage || '',
+                            warningCodeFileName: task.warning_code_file_name || task.warningCodeFileName || '',
+                            warningCodeType: task.warning_code_type || task.warningCodeType || null,
+                            labelImage: task.label_image || task.labelImage || '',
+                            labelFileName: task.label_file_name || task.labelFileName || '',
+                            labelType: task.label_type || task.labelType || null,
+                            createdAt: task.created_at || task.createdAt,
+                            completedAt: task.completed_at || task.completedAt
+                        };
+                    });
                 } catch (error) {
                     console.error('获取任务列表失败:', error);
                     Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
@@ -2234,10 +2258,32 @@
                     
                     const newTask = await response.json();
                     
-                    // 记录活动
-                    this.addActivity('task', `创建发货任务: ${newTask.task_number || newTask.taskNumber}`);
+                    // 将数据库返回的数据映射到前端期望的格式
+                    const mappedTask = {
+                        id: newTask.id,
+                        taskNumber: newTask.task_number || newTask.taskNumber,
+                        status: newTask.status,
+                        items: newTask.items || [],
+                        bodyCodeImage: newTask.body_code_image || newTask.bodyCodeImage || '',
+                        bodyCodeFileName: newTask.body_code_file_name || newTask.bodyCodeFileName || '',
+                        bodyCodeType: newTask.body_code_type || newTask.bodyCodeType || null,
+                        barcodeImage: newTask.barcode_image || newTask.barcodeImage || '',
+                        barcodeFileName: newTask.barcode_file_name || newTask.barcodeFileName || '',
+                        barcodeType: newTask.barcode_type || newTask.barcodeType || null,
+                        warningCodeImage: newTask.warning_code_image || newTask.warningCodeImage || '',
+                        warningCodeFileName: newTask.warning_code_file_name || newTask.warningCodeFileName || '',
+                        warningCodeType: newTask.warning_code_type || newTask.warningCodeType || null,
+                        labelImage: newTask.label_image || newTask.labelImage || '',
+                        labelFileName: newTask.label_file_name || newTask.labelFileName || '',
+                        labelType: newTask.label_type || newTask.labelType || null,
+                        createdAt: newTask.created_at || newTask.createdAt,
+                        completedAt: newTask.completed_at || newTask.completedAt
+                    };
                     
-                    return newTask;
+                    // 记录活动
+                    this.addActivity('task', `创建发货任务: ${mappedTask.taskNumber}`);
+                    
+                    return mappedTask;
                 } catch (error) {
                     console.error('创建任务失败:', error);
                     Utils.showAlert(error.message || '创建任务失败', 'error');
@@ -2336,7 +2382,31 @@
                 try {
                     const response = await fetch(`${this.API_BASE}/api/history`);
                     if (!response.ok) throw new Error('获取历史记录失败');
-                    return await response.json();
+                    const history = await response.json();
+                    
+                    // 将数据库字段映射到前端期望的字段名
+                    return history.map(record => {
+                        return {
+                            id: record.id,
+                            taskNumber: record.task_number || record.taskNumber,
+                            status: record.status,
+                            items: record.items || [],
+                            bodyCodeImage: record.body_code_image || record.bodyCodeImage || '',
+                            bodyCodeFileName: record.body_code_file_name || record.bodyCodeFileName || '',
+                            bodyCodeType: record.body_code_type || record.bodyCodeType || null,
+                            barcodeImage: record.barcode_image || record.barcodeImage || '',
+                            barcodeFileName: record.barcode_file_name || record.barcodeFileName || '',
+                            barcodeType: record.barcode_type || record.barcodeType || null,
+                            warningCodeImage: record.warning_code_image || record.warningCodeImage || '',
+                            warningCodeFileName: record.warning_code_file_name || record.warningCodeFileName || '',
+                            warningCodeType: record.warning_code_type || record.warningCodeType || null,
+                            labelImage: record.label_image || record.labelImage || '',
+                            labelFileName: record.label_file_name || record.labelFileName || '',
+                            labelType: record.label_type || record.labelType || null,
+                            createdAt: record.created_at || record.createdAt,
+                            completedAt: record.completed_at || record.completedAt
+                        };
+                    });
                 } catch (error) {
                     console.error('获取历史记录失败:', error);
                     Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
@@ -2348,7 +2418,19 @@
                 try {
                     const response = await fetch(`${this.API_BASE}/api/activities`);
                     if (!response.ok) throw new Error('获取活动记录失败');
-                    return await response.json();
+                    const activities = await response.json();
+                    
+                    // 将数据库字段映射到前端期望的字段名
+                    return activities.map(activity => {
+                        return {
+                            id: activity.id,
+                            time: activity.time || activity.created_at || '',
+                            type: activity.type,
+                            details: activity.details,
+                            actor: activity.actor || activity.username || '',
+                            createdAt: activity.created_at || activity.createdAt
+                        };
+                    });
                 } catch (error) {
                     console.error('获取活动记录失败:', error);
                     Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
