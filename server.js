@@ -164,7 +164,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
     await db.query(
       `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at")
        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)`,
-      [task.task_number, task.status, task.items, task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.completed_at || new Date().toISOString()]
+      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
