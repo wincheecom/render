@@ -1940,7 +1940,9 @@
                 }
                 
                 if (document.getElementById('sales-operations').classList.contains('active')) {
-                    updateMultiselectDropdown();
+                    (async () => {
+                        await updateMultiselectDropdown();
+                    })();
                     (async () => {
                         await loadSalesPublishedTasks();
                     })();
@@ -2062,19 +2064,24 @@
                     if (!response.ok) throw new Error('获取产品列表失败');
                     const products = await response.json();
                     return products.map(product => {
-                        if (!product.hasOwnProperty('purchasePrice')) {
-                            product.purchasePrice = 0;
+                        // 将数据库字段映射到前端期望的字段名
+                        const mappedProduct = {
+                            id: product.id,
+                            code: product.product_code || product.code,
+                            name: product.product_name || product.name,
+                            supplier: product.product_supplier || product.supplier || '',
+                            stock: product.quantity || product.stock || 0,
+                            purchasePrice: product.purchase_price || product.purchasePrice || 0,
+                            salePrice: product.sale_price || product.salePrice || 0,
+                            image: product.image || '',
+                            createdAt: product.created_at || product.createdAt
+                        };
+                        
+                        if (!mappedProduct.hasOwnProperty('profitMargin')) {
+                            mappedProduct.profitMargin = Utils.calculateProfitMargin(mappedProduct.purchasePrice, mappedProduct.salePrice);
                         }
-                        if (!product.hasOwnProperty('salePrice')) {
-                            product.salePrice = 0;
-                        }
-                        if (!product.hasOwnProperty('profitMargin')) {
-                            product.profitMargin = Utils.calculateProfitMargin(product.purchasePrice, product.salePrice);
-                        }
-                        if (!product.hasOwnProperty('supplier')) {
-                            product.supplier = '';
-                        }
-                        return product;
+                        
+                        return mappedProduct;
                     });
                 } catch (error) {
                     console.error('获取产品列表失败:', error);
@@ -2111,10 +2118,24 @@
                     
                     const newProduct = await response.json();
                     
+                    // 将数据库返回的数据映射到前端期望的格式
+                    const mappedProduct = {
+                        id: newProduct.id,
+                        code: newProduct.product_code || newProduct.code,
+                        name: newProduct.product_name || newProduct.name,
+                        supplier: newProduct.product_supplier || newProduct.supplier || '',
+                        stock: newProduct.quantity || newProduct.stock || 0,
+                        purchasePrice: newProduct.purchase_price || newProduct.purchasePrice || 0,
+                        salePrice: newProduct.sale_price || newProduct.salePrice || 0,
+                        image: newProduct.image || '',
+                        profitMargin: Utils.calculateProfitMargin(newProduct.purchase_price || 0, newProduct.sale_price || 0),
+                        createdAt: newProduct.created_at || newProduct.createdAt
+                    };
+                    
                     // 记录活动
                     this.addActivity('product', `添加新产品: ${product.name} (${product.code})`);
                     
-                    return newProduct;
+                    return mappedProduct;
                 } catch (error) {
                     console.error('添加产品失败:', error);
                     Utils.showAlert(error.message || '添加产品失败', 'error');
@@ -3299,7 +3320,7 @@
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.innerHTML = '<i class="fas fa-save"></i> 更新产品';
             
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const originalText = submitBtn.innerHTML;
@@ -3325,51 +3346,47 @@
                     return;
                 }
                 
-                const products = DataManager.getAllProducts();
-                const productIndex = products.findIndex(p => p.id === productId);
-                if (productIndex !== -1) {
-                    const profitMargin = Utils.calculateProfitMargin(productData.purchasePrice, productData.salePrice);
-                    
-                    const originalProduct = {...products[productIndex]}; // 保存原始数据用于恢复
-                    
-                    products[productIndex] = {
-                        ...products[productIndex],
-                        code: productData.code,
-                        name: productData.name,
-                        stock: parseInt(productData.stock) || 0,
-                        purchasePrice: parseFloat(productData.purchasePrice) || 0,
-                        salePrice: parseFloat(productData.salePrice) || 0,
-                        profitMargin: profitMargin,
-                        image: productData.image
-                    };
-                    
-                    try {
-                        DataManager.saveProducts(products);
-                        
-                        Utils.showAlert(`产品更新成功！货号：${productData.code}`, 'success', function() {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存产品';
-                            
-                            // 重置表单
-                            e.target.reset();
-                            resetProductImageUpload();
-                            
-                            // 重新绑定原始事件
-                            form.removeEventListener('submit', arguments.callee);
-                            form.addEventListener('submit', handleProductFormSubmit);
-                            
-                            // 刷新数据
-                            initProductAddModule();
-                        });
-                    } catch (error) {
-                        console.error('更新产品失败:', error);
-                        // 恢复原始产品数据
-                        products[productIndex] = originalProduct;
-                        DataManager.saveProducts(products);
-                        Utils.showAlert('更新产品失败，请重试', 'error');
+                try {
+                    // 通过API更新产品
+                    const response = await fetch(`${DataManager.API_BASE}/api/products/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            product_code: productData.code,
+                            product_name: productData.name,
+                            product_supplier: productData.supplier,
+                            quantity: parseInt(productData.stock) || 0,
+                            purchase_price: parseFloat(productData.purchasePrice) || 0,
+                            sale_price: parseFloat(productData.salePrice) || 0
+                        })
+                    });
+                                    
+                    if (!response.ok) {
+                        throw new Error('更新产品失败');
+                    }
+                                    
+                    Utils.showAlert(`产品更新成功！货号：${productData.code}`, 'success', function() {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存产品';
-                    }
+                                        
+                        // 重置表单
+                        e.target.reset();
+                        resetProductImageUpload();
+                                        
+                        // 重新绑定原始事件
+                        form.removeEventListener('submit', arguments.callee);
+                        form.addEventListener('submit', handleProductFormSubmit);
+                                        
+                        // 刷新数据
+                        initProductAddModule();
+                    });
+                } catch (error) {
+                    console.error('更新产品失败:', error);
+                    Utils.showAlert('更新产品失败，请重试', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存产品';
                 }
             });
             
@@ -3572,7 +3589,9 @@
             taskLabelFileName = null;
             taskLabelType = null;
             
-            updateMultiselectDropdown();
+            (async () => {
+                await updateMultiselectDropdown();
+            })();
             updateTaskCart();
             
             // 初始化任务文件上传
@@ -3593,8 +3612,8 @@
             
             const searchInput = document.getElementById('productSearchInput');
             if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    updateMultiselectDropdown(this.value.toLowerCase());
+                searchInput.addEventListener('input', async function() {
+                    await updateMultiselectDropdown(this.value.toLowerCase());
                 });
                 
                 // 点击输入框显示下拉菜单
@@ -4062,44 +4081,54 @@
             initTaskLabelUpload();
         }
 
-        function updateMultiselectDropdown(searchTerm = '') {
+        async function updateMultiselectDropdown(searchTerm = '') {
             const dropdown = document.getElementById('multiselectDropdown');
             if (!dropdown) return;
             
-            const products = DataManager.getAllProducts().filter(p => p.stock > 0);
-            
-            let filteredProducts = products;
-            if (searchTerm) {
-                filteredProducts = products.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) || 
-                    p.code.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (filteredProducts.length === 0) {
+            try {
+                const allProducts = await DataManager.getAllProducts();
+                const products = allProducts.filter(p => p.stock > 0);
+                
+                let filteredProducts = products;
+                if (searchTerm) {
+                    filteredProducts = products.filter(p => 
+                        p.name.toLowerCase().includes(searchTerm) || 
+                        p.code.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (filteredProducts.length === 0) {
+                    dropdown.innerHTML = `
+                        <div style="padding: 8px 12px; color: #666; text-align: center; font-size: 0.85rem;">
+                            未找到可用产品
+                        </div>
+                    `;
+                    return;
+                }
+                
+                dropdown.innerHTML = filteredProducts.map(product => {
+                    const isSelected = selectedProduct && selectedProduct.id === product.id;
+                    
+                    return `
+                        <div style="padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; ${isSelected ? 'background-color: rgba(67, 97, 238, 0.08);' : ''}" 
+                             data-id="${product.id}"
+                             onclick="selectSingleProduct('${product.id}', '${product.name}', '${product.code}', '${product.image}')">
+                            ${product.image ? 
+                                `<img src="${product.image}" alt="${product.name}" style="width: 28px; height: 28px; object-fit: cover; border-radius: 4px;">` : 
+                                '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
+                            }
+                            ${product.name} (${product.code}) - 库存: ${product.stock}
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('加载产品列表失败:', error);
                 dropdown.innerHTML = `
                     <div style="padding: 8px 12px; color: #666; text-align: center; font-size: 0.85rem;">
-                        未找到可用产品
+                        加载产品列表失败
                     </div>
                 `;
-                return;
             }
-            
-            dropdown.innerHTML = filteredProducts.map(product => {
-                const isSelected = selectedProduct && selectedProduct.id === product.id;
-                
-                return `
-                    <div style="padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; ${isSelected ? 'background-color: rgba(67, 97, 238, 0.08);' : ''}" 
-                         data-id="${product.id}"
-                         onclick="selectSingleProduct('${product.id}', '${product.name}', '${product.code}', '${product.image}')">
-                        ${product.image ? 
-                            `<img src="${product.image}" alt="${product.name}" style="width: 28px; height: 28px; object-fit: cover; border-radius: 4px;">` : 
-                            '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
-                        }
-                        ${product.name} (${product.code}) - 库存: ${product.stock}
-                    </div>
-                `;
-            }).join('');
         }
 
         function selectSingleProduct(productId, productName, productCode, productImage) {
@@ -4120,7 +4149,9 @@
                 quantity: 1
             }];
             
-            updateMultiselectDropdown(document.getElementById('productSearchInput')?.value.toLowerCase() || '');
+            (async () => {
+                await updateMultiselectDropdown(document.getElementById('productSearchInput')?.value.toLowerCase() || '');
+            })();
             updateSelectedTags();
             updateTaskCart();
         }
@@ -4162,7 +4193,9 @@
             selectedProduct = null;
             taskCart = [];
             
-            updateMultiselectDropdown();
+            (async () => {
+                await updateMultiselectDropdown();
+            })();
             updateSelectedTags();
             updateTaskCart();
         }
@@ -4256,7 +4289,9 @@
             selectedProducts.delete(productId);
             taskCart.splice(index, 1);
             
-            updateMultiselectDropdown();
+            (async () => {
+                await updateMultiselectDropdown();
+            })();
             updateSelectedTags();
             updateTaskCart();
         }
@@ -4462,7 +4497,9 @@
                     resetTaskWarningCodeUpload();
                     resetTaskLabelUpload();
                     
-                    updateMultiselectDropdown();
+                    (async () => {
+                        await updateMultiselectDropdown();
+                    })();
                     updateSelectedTags();
                     updateTaskCart();
                 });
