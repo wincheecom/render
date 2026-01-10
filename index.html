@@ -4793,13 +4793,19 @@
             }
             
             try {
+                // 先获取任务详情，因为后续会更新和删除任务
+                const task = await DataManager.getTaskById(taskId);
+                if (!task) {
+                    Utils.showAlert('任务不存在！', 'error');
+                    return;
+                }
+                
                 const success = await DataManager.updateTask(taskId, {
                     status: 'completed',
                     completedAt: new Date().toISOString()
                 });
                 
                 if (success) {
-                    const task = await DataManager.getTaskById(taskId);
                     const products = await DataManager.getAllProducts();
                     const taskWithPrice = {
                         ...task,
