@@ -975,6 +975,83 @@
             background-color: #f8f9fa;
         }
 
+        /* ===== 仓库任务画廊视图样式 ===== */
+        .tasks-container {
+            min-height: 300px;
+        }
+        
+        .task-gallery {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+        
+        .task-gallery-item {
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 12px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .task-gallery-item:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .task-gallery-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-gallery-img img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .task-gallery-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        
+        .task-gallery-code {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .task-gallery-qty {
+            font-weight: 600;
+            color: var(--warning);
+            margin-bottom: 8px;
+        }
+        
+        .task-gallery-actions {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        .task-gallery-actions .btn {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+        }
+        
         /* ===== 仓库发货端任务卡片样式 ===== */
         .task-card-header {
             display: flex;
@@ -1748,8 +1825,18 @@
                 </div>
                 
                 <div class="card">
-                    <div class="card-title">待发货任务列表</div>
-                    <div id="warehouseTasks">
+                    <div class="card-title">
+                        待发货任务列表
+                        <div class="view-toggle">
+                            <button class="btn btn-sm btn-outline-secondary view-btn active" data-view="list" onclick="switchWarehouseView('list')">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary view-btn" data-view="gallery" onclick="switchWarehouseView('gallery')">
+                                <i class="fas fa-th"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="warehouseTasks" class="tasks-container">
                         <div class="text-center py-5 text-muted">
                             <i class="fas fa-check-circle fa-2x mb-3"></i>
                             <p>暂无待发货任务</p>
@@ -4396,8 +4483,12 @@
 
         function removeCartItem(index) {
             const productId = taskCart[index].productId;
-            selectedProducts.delete(productId);
             taskCart.splice(index, 1);
+            
+            // 在单选场景中，如果移除了最后的商品，则清空选中的商品
+            if (taskCart.length === 0) {
+                selectedProduct = null;
+            }
             
             (async () => {
                 await updateMultiselectDropdown();
@@ -4650,143 +4741,199 @@
                     return;
                 }
                         
-                container.innerHTML = pendingTasks.map(task => {
-                    const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
-                    const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
-                    const isExpanded = expandedTaskId === task.id;
-                            
-                    return `
-                    <div class="task-card" id="task-${task.id}">
-                        <div class="task-card-header">
-                            <div class="task-left-section">
-                                <div class="task-image-container">
-                                    ${firstItemImage ? 
-                                        `<img src="${firstItemImage}" alt="产品图片" class="task-image">` : 
-                                        '<div class="task-image d-flex align-items-center justify-content-center text-muted"><i class="fas fa-image fa-2x"></i></div>'
-                                    }
-                                </div>
-                                <div>
-                                    <div class="task-title">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                    <div class="task-date">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                                </div>
-                            </div>
-                                    
-                            <div class="task-middle-section">
-                                <div class="task-quantity-container">
-                                    <div class="task-quantity-value">${itemCount}</div>
-                                    <div class="task-quantity-label">总数量</div>
-                                </div>
-                            </div>
-                                    
-                            <div class="task-right-section">
-                                <div class="d-flex gap-8">
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
-                                        删除
-                                    </button>
-                                    <button class="btn btn-sm btn-primary" onclick="toggleTaskDetail('${task.id}')">
-                                        ${isExpanded ? '隐藏详情' : '处理发货'}
-                                    </button>
-                                </div>
-                            </div>
+                if (warehouseTaskViewMode === 'gallery') {
+                    // 画廊视图
+                    container.innerHTML = `
+                        <div class="task-gallery">
+                            ${pendingTasks.map(task => {
+                                const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
+                                const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
+                                                
+                                return `
+                                    <div class="task-gallery-item" id="task-${task.id}">
+                                        <div class="task-gallery-img">
+                                            ${firstItemImage ? 
+                                                `<img src="${firstItemImage}" alt="产品图片">` : 
+                                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                                            }
+                                        </div>
+                                        <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
+                                        <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                        <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                        <div class="task-gallery-actions">
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskDetail('${task.id}')">
+                                                <i class="fas fa-box-open"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
-                                
-                        <!-- 任务文件显示区域 - 默认隐藏，点击处理发货后显示 -->
-                        ${isExpanded ? `
-                            <div class="task-files-list" style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin-top: 12px; min-height: 180px; position: relative; overflow: visible;">
-                                <h6 style="margin: 0 0 12px 0; color: #495057; font-size: 0.95rem;">任务文件</h6>
-                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; flex-wrap: wrap;">
-                                    ${task.bodyCodeImage ? 
-                                        `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                            <button class="btn btn-sm btn-outline-primary" onclick="previewTaskBodyCode('${task.id}')" style="width: 100%;">
-                                                <i class="fas fa-barcode"></i> 本体码
-                                            </button>
-                                            <div class="preview-content">
-                                                ${task.bodyCodeType === 'pdf' ? 
-                                                    `<div class="preview-pdf">
-                                                        <i class="fas fa-file-pdf"></i>
-                                                        <p>PDF文件</p>
-                                                        <p>${task.bodyCodeFileName}</p>
-                                                    </div>` : 
-                                                    `<img src="${task.bodyCodeImage}" class="preview-image" alt="本体码预览">`
-                                                }
-                                            </div>
-                                        </div>` : 
-                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无本体码</span></div>'
-                                    }
-                                                                    
-                                    ${task.barcodeImage ? 
-                                        `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                            <button class="btn btn-sm btn-outline-info" onclick="previewTaskBarcode('${task.id}')" style="width: 100%;">
-                                                <i class="fas fa-barcode"></i> 条码
-                                            </button>
-                                            <div class="preview-content">
-                                                ${task.barcodeType === 'pdf' ? 
-                                                    `<div class="preview-pdf">
-                                                        <i class="fas fa-file-pdf"></i>
-                                                        <p>PDF文件</p>
-                                                        <p>${task.barcodeFileName}</p>
-                                                    </div>` : 
-                                                    `<img src="${task.barcodeImage}" class="preview-image" alt="条码预览">`
-                                                }
-                                            </div>
-                                        </div>` : 
-                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无条码</span></div>'
-                                    }
-                                                                    
-                                    ${task.warningCodeImage ? 
-                                        `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                            <button class="btn btn-sm btn-outline-warning" onclick="previewTaskWarningCode('${task.id}')" style="width: 100%;">
-                                                <i class="fas fa-exclamation-triangle"></i> 警示码
-                                            </button>
-                                            <div class="preview-content">
-                                                ${task.warningCodeType === 'pdf' ? 
-                                                    `<div class="preview-pdf">
-                                                        <i class="fas fa-file-pdf"></i>
-                                                        <p>PDF文件</p>
-                                                        <p>${task.warningCodeFileName}</p>
-                                                    </div>` : 
-                                                    `<img src="${task.warningCodeImage}" class="preview-image" alt="警示码预览">`
-                                                }
-                                            </div>
-                                        </div>` : 
-                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无警示码</span></div>'
-                                    }
-                                                                    
-                                    ${task.labelImage ? 
-                                        `<div class="preview-tooltip" style="display: flex; justify-content: center;">
-                                            <button class="btn btn-sm btn-outline-success" onclick="previewTaskLabel('${task.id}')" style="width: 100%;">
-                                                <i class="fas fa-tag"></i> 箱唛
-                                            </button>
-                                            <div class="preview-content">
-                                                ${task.labelType === 'pdf' ? 
-                                                    `<div class="preview-pdf">
-                                                        <i class="fas fa-file-pdf"></i>
-                                                        <p>PDF文件</p>
-                                                        <p>${task.labelFileName}</p>
-                                                    </div>` : 
-                                                    `<img src="${task.labelImage}" class="preview-image" alt="箱唛预览">`
-                                                }
-                                            </div>
-                                        </div>` : 
-                                        '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无箱唛</span></div>'
-                                    }
+                    `;
+                } else {
+                    // 列表视图
+                    container.innerHTML = pendingTasks.map(task => {
+                        const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
+                        const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
+                        const isExpanded = expandedTaskId === task.id;
+                                                
+                        return `
+                        <div class="task-card" id="task-${task.id}">
+                            <div class="task-card-header">
+                                <div class="task-left-section">
+                                    <div class="task-image-container">
+                                        ${firstItemImage ? 
+                                            `<img src="${firstItemImage}" alt="产品图片" class="task-image">` : 
+                                            '<div class="task-image d-flex align-items-center justify-content-center text-muted"><i class="fas fa-image fa-2x"></i></div>'
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="task-title">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
+                                        <div class="task-date">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                    </div>
+                                </div>
+                                                        
+                                <div class="task-middle-section">
+                                    <div class="task-quantity-container">
+                                        <div class="task-quantity-value">${itemCount}</div>
+                                        <div class="task-quantity-label">总数量</div>
+                                    </div>
+                                </div>
+                                                        
+                                <div class="task-right-section">
+                                    <div class="d-flex gap-8">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
+                                            删除
+                                        </button>
+                                        <button class="btn btn-sm btn-primary" onclick="toggleTaskDetail('${task.id}')">
+                                            ${isExpanded ? '隐藏详情' : '处理发货'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                                                            
-                            <div class="d-flex justify-end mt-16">
-                                <button class="btn btn-success btn-complete-shipment" onclick="completeShipment('${task.id}')">
-                                    完成发货
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                `}).join('');
+                                                    
+                            <!-- 任务文件显示区域 - 默认隐藏，点击处理发货后显示 -->
+                            ${isExpanded ? `
+                                <div class="task-files-list" style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin-top: 12px; min-height: 180px; position: relative; overflow: visible;">
+                                    <h6 style="margin: 0 0 12px 0; color: #495057; font-size: 0.95rem;">任务文件</h6>
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                                        ${task.bodyCodeImage ? 
+                                            `<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="previewTaskBodyCode('${task.id}')" style="width: 100%;">
+                                                    <i class="fas fa-barcode"></i> 本体码
+                                                </button>
+                                                <div class="preview-content">
+                                                    ${task.bodyCodeType === 'pdf' ? 
+                                                        `<div class="preview-pdf">
+                                                            <i class="fas fa-file-pdf"></i>
+                                                            <p>PDF文件</p>
+                                                            <p>${task.bodyCodeFileName}</p>
+                                                        </div>` : 
+                                                        `<img src="${task.bodyCodeImage}" class="preview-image" alt="本体码预览">`
+                                                    }
+                                                </div>
+                                            </div>` : 
+                                            '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无本体码</span></div>'
+                                        }
+                                                                                        
+                                        ${task.barcodeImage ? 
+                                            `<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                                <button class="btn btn-sm btn-outline-info" onclick="previewTaskBarcode('${task.id}')" style="width: 100%;">
+                                                    <i class="fas fa-barcode"></i> 条码
+                                                </button>
+                                                <div class="preview-content">
+                                                    ${task.barcodeType === 'pdf' ? 
+                                                        `<div class="preview-pdf">
+                                                            <i class="fas fa-file-pdf"></i>
+                                                            <p>PDF文件</p>
+                                                            <p>${task.barcodeFileName}</p>
+                                                        </div>` : 
+                                                        `<img src="${task.barcodeImage}" class="preview-image" alt="条码预览">`
+                                                    }
+                                                </div>
+                                            </div>` : 
+                                            '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无条码</span></div>'
+                                        }
+                                                                                        
+                                        ${task.warningCodeImage ? 
+                                            `<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                                <button class="btn btn-sm btn-outline-warning" onclick="previewTaskWarningCode('${task.id}')" style="width: 100%;">
+                                                    <i class="fas fa-exclamation-triangle"></i> 警示码
+                                                </button>
+                                                <div class="preview-content">
+                                                    ${task.warningCodeType === 'pdf' ? 
+                                                        `<div class="preview-pdf">
+                                                            <i class="fas fa-file-pdf"></i>
+                                                            <p>PDF文件</p>
+                                                            <p>${task.warningCodeFileName}</p>
+                                                        </div>` : 
+                                                        `<img src="${task.warningCodeImage}" class="preview-image" alt="警示码预览">`
+                                                    }
+                                                </div>
+                                            </div>` : 
+                                            '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无警示码</span></div>'
+                                        }
+                                                                                        
+                                        ${task.labelImage ? 
+                                            `<div class="preview-tooltip" style="display: flex; justify-content: center;">
+                                                <button class="btn btn-sm btn-outline-success" onclick="previewTaskLabel('${task.id}')" style="width: 100%;">
+                                                    <i class="fas fa-tag"></i> 箱唛
+                                                </button>
+                                                <div class="preview-content">
+                                                    ${task.labelType === 'pdf' ? 
+                                                        `<div class="preview-pdf">
+                                                            <i class="fas fa-file-pdf"></i>
+                                                            <p>PDF文件</p>
+                                                            <p>${task.labelFileName}</p>
+                                                        </div>` : 
+                                                        `<img src="${task.labelImage}" class="preview-image" alt="箱唛预览">`
+                                                    }
+                                                </div>
+                                            </div>` : 
+                                            '<div style="display: flex; justify-content: center;"><span class="badge badge-secondary">无箱唛</span></div>'
+                                        }
+                                    </div>
+                                </div>
+                                                                     
+                                <div class="d-flex justify-end mt-16">
+                                    <button class="btn btn-success btn-complete-shipment" onclick="completeShipment('${task.id}')">
+                                        完成发货
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `}).join('');
+                }
             } catch (error) {
                 console.error('加载仓库任务列表失败:', error);
                 Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
             }
         }
-
+                
+        // 仓库任务视图模式
+        let warehouseTaskViewMode = 'list'; // 默认列表视图
+                
+        function switchWarehouseView(viewMode) {
+            warehouseTaskViewMode = viewMode;
+                    
+            // 更新按钮状态
+            const listBtn = document.querySelector('[data-view="list"]');
+            const galleryBtn = document.querySelector('[data-view="gallery"]');
+                    
+            if (listBtn) {
+                listBtn.classList.toggle('active', viewMode === 'list');
+            }
+            if (galleryBtn) {
+                galleryBtn.classList.toggle('active', viewMode === 'gallery');
+            }
+                    
+            // 重新加载任务列表以应用新视图
+            loadWarehouseTasksList();
+        }
+                
         function toggleTaskDetail(taskId) {
             if (expandedTaskId === taskId) {
                 expandedTaskId = null;
