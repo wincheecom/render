@@ -3536,9 +3536,11 @@
             }
         }
 
-        function searchProducts() {
+        async function searchProducts() {
             const searchTerm = document.getElementById('productSearch').value.toLowerCase();
-            const products = DataManager.getAllProducts();
+            
+            try {
+                const products = await DataManager.getAllProducts();
             
             const filteredProducts = products.filter(p => 
                 p.name.toLowerCase().includes(searchTerm) || 
@@ -3627,6 +3629,29 @@
                         </div>
                     </div>
                 `}).join('');
+            }
+        } catch (error) {
+            console.error('搜索产品失败:', error);
+            if (currentProductView === 'list') {
+                const tbody = document.getElementById('productTable');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                搜索产品失败，请稍后重试
+                            </td>
+                        </tr>
+                    `;
+                }
+            } else {
+                const galleryContainer = document.getElementById('productGalleryView');
+                if (galleryContainer) {
+                    galleryContainer.innerHTML = `
+                        <div class="text-center w-100 py-5 text-muted">
+                            搜索产品失败，请稍后重试
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -4428,8 +4453,8 @@
             }).join('');
         }
 
-        function viewTaskDetail(taskId) {
-            const task = DataManager.getTaskById(taskId);
+        async function viewTaskDetail(taskId) {
+            const task = await DataManager.getTaskById(taskId);
             if (!task) return;
             
             let detailHtml = '<h6>任务详情</h6>';
