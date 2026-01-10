@@ -2547,7 +2547,27 @@
                 return monthlyData;
             }
         }
-
+        
+        // ============================================
+        // 产品选择功能
+        // ============================================
+        function toggleProductSelection(productId, productElement) {
+            if (selectedProducts.has(productId)) {
+                selectedProducts.delete(productId);
+                if (productElement) {
+                    productElement.classList.remove('selected');
+                }
+            } else {
+                selectedProducts.add(productId);
+                if (productElement) {
+                    productElement.classList.add('selected');
+                }
+            }
+            
+            // 更新选中产品的标签显示
+            updateSelectedTags();
+        }
+        
         // ============================================
         // 全局变量
         // ============================================
@@ -3079,41 +3099,58 @@
             }
         }
 
-        function loadRecentProducts() {
-            const products = DataManager.getAllProducts();
-            const recent = products.slice(-10).reverse();
-            const container = document.getElementById('recentProducts');
-            
-            if (!container) return;
-            
-            if (recent.length === 0) {
-                container.innerHTML = '<p class="text-muted text-center my-3">暂无产品</p>';
-                return;
-            }
-            
-            container.innerHTML = recent.map(product => `
-                <div class="recent-product-item">
-                    <div class="recent-product-layout">
-                        <div class="recent-product-img-container">
-                            ${product.image ? 
-                                `<img src="${product.image}" alt="${product.name}" class="recent-product-img">` : 
-                                '<div class="text-center text-muted"><i class="fas fa-image fa-lg"></i></div>'
-                            }
-                        </div>
-                        <div class="recent-product-name-container">
-                            <p class="recent-product-name mb-1">${product.name}</p>
-                        </div>
-                        <div class="recent-product-stock-container">
-                            <div class="recent-product-stock">库存：${product.stock}</div>
-                        </div>
-                        <div class="recent-product-action-container">
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecentProduct('${product.id}')">
-                                删除
-                            </button>
+        async function loadRecentProducts() {
+            try {
+                const products = await DataManager.getAllProducts();
+                // 确保 products 是数组
+                if (!Array.isArray(products)) {
+                    console.error('Products is not an array:', products);
+                    const container = document.getElementById('recentProducts');
+                    if (container) {
+                        container.innerHTML = '<p class="text-muted text-center my-3">暂无产品</p>';
+                    }
+                    return;
+                }
+                const recent = products.slice(-10).reverse();
+                const container = document.getElementById('recentProducts');
+                
+                if (!container) return;
+                
+                if (recent.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center my-3">暂无产品</p>';
+                    return;
+                }
+                
+                container.innerHTML = recent.map(product => `
+                    <div class="recent-product-item">
+                        <div class="recent-product-layout">
+                            <div class="recent-product-img-container">
+                                ${product.image ? 
+                                    `<img src="${product.image}" alt="${product.name}" class="recent-product-img">` : 
+                                    '<div class="text-center text-muted"><i class="fas fa-image fa-lg"></i></div>'
+                                }
+                            </div>
+                            <div class="recent-product-name-container">
+                                <p class="recent-product-name mb-1">${product.name}</p>
+                            </div>
+                            <div class="recent-product-stock-container">
+                                <div class="recent-product-stock">库存：${product.stock}</div>
+                            </div>
+                            <div class="recent-product-action-container">
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecentProduct('${product.id}')">
+                                    删除
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (error) {
+                console.error('加载最近产品失败:', error);
+                const container = document.getElementById('recentProducts');
+                if (container) {
+                    container.innerHTML = '<p class="text-muted text-center my-3">加载产品失败</p>';
+                }
+            }
         }
 
         async function loadAllProductsInProductAdd() {
