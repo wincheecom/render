@@ -2820,10 +2820,12 @@
             });
             
             // 添加一些初始数据（如果为空）
-            const products = DataManager.getAllProducts();
-            if (products.length === 0) {
-                initializeSampleData();
-            }
+            (async () => {
+                const products = await DataManager.getAllProducts();
+                if (products.length === 0) {
+                    initializeSampleData();
+                }
+            })();
         }
 
         function generateSidebarMenu() {
@@ -5611,13 +5613,21 @@
         window.downloadProfitRanking = downloadProfitRanking;
         window.downloadShipmentList = downloadShipmentList;
         window.downloadSalesReport = downloadSalesReport;
+
         window.downloadProfitReport = downloadProfitReport;
+
         window.downloadAllData = downloadAllData;
+
         window.toggleProductSelection = toggleProductSelection;
+
         window.removeSelectedProduct = removeSelectedProduct;
+
         window.resetTaskBodyCodeUpload = resetTaskBodyCodeUpload;
+
         window.resetTaskWarningCodeUpload = resetTaskWarningCodeUpload;
+
         window.resetTaskLabelUpload = resetTaskLabelUpload;
+
     </script>
 </body>
 </html>
