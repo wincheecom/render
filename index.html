@@ -4475,15 +4475,15 @@
             alertify.alert('任务详情', detailHtml);
         }
 
-        function deleteSalesTask(taskId) {
+        async function deleteSalesTask(taskId) {
             if (!confirm('确定要删除这个已发布的任务吗？')) {
                 return;
             }
             
-            const success = DataManager.deleteTask(taskId);
+            const success = await DataManager.deleteTask(taskId);
             if (success) {
-                Utils.showAlert('任务删除成功！', 'success', function() {
-                    updateDashboard();
+                Utils.showAlert('任务删除成功！', 'success', async function() {
+                    await updateDashboard();
                     (async () => {
                         await loadSalesPublishedTasks();
                     })();
