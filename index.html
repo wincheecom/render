@@ -4453,51 +4453,56 @@
             }).join('');
         }
 
-        async function viewTaskDetail(taskId) {
-            const task = await DataManager.getTaskById(taskId);
-            if (!task) return;
-            
-            let detailHtml = '<h6>任务详情</h6>';
-            detailHtml += `<p><strong>任务号：</strong>${task.taskNumber}</p>`;
-            detailHtml += `<p><strong>创建时间：</strong>${Utils.formatDate(task.createdAt)}</p>`;
-            detailHtml += `<p><strong>状态：</strong>${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}</p>`;
-            
-            // 显示任务文件
-            if (task.bodyCodeImage) {
-                detailHtml += `<p><strong>本体码：</strong>已上传 (${task.bodyCodeType === 'pdf' ? 'PDF' : '图片'})</p>`;
-            }
-            if (task.warningCodeImage) {
-                detailHtml += `<p><strong>警示码：</strong>已上传 (${task.warningCodeType === 'pdf' ? 'PDF' : '图片'})</p>`;
-            }
-            if (task.labelImage) {
-                detailHtml += `<p><strong>箱唛：</strong>已上传 (${task.labelType === 'pdf' ? 'PDF' : '图片'})</p>`;
-            }
-            
-            detailHtml += '<h6 class="mt-3">商品清单</h6>';
-            detailHtml += '<div class="table-responsive">';
-            detailHtml += '<table class="table table-sm">';
-            detailHtml += '<thead><tr><th>图片</th><th>商品名称</th><th>货号</th><th>数量</th></tr></thead>';
-            detailHtml += '<tbody>';
-            
-            task.items.forEach(item => {
-                detailHtml += `
-                    <tr>
-                        <td>
-                            ${item.productImage ? 
-                                `<img src="${item.productImage}" alt="${item.productName}" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;">` : 
-                                '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
-                            }
-                        </td>
-                        <td>${item.productName}</td>
-                        <td><code>${item.productCode}</code></td>
-                        <td>${item.quantity}</td>
-                    </tr>
-                `;
-            });
-            
-            detailHtml += '</tbody></table></div>';
-            
-            alertify.alert('任务详情', detailHtml);
+        function viewTaskDetail(taskId) {
+            // 使用立即执行的异步函数来处理异步操作
+            (async function() {
+                try {
+                    const task = await DataManager.getTaskById(taskId);
+                    if (!task) return;
+                    
+                    let detailHtml = '<h6>任务详情</h6>';
+                    detailHtml += '<p><strong>任务号：</strong>' + task.taskNumber + '</p>';
+                    detailHtml += '<p><strong>创建时间：</strong>' + Utils.formatDate(task.createdAt) + '</p>';
+                    detailHtml += '<p><strong>状态：</strong>' + (task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成') + '</p>';
+                    
+                    // 显示任务文件
+                    if (task.bodyCodeImage) {
+                        detailHtml += '<p><strong>本体码：</strong>已上传 (' + (task.bodyCodeType === 'pdf' ? 'PDF' : '图片') + ')</p>';
+                    }
+                    if (task.warningCodeImage) {
+                        detailHtml += '<p><strong>警示码：</strong>已上传 (' + (task.warningCodeType === 'pdf' ? 'PDF' : '图片') + ')</p>';
+                    }
+                    if (task.labelImage) {
+                        detailHtml += '<p><strong>箱唛：</strong>已上传 (' + (task.labelType === 'pdf' ? 'PDF' : '图片') + ')</p>';
+                    }
+                    
+                    detailHtml += '<h6 class="mt-3">商品清单</h6>';
+                    detailHtml += '<div class="table-responsive">';
+                    detailHtml += '<table class="table table-sm">';
+                    detailHtml += '<thead><tr><th>图片</th><th>商品名称</th><th>货号</th><th>数量</th></tr></thead>';
+                    detailHtml += '<tbody>';
+                    
+                    task.items.forEach(item => {
+                        var imageHtml = item.productImage ? 
+                            '<img src="' + item.productImage + '" alt="' + item.productName + '" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;">' : 
+                            '<div class="text-center text-muted"><i class="fas fa-image"></i></div>';
+                        detailHtml += 
+                            '<tr>' +
+                                '<td>' + imageHtml + '</td>' +
+                                '<td>' + item.productName + '</td>' +
+                                '<td><code>' + item.productCode + '</code></td>' +
+                                '<td>' + item.quantity + '</td>' +
+                            '</tr>';
+                    });
+                    
+                    detailHtml += '</tbody></table></div>';
+                    
+                    alertify.alert('任务详情', detailHtml);
+                } catch (error) {
+                    console.error("加载任务详情失败:", error);
+                    Utils.showAlert('加载任务详情失败，请稍后重试', 'error');
+                }
+            })();
         }
 
         async function deleteSalesTask(taskId) {
