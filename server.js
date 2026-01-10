@@ -163,8 +163,8 @@ app.delete('/api/tasks/:id', async (req, res) => {
     // 将任务数据移动到历史表
     await db.query(
       `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [task.task_number, task.status, task.items, task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.created_at, task.completed_at || new Date().toISOString()]
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)`,
+      [task.task_number, task.status, task.items, task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
@@ -215,11 +215,13 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await db.query('DELETE FROM products WHERE "id" = $1 RETURNING *', [id]);
+    const result = await db.query('SELECT id FROM products WHERE "id" = $1', [id]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: '产品未找到' });
     }
+    
+    await db.query('DELETE FROM products WHERE "id" = $1', [id]);
     
     res.json({ message: '产品删除成功' });
   } catch (err) {
