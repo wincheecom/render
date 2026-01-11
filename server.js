@@ -102,13 +102,47 @@ app.get('/api/tasks', async (req, res) => {
 app.post('/api/tasks', async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
+    
+    // 验证购物车中的所有商品是否真实存在
+    for (const item of items) {
+      const productCheck = await db.query('SELECT * FROM products WHERE "id" = $1', [item.productId]);
+      if (productCheck.rows.length === 0) {
+        return res.status(400).json({ error: `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在` });
+      }
+      
+      // 检查库存是否足够
+      const product = productCheck.rows[0];
+      if (product.quantity < item.quantity) {
+        return res.status(400).json({ error: `商品 ${product.product_name} 库存不足 (需要: ${item.quantity}, 库存: ${product.quantity})` });
+      }
+    }
+    
+    // 在事务中同时创建任务和更新库存
+    await db.query('BEGIN');
+    
     const result = await db.query(
       'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
       [task_number, status, JSON.stringify(items), body_code_image, barcode_image, warning_code_image, label_image]
     );
+    
+    // 更新相关产品的库存
+    for (const item of items) {
+      await db.query(
+        'UPDATE products SET "quantity" = "quantity" - $1 WHERE "id" = $2',
+        [item.quantity, item.productId]
+      );
+    }
+    
+    await db.query('COMMIT');
+    
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('回滚失败:', rollbackErr);
+    }
     res.status(500).json({ error: '服务器错误' });
   }
 });
