@@ -3818,7 +3818,8 @@
                 });
                 
                 // 点击输入框显示下拉菜单
-                searchInput.addEventListener('click', function() {
+                searchInput.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 阻止事件冒泡，防止触发全局隐藏逻辑
                     const dropdown = document.getElementById('multiselectDropdown');
                     dropdown.classList.remove('hidden');
                 });
@@ -3828,9 +3829,12 @@
                 const dropdown = document.getElementById('multiselectDropdown');
                 const searchInput = document.getElementById('productSearchInput');
                 
-                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.classList.add('hidden');
-                }
+                // 使用 setTimeout 确保事件处理在所有同步操作完成后执行
+                setTimeout(() => {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                }, 0);
             });
             
             await loadSalesPublishedTasks();
@@ -4350,9 +4354,12 @@
                 quantity: 1
             }];
             
-            (async () => {
-                await updateMultiselectDropdown(document.getElementById('productSearchInput')?.value.toLowerCase() || '');
-            })();
+            // 隐藏下拉菜单，因为用户已经选择了商品
+            const dropdown = document.getElementById('multiselectDropdown');
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
+            
             updateSelectedTags();
             updateTaskCart();
         }
@@ -4394,9 +4401,6 @@
             selectedProduct = null;
             taskCart = [];
             
-            (async () => {
-                await updateMultiselectDropdown();
-            })();
             updateSelectedTags();
             updateTaskCart();
         }
@@ -4494,9 +4498,6 @@
                 selectedProduct = null;
             }
             
-            (async () => {
-                await updateMultiselectDropdown();
-            })();
             updateSelectedTags();
             updateTaskCart();
         }
