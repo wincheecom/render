@@ -3410,8 +3410,8 @@
             }
         }
 
-        function loadGalleryProducts() {
-            const products = DataManager.getAllProducts();
+        async function loadGalleryProducts() {
+            const products = await DataManager.getAllProducts();
             const galleryContainer = document.getElementById('productGalleryView');
             
             if (!galleryContainer) return;
@@ -4537,7 +4537,7 @@
                 const firstProductCode = task.items.length > 0 ? task.items[0].productCode : '无';
                 
                 return `
-                    <tr>
+                    <tr data-task-id="${task.id}">
                         <td>${firstProductCode}</td>
                         <td>${task.items.length > 0 ? task.items[0].productName : '无'}</td>
                         <td>${statusBadge}</td>
@@ -4616,9 +4616,37 @@
             try {
                 const success = await DataManager.deleteTask(taskId);
                 if (success) {
+                    // 从UI上立即移除任务元素，提供即时反馈
+                    const taskRow = document.querySelector(`#publishedTasksBody tr[data-task-id="${taskId}"]`);
+                    if (taskRow) {
+                        taskRow.style.opacity = '0';
+                        taskRow.style.transition = 'opacity 0.3s ease';
+                        
+                        setTimeout(() => {
+                            taskRow.remove();
+                            
+                            // 如果任务列表为空，显示相应提示
+                            const tbody = document.getElementById('publishedTasksBody');
+                            if (tbody && tbody.children.length === 0) {
+                                tbody.innerHTML = `
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            暂无已发布任务
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                        }, 300);
+                    }
+                    
                     Utils.showAlert('任务删除成功！', 'success', async function() {
                         await updateDashboard();
+                        // 确保数据完全同步后再重新加载任务列表
+                        await new Promise(resolve => setTimeout(resolve, 500));
                         await loadSalesPublishedTasks();
+                        
+                        // 同时更新仓库端的任务列表
+                        loadWarehouseTasksList();
                     });
                 } else {
                     Utils.showAlert('删除任务失败，请重试', 'error');
@@ -4659,6 +4687,7 @@
                 let validationError = '';
                 let hasValidationError = false;
                 
+                // 对购物车中的每项进行详细验证
                 for (const item of taskCart) {
                     const product = products.find(p => p.id === item.productId);
                     if (!product) {
@@ -4678,6 +4707,19 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
                     return;
+                }
+                
+                // 额外验证：再次检查购物车中的商品是否仍然存在
+                // 防止在验证期间商品被删除的情况
+                const finalProducts = await DataManager.getAllProducts();
+                for (const item of taskCart) {
+                    const product = finalProducts.find(p => p.id === item.productId);
+                    if (!product) {
+                        Utils.showAlert(`商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 已被删除，请刷新页面重新选择商品`, 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                        return;
+                    }
                 }
                 
                 const taskData = {
@@ -4978,13 +5020,41 @@
             try {
                 const success = await DataManager.deleteTask(taskId);
                 if (success) {
+                    // 从UI上立即移除任务元素，提供即时反馈
+                    const taskElement = document.getElementById(`task-${taskId}`);
+                    if (taskElement) {
+                        taskElement.style.opacity = '0';
+                        taskElement.style.transform = 'translateX(-100%)';
+                        taskElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        
+                        setTimeout(() => {
+                            taskElement.remove();
+                            
+                            // 如果任务列表为空，显示相应提示
+                            const container = document.getElementById('warehouseTasks');
+                            if (container && container.children.length === 0) {
+                                container.innerHTML = `
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                        <p>暂无待发货任务</p>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                    
                     Utils.showAlert('任务删除成功！商品库存已恢复。', 'success', async function() {
                         if (expandedTaskId === taskId) {
                             expandedTaskId = null;
                         }
                         
                         await updateDashboard();
+                        // 确保数据完全同步后再重新加载任务列表
+                        await new Promise(resolve => setTimeout(resolve, 500));
                         loadWarehouseTasksList();
+                        
+                        // 同时更新销售运营端的已发布任务列表
+                        await loadSalesPublishedTasks();
                     });
                 } else {
                     Utils.showAlert('删除任务失败，请重试', 'error');
