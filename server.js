@@ -185,10 +185,14 @@ app.delete('/api/tasks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
+    // 开始事务
+    await db.query('BEGIN');
+    
     // 获取任务数据
     const taskResult = await db.query('SELECT * FROM tasks WHERE "id" = $1', [id]);
     
     if (taskResult.rows.length === 0) {
+      await db.query('ROLLBACK');
       return res.status(404).json({ error: '任务未找到' });
     }
     
@@ -204,9 +208,17 @@ app.delete('/api/tasks/:id', async (req, res) => {
     // 从任务表中删除
     await db.query('DELETE FROM tasks WHERE "id" = $1', [id]);
     
+    // 提交事务
+    await db.query('COMMIT');
+    
     res.json({ message: '任务已移动到历史记录' });
   } catch (err) {
     console.error(err);
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('回滚失败:', rollbackErr);
+    }
     res.status(500).json({ error: '服务器错误' });
   }
 });
