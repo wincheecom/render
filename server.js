@@ -328,6 +328,35 @@ app.post('/api/activities', async (req, res) => {
   }
 });
 
+// API endpoint to clear demo data (only for development)
+app.post('/api/clear-demo-data', async (req, res) => {
+  if (process.env.NODE_ENV !== 'development' && !process.env.CLEAR_DATA_ENABLED) {
+    return res.status(403).json({ error: '此接口仅在开发环境中启用' });
+  }
+  
+  try {
+    await db.query('BEGIN');
+    
+    // Clear all demo data
+    await db.query('DELETE FROM activities');
+    await db.query('DELETE FROM history');
+    await db.query('DELETE FROM tasks');
+    await db.query('DELETE FROM products');
+    
+    await db.query('COMMIT');
+    
+    res.json({ message: '演示数据已清除' });
+  } catch (err) {
+    console.error('清除演示数据失败:', err);
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('回滚失败:', rollbackErr);
+    }
+    res.status(500).json({ error: '清除演示数据失败' });
+  }
+});
+
 // Start the server
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
