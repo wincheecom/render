@@ -2446,7 +2446,11 @@
                 // 在数据库中，任务完成后会从tasks表移动到history表
                 try {
                     // 从tasks表删除已完成的任务
-                    await this.deleteTask(task.id);
+                    const deleteSuccess = await this.deleteTask(task.id);
+                    if (!deleteSuccess) {
+                        console.error('从任务表删除已完成任务失败');
+                        throw new Error('删除原始任务失败');
+                    }
                     
                     // 添加到history表
                     const response = await fetch(`${this.API_BASE}/api/history`, {
@@ -4604,14 +4608,19 @@
                 return;
             }
             
-            const success = await DataManager.deleteTask(taskId);
-            if (success) {
-                Utils.showAlert('任务删除成功！', 'success', async function() {
-                    await updateDashboard();
-                    (async () => {
+            try {
+                const success = await DataManager.deleteTask(taskId);
+                if (success) {
+                    Utils.showAlert('任务删除成功！', 'success', async function() {
+                        await updateDashboard();
                         await loadSalesPublishedTasks();
-                    })();
-                });
+                    });
+                } else {
+                    Utils.showAlert('删除任务失败，请重试', 'error');
+                }
+            } catch (error) {
+                console.error('删除任务失败:', error);
+                Utils.showAlert('删除任务失败，请稍后重试', 'error');
             }
         }
 
@@ -4964,6 +4973,8 @@
                         await updateDashboard();
                         loadWarehouseTasksList();
                     });
+                } else {
+                    Utils.showAlert('删除任务失败，请重试', 'error');
                 }
             } catch (error) {
                 console.error('删除任务失败:', error);
@@ -5004,7 +5015,12 @@
                     };
                     await DataManager.addToHistory(taskWithPrice);
                     
-                    await DataManager.deleteTask(taskId);
+                    const deleteSuccess = await DataManager.deleteTask(taskId);
+                    if (!deleteSuccess) {
+                        console.error('删除已完成任务失败');
+                        Utils.showAlert('任务已完成但清理失败，请联系管理员', 'error');
+                        return;
+                    }
                     
                     Utils.showAlert('任务已完成发货！', 'success', async function() {
                         expandedTaskId = null;
