@@ -5028,14 +5028,9 @@
                             };
                         })
                     };
-                    await DataManager.addToHistory(taskWithPrice);
                     
-                    const deleteSuccess = await DataManager.deleteTask(taskId);
-                    if (!deleteSuccess) {
-                        console.error('删除已完成任务失败');
-                        Utils.showAlert('任务已完成但清理失败，请联系管理员', 'error');
-                        return;
-                    }
+                    // addToHistory 方法会自动将任务从tasks表移到history表，无需再次删除
+                    await DataManager.addToHistory(taskWithPrice);
                     
                     Utils.showAlert('任务已完成发货！', 'success', async function() {
                         expandedTaskId = null;
