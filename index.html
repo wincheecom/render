@@ -4645,11 +4645,13 @@
                     
                     Utils.showAlert('任务删除成功！', 'success', async function() {
                         await updateDashboard();
-                        // 确保数据完全同步后再重新加载任务列表
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        await loadSalesPublishedTasks();
                         
-                        // 同时更新仓库端的任务列表
+                        // 确保数据完全同步后再重新加载任务列表
+                        // 延长等待时间以确保服务器完全处理删除操作
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        
+                        // 重新加载所有相关的任务列表
+                        await loadSalesPublishedTasks();
                         loadWarehouseTasksList();
                     });
                 } else {
@@ -5053,11 +5055,13 @@
                         }
                         
                         await updateDashboard();
-                        // 确保数据完全同步后再重新加载任务列表
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        loadWarehouseTasksList();
                         
-                        // 同时更新销售运营端的已发布任务列表
+                        // 确保数据完全同步后再重新加载任务列表
+                        // 延长等待时间以确保服务器完全处理删除操作
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        
+                        // 重新加载所有相关的任务列表
+                        loadWarehouseTasksList();
                         await loadSalesPublishedTasks();
                     });
                 } else {
