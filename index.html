@@ -4726,6 +4726,13 @@
                         submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
                         return;
                     }
+                    // 检查最终库存是否足够
+                    if (product.stock < item.quantity) {
+                        Utils.showAlert(`商品 ${product.name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})，请调整数量或刷新页面重新选择商品`, 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                        return;
+                    }
                 }
                 
                 const taskData = {
