@@ -333,8 +333,17 @@
         .card-title {
             font-size: 1.05rem;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 0;
             color: var(--dark);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 15px;
         }
 
         .stat-card {
@@ -1826,8 +1835,8 @@
                 </div>
                 
                 <div class="card">
-                    <div class="card-title">
-                        待发货任务列表
+                    <div class="card-header">
+                        <div class="card-title">待发货任务列表</div>
                         <div class="view-toggle">
                             <button class="btn btn-sm btn-outline-secondary view-btn active" data-view="list" onclick="switchWarehouseView('list')">
                                 <i class="fas fa-list"></i>
