@@ -4632,26 +4632,34 @@
             }
             
             try {
+                // 验证购物车中的商品是否有效
+                if (taskCart.length === 0) {
+                    Utils.showAlert('请至少添加一件商品', 'warning');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                    return;
+                }
+                
                 const products = await DataManager.getAllProducts();
-                let stockError = '';
-                let hasInsufficientStock = false;
+                let validationError = '';
+                let hasValidationError = false;
                 
                 for (const item of taskCart) {
                     const product = products.find(p => p.id === item.productId);
                     if (!product) {
-                        stockError = `商品 ${item.productName} 不存在`;
-                        hasInsufficientStock = true;
+                        validationError = `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在`;
+                        hasValidationError = true;
                         break;
                     }
                     if (product.stock < item.quantity) {
-                        stockError = `商品 ${item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})`;
-                        hasInsufficientStock = true;
+                        validationError = `商品 ${product.name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})`;
+                        hasValidationError = true;
                         break;
                     }
                 }
                 
-                if (hasInsufficientStock) {
-                    Utils.showAlert(stockError, 'error');
+                if (hasValidationError) {
+                    Utils.showAlert(validationError, 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
                     return;
@@ -4680,10 +4688,6 @@
                 };
                 
                 const newTask = await DataManager.addTask(taskData);
-                
-                for (const item of taskCart) {
-                    await DataManager.updateProductStock(item.productId, item.quantity);
-                }
                 
                 Utils.showAlert(`发货任务创建成功！任务号：${newTask.taskNumber}`, 'success', async function() {
                     submitBtn.disabled = false;
