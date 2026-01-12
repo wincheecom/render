@@ -199,7 +199,7 @@ app.get('/api/products', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -220,7 +220,7 @@ app.post('/api/products', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -231,7 +231,7 @@ app.get('/api/tasks', async (req, res) => {
     res.json(result.rows);
   } catch (err) { 
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -300,7 +300,7 @@ app.post('/api/tasks', async (req, res) => {
     } catch (rollbackErr) {
       console.error('回滚失败:', rollbackErr);
     }
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -346,7 +346,7 @@ app.put('/api/tasks/:id', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -388,7 +388,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
     } catch (rollbackErr) {
       console.error('回滚失败:', rollbackErr);
     }
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -436,7 +436,7 @@ app.put('/api/products/:id', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -454,7 +454,7 @@ app.delete('/api/products/:id', async (req, res) => {
     res.json({ message: '产品删除成功' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -465,7 +465,7 @@ app.get('/api/history', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -499,7 +499,7 @@ app.post('/api/history', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -510,7 +510,7 @@ app.get('/api/activities', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
@@ -524,7 +524,7 @@ app.post('/api/activities', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
 
