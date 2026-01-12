@@ -18,6 +18,7 @@ const r2Config = {
     accessKeyId: process.env.R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
+  forcePathStyle: true, // 确保使用路径样式而不是子域名
 };
 
 console.log('R2 配置状态检查:');
@@ -26,7 +27,35 @@ console.log('R2_ENDPOINT:', process.env.R2_ENDPOINT);
 console.log('R2_ACCESS_KEY_ID:', process.env.R2_ACCESS_KEY_ID ? '已设置' : '未设置');
 console.log('R2_BUCKET_NAME:', process.env.R2_BUCKET_NAME);
 
-const r2Client = process.env.R2_ENABLED === 'true' ? new S3Client(r2Config) : null;
+// 检查所有必需的 R2 环境变量是否已设置
+const requiredR2Vars = [
+  'R2_ENABLED',
+  'R2_ENDPOINT', 
+  'R2_ACCESS_KEY_ID', 
+  'R2_SECRET_ACCESS_KEY',
+  'R2_BUCKET_NAME',
+  'R2_PUBLIC_URL'
+];
+
+const missingR2Vars = requiredR2Vars.filter(varName => !process.env[varName]);
+
+if (missingR2Vars.length > 0) {
+  console.log('警告: 缺少以下 R2 环境变量:', missingR2Vars);
+}
+
+let r2Client = null;
+try {
+  if (process.env.R2_ENABLED === 'true' && missingR2Vars.length === 0) {
+    r2Client = new S3Client(r2Config);
+    console.log('R2 客户端初始化成功');
+  } else {
+    console.log('R2 未启用或缺少必要环境变量，跳过 R2 客户端初始化');
+  }
+} catch (error) {
+  console.error('R2 客户端初始化失败:', error.message);
+  r2Client = null;
+}
+
 console.log('R2 客户端初始化完成:', !!r2Client);
 
 // 尝试连接到 PostgreSQL，如果失败则使用简化数据库
