@@ -604,6 +604,44 @@ async function deleteImageFromR2(url) {
   }
 }
 
+// R2 连接测试 API
+app.get('/api/r2-test', async (req, res) => {
+  if (!r2Client || process.env.R2_ENABLED !== 'true') {
+    return res.status(400).json({ success: false, error: 'R2 未启用或配置不正确' });
+  }
+  
+  try {
+    // 从 AWS SDK 导入必要的模块
+    const { ListObjectsV2Command } = require('@aws-sdk/client-s3');
+    const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+    
+    // 1. 测试列出文件
+    const listCmd = new ListObjectsV2Command({ Bucket: process.env.R2_BUCKET_NAME });
+    const listResult = await r2Client.send(listCmd);
+    
+    // 2. 生成一个测试上传URL
+    const testFileName = `test-${Date.now()}.txt`;
+    const uploadCmd = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: testFileName,
+      ContentType: 'text/plain',
+    });
+    
+    const signedUrl = await getSignedUrl(r2Client, uploadCmd, { expiresIn: 60 });
+    
+    res.json({
+      success: true,
+      message: 'R2 配置成功！',
+      existingFiles: listResult.Contents?.map(f => f.Key) || [],
+      testUploadUrl: signedUrl,
+      testFileUrl: `${process.env.R2_PUBLIC_URL}/${testFileName}`,
+    });
+  } catch (error) {
+    console.error('R2 测试失败:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // API endpoint to clear demo data (only for development)
 app.post('/api/clear-demo-data', async (req, res) => {
   if (process.env.NODE_ENV !== 'development' && !process.env.CLEAR_DATA_ENABLED) {
