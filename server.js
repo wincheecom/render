@@ -19,7 +19,14 @@ const r2Config = {
   },
 };
 
+console.log('R2 配置状态检查:');
+console.log('R2_ENABLED:', process.env.R2_ENABLED);
+console.log('R2_ENDPOINT:', process.env.R2_ENDPOINT);
+console.log('R2_ACCESS_KEY_ID:', process.env.R2_ACCESS_KEY_ID ? '已设置' : '未设置');
+console.log('R2_BUCKET_NAME:', process.env.R2_BUCKET_NAME);
+
 const r2Client = process.env.R2_ENABLED === 'true' ? new S3Client(r2Config) : null;
+console.log('R2 客户端初始化完成:', !!r2Client);
 
 // 尝试连接到 PostgreSQL，如果失败则使用简化数据库
 const initDB = async () => {
@@ -531,7 +538,10 @@ app.post('/api/activities', async (req, res) => {
 
 // 辅助函数：将图片上传到 R2 存储
 async function uploadImageToR2(imageBase64, filename) {
+  console.log('uploadImageToR2 被调用，R2_ENABLED:', process.env.R2_ENABLED);
+  console.log('r2Client 是否存在:', !!r2Client);
   if (!r2Client || process.env.R2_ENABLED !== 'true') {
+    console.log('R2 未启用或配置不正确，返回 base64 数据');
     // 如果 R2 未启用，返回原始 base64 数据
     return imageBase64;
   }
@@ -569,7 +579,9 @@ async function uploadImageToR2(imageBase64, filename) {
 
 // 辅助函数：从 R2 删除图片
 async function deleteImageFromR2(url) {
+  console.log('deleteImageFromR2 被调用，R2_ENABLED:', process.env.R2_ENABLED);
   if (!r2Client || process.env.R2_ENABLED !== 'true') {
+    console.log('R2 未启用或配置不正确，跳过删除');
     return;
   }
 
