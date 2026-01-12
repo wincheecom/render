@@ -19,6 +19,7 @@ const r2Config = {
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
   forcePathStyle: true, // 确保使用路径样式而不是子域名
+  signatureVersion: 'v4', // 明确指定签名版本
 };
 
 console.log('R2 配置状态检查:');
@@ -44,12 +45,19 @@ if (missingR2Vars.length > 0) {
 }
 
 let r2Client = null;
+
+// 验证凭证是否有效
+const isValidCredentials = process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY;
+
 try {
-  if (process.env.R2_ENABLED === 'true' && missingR2Vars.length === 0) {
+  if (process.env.R2_ENABLED === 'true' && missingR2Vars.length === 0 && isValidCredentials) {
     r2Client = new S3Client(r2Config);
     console.log('R2 客户端初始化成功');
   } else {
-    console.log('R2 未启用或缺少必要环境变量，跳过 R2 客户端初始化');
+    console.log('R2 未启用、缺少必要环境变量或凭证无效，跳过 R2 客户端初始化');
+    if (!isValidCredentials) {
+      console.log('凭证无效: R2_ACCESS_KEY_ID 或 R2_SECRET_ACCESS_KEY 未设置');
+    }
   }
 } catch (error) {
   console.error('R2 客户端初始化失败:', error.message);
