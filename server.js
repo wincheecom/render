@@ -63,6 +63,14 @@ setTimeout(async () => {
           )`
         );
         
+        // 检查并添加 image 列（如果不存在）
+        try {
+          await db.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS image TEXT;');
+        } catch (err) {
+          // 如果列已存在，ALTER COLUMN 会抛出错误，这是正常的
+          console.log('Image column check completed');
+        }
+        
         await db.query(
           `CREATE TABLE IF NOT EXISTS tasks (
             "id" SERIAL PRIMARY KEY,
@@ -630,6 +638,14 @@ setTimeout(async () => {
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`
     );
+    
+    // 检查并添加 image 列（如果不存在）
+    try {
+      await db.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS image TEXT;');
+    } catch (err) {
+      // 如果列已存在，ALTER COLUMN 会抛出错误，这是正常的
+      console.log('Image column check completed');
+    }
         
     await db.query(
       `CREATE TABLE IF NOT EXISTS tasks (
