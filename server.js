@@ -65,10 +65,21 @@ setTimeout(async () => {
         
         // 检查并添加 image 列（如果不存在）
         try {
-          await db.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS image TEXT;');
+          // 首先检查列是否存在
+          const result = await db.query(
+            "SELECT column_name FROM information_schema.columns " +
+            "WHERE table_name='products' AND column_name='image';"
+          );
+          
+          if (result.rows.length === 0) {
+            // 如果列不存在，则添加它
+            await db.query('ALTER TABLE products ADD COLUMN image TEXT;');
+            console.log('Image column added to products table');
+          } else {
+            console.log('Image column already exists in products table');
+          }
         } catch (err) {
-          // 如果列已存在，ALTER COLUMN 会抛出错误，这是正常的
-          console.log('Image column check completed');
+          console.log('Error checking/adding image column:', err.message);
         }
         
         await db.query(
@@ -641,10 +652,21 @@ setTimeout(async () => {
     
     // 检查并添加 image 列（如果不存在）
     try {
-      await db.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS image TEXT;');
+      // 首先检查列是否存在
+      const result = await db.query(
+        "SELECT column_name FROM information_schema.columns " +
+        "WHERE table_name='products' AND column_name='image';"
+      );
+      
+      if (result.rows.length === 0) {
+        // 如果列不存在，则添加它
+        await db.query('ALTER TABLE products ADD COLUMN image TEXT;');
+        console.log('Image column added to products table');
+      } else {
+        console.log('Image column already exists in products table');
+      }
     } catch (err) {
-      // 如果列已存在，ALTER COLUMN 会抛出错误，这是正常的
-      console.log('Image column check completed');
+      console.log('Error checking/adding image column:', err.message);
     }
         
     await db.query(
