@@ -1,4 +1,6 @@
 require('dotenv').config();
+// 抑制 AWS SDK 弃用警告
+process.env.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE = '1';
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
