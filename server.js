@@ -4,7 +4,8 @@ process.env.AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE = '1';
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 // 动态加载数据库模块
 let db;
@@ -611,10 +612,6 @@ app.get('/api/r2-test', async (req, res) => {
   }
   
   try {
-    // 从 AWS SDK 导入必要的模块
-    const { ListObjectsV2Command } = require('@aws-sdk/client-s3');
-    const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-    
     // 1. 测试列出文件
     const listCmd = new ListObjectsV2Command({ Bucket: process.env.R2_BUCKET_NAME });
     const listResult = await r2Client.send(listCmd);
