@@ -1,0 +1,238 @@
+/**
+ * 简化数据库模块 - 使用 JSON 文件存储数据
+ * 用于在没有 PostgreSQL 的环境下运行应用
+ */
+
+const fs = require('fs').promises;
+const path = require('path');
+
+// 数据文件路径
+const DATA_FILE = path.join(__dirname, 'data.json');
+
+// 默认数据结构
+const DEFAULT_DATA = {
+  products: [],
+  tasks: [],
+  history: [],
+  activities: []
+};
+
+class SimpleDB {
+  constructor() {
+    this.data = { ...DEFAULT_DATA };
+    this.loadFromFile();
+  }
+
+  // 从文件加载数据
+  async loadFromFile() {
+    try {
+      const fileContent = await fs.readFile(DATA_FILE, 'utf8');
+      if (fileContent.trim() === '') {
+        // 如果文件为空，使用默认数据
+        this.data = { ...DEFAULT_DATA };
+      } else {
+        this.data = JSON.parse(fileContent);
+      }
+    } catch (error) {
+      // 文件不存在或格式错误，使用默认数据
+      this.data = { ...DEFAULT_DATA };
+      await this.saveToFile();
+    }
+  }
+
+  // 保存数据到文件
+  async saveToFile() {
+    try {
+      await fs.writeFile(DATA_FILE, JSON.stringify(this.data, null, 2));
+    } catch (error) {
+      console.error('保存数据失败:', error);
+    }
+  }
+
+  // 查询数据
+  async query(sql, params = []) {
+    // 模拟 SQL 查询，根据查询语句返回对应数据
+    if (sql.includes('SELECT * FROM products')) {
+      return {
+        rows: this.data.products,
+        rowCount: this.data.products.length
+      };
+    } else if (sql.includes('INSERT INTO products')) {
+      // 解析参数并插入产品
+      const [, product_code, product_name, product_supplier, quantity, purchase_price, sale_price] = params;
+      const newProduct = {
+        id: Date.now().toString(), // 简单的 ID 生成
+        product_code,
+        product_name,
+        product_supplier,
+        quantity: parseInt(quantity),
+        purchase_price: parseFloat(purchase_price),
+        sale_price: parseFloat(sale_price),
+        created_at: new Date().toISOString()
+      };
+      this.data.products.push(newProduct);
+      await this.saveToFile();
+      return {
+        rows: [newProduct],
+        rowCount: 1
+      };
+    } else if (sql.includes('SELECT * FROM tasks')) {
+      return {
+        rows: this.data.tasks,
+        rowCount: this.data.tasks.length
+      };
+    } else if (sql.includes('INSERT INTO tasks')) {
+      const [, task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image] = params;
+      const newTask = {
+        id: Date.now().toString(),
+        task_number,
+        status,
+        items: typeof items === 'string' && items ? JSON.parse(items) : items,
+        body_code_image,
+        barcode_image,
+        warning_code_image,
+        label_image,
+        created_at: new Date().toISOString()
+      };
+      this.data.tasks.push(newTask);
+      await this.saveToFile();
+      return {
+        rows: [newTask],
+        rowCount: 1
+      };
+    } else if (sql.includes('SELECT * FROM history')) {
+      return {
+        rows: this.data.history,
+        rowCount: this.data.history.length
+      };
+    } else if (sql.includes('INSERT INTO history')) {
+      const [, task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at] = params;
+      const newHistory = {
+        id: Date.now().toString(),
+        task_number,
+        status,
+        items: typeof items === 'string' && items ? JSON.parse(items) : items,
+        body_code_image,
+        barcode_image,
+        warning_code_image,
+        label_image,
+        created_at: new Date().toISOString(),
+        completed_at: completed_at || new Date().toISOString()
+      };
+      this.data.history.push(newHistory);
+      await this.saveToFile();
+      return {
+        rows: [newHistory],
+        rowCount: 1
+      };
+    } else if (sql.includes('SELECT * FROM activities')) {
+      return {
+        rows: this.data.activities,
+        rowCount: this.data.activities.length
+      };
+    } else if (sql.includes('INSERT INTO activities')) {
+      const [, time, type, details, actor] = params;
+      const newActivity = {
+        id: Date.now().toString(),
+        time,
+        type,
+        details,
+        actor,
+        created_at: new Date().toISOString()
+      };
+      this.data.activities.push(newActivity);
+      await this.saveToFile();
+      return {
+        rows: [newActivity],
+        rowCount: 1
+      };
+    } else if (sql.includes('UPDATE products')) {
+      // 处理更新产品库存
+      const matches = sql.match(/SET "quantity" = "quantity" - \$(\d+) WHERE "id" = \$(\d+)/);
+      if (matches) {
+        const quantityParamIndex = parseInt(matches[1]) - 1;
+        const idParamIndex = parseInt(matches[2]) - 1;
+        const quantityToSubtract = parseInt(params[quantityParamIndex]);
+        const productId = params[idParamIndex];
+        
+        const product = this.data.products.find(p => p.id == productId);
+        if (product) {
+          product.quantity -= quantityToSubtract;
+          await this.saveToFile();
+        }
+      }
+      return { rowCount: 1 };
+    } else if (sql.includes('DELETE FROM')) {
+      if (sql.includes('FROM tasks WHERE')) {
+        const id = params[0];
+        const initialLength = this.data.tasks.length;
+        this.data.tasks = this.data.tasks.filter(t => t.id != id);
+        await this.saveToFile();
+        return { rowCount: initialLength - this.data.tasks.length };
+      } else if (sql.includes('FROM products WHERE')) {
+        const id = params[0];
+        const initialLength = this.data.products.length;
+        this.data.products = this.data.products.filter(p => p.id != id);
+        await this.saveToFile();
+        return { rowCount: initialLength - this.data.products.length };
+      }
+    } else if (sql.includes('COUNT(*) FROM')) {
+      if (sql.includes('products')) {
+        return { rows: [{ count: this.data.products.length }] };
+      } else if (sql.includes('tasks')) {
+        return { rows: [{ count: this.data.tasks.length }] };
+      } else if (sql.includes('history')) {
+        return { rows: [{ count: this.data.history.length }] };
+      } else if (sql.includes('activities')) {
+        return { rows: [{ count: this.data.activities.length }] };
+      }
+    }
+
+    return { rows: [], rowCount: 0 };
+  }
+
+  // 专门的更新方法
+  async update(table, id, updates) {
+    if (table === 'products') {
+      const index = this.data.products.findIndex(p => p.id == id);
+      if (index !== -1) {
+        this.data.products[index] = { ...this.data.products[index], ...updates };
+        await this.saveToFile();
+        return { rows: [this.data.products[index]], rowCount: 1 };
+      }
+    } else if (table === 'tasks') {
+      const index = this.data.tasks.findIndex(t => t.id == id);
+      if (index !== -1) {
+        this.data.tasks[index] = { ...this.data.tasks[index], ...updates };
+        await this.saveToFile();
+        return { rows: [this.data.tasks[index]], rowCount: 1 };
+      }
+    }
+    return { rowCount: 0 };
+  }
+
+  // 专门的删除方法
+  async delete(table, id) {
+    let initialLength;
+    if (table === 'products') {
+      initialLength = this.data.products.length;
+      this.data.products = this.data.products.filter(p => p.id != id);
+    } else if (table === 'tasks') {
+      initialLength = this.data.tasks.length;
+      this.data.tasks = this.data.tasks.filter(t => t.id != id);
+    }
+    
+    await this.saveToFile();
+    return { rowCount: initialLength - (table === 'products' ? this.data.products.length : this.data.tasks.length) };
+  }
+}
+
+// 创建实例
+const db = new SimpleDB();
+
+// 导出查询方法
+module.exports = {
+  query: (text, params) => db.query(text, params),
+  update: (table, id, updates) => db.update(table, id, updates),
+  delete: (table, id) => db.delete(table, id)
+};

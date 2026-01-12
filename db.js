@@ -10,44 +10,8 @@ const pool = new Pool({
   idleTimeoutMillis: 30000
 });
 
-// 测试数据库连接
-setTimeout(async () => {
-  let attempts = 0;
-  const maxAttempts = 5;
-  
-  while (attempts < maxAttempts) {
-    try {
-      const res = await pool.query('SELECT NOW()');
-      console.log('数据库连接成功');
-      // 等待片刻确保表已创建
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      await initializeDatabase();
-      break; // 成功则退出循环
-    } catch (err) {
-      attempts++;
-      console.error(`数据库连接失败 (尝试 ${attempts}/${maxAttempts}):`, err.stack);
-      
-      // 检查错误类型
-      if (err.code === 'ENOTFOUND') {
-        console.log('无法解析数据库主机地址，请检查网络连接和数据库配置');
-        console.log('可能的原因：数据库实例已被删除、重建或地址已更改');
-        console.log('请登录 Render 控制台获取最新的数据库连接信息');
-      } else if (err.code === '3D000' || err.message.includes('does not exist')) {
-        console.log('数据库不存在，请确保数据库已正确创建');
-      } else {
-        console.log('数据库连接失败，错误详情：', err.message);
-      }
-      
-      if (attempts >= maxAttempts) {
-        console.log('已达到最大重试次数，放弃连接');
-        break;
-      }
-      
-      // 等待一段时间再重试
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-  }
-}, 4000);  // 延长初始延迟时间以确保 server.js 中的表创建先执行
+// 仅导出查询方法，数据库连接测试由 server.js 控制
+// 如果需要连接测试，将在 server.js 中处理
 
 // 初始化数据库，添加示例数据
 async function initializeDatabase() {

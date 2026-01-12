@@ -29,6 +29,18 @@ services:
         fromDatabase:
           name: funseek-db
           property: port
+      - key: R2_ENABLED
+        value: true
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        sync: false
+      - key: R2_PUBLIC_URL
+        sync: false
 
 
 databases:

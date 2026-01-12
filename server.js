@@ -2,7 +2,115 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const db = require('./db');
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+
+// 动态加载数据库模块
+let db;
+
+// 初始化 Cloudflare R2 客户端
+const r2Config = {
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+};
+
+const r2Client = process.env.R2_ENABLED === 'true' ? new S3Client(r2Config) : null;
+
+// 尝试连接到 PostgreSQL，如果失败则使用简化数据库
+const initDB = async () => {
+  try {
+    // 尝试导入 PostgreSQL 数据库模块
+    const pgDb = require('./db');
+    
+    // 测试连接
+    await pgDb.query('SELECT NOW()');
+    db = pgDb;
+    console.log('使用 PostgreSQL 数据库');
+  } catch (error) {
+    // 如果 PostgreSQL 不可用，则使用简化数据库
+    console.log('PostgreSQL 不可用，使用简化数据库');
+    db = require('./simple_db');
+  }
+};
+
+// 初始化数据库连接
+initDB();
+
+// 初始化数据库表（仅在使用 PostgreSQL 时）
+setTimeout(async () => {
+  // 检查当前使用的数据库类型
+  if (db && typeof db.query === 'function') {
+    // 简单判断是否为简化数据库（通过检查是否包含特定方法）
+    if (db.constructor && db.constructor.toString().includes('SimpleDB')) {
+      console.log('使用简化数据库，跳过表创建');
+    } else {
+      try {
+        // Create tables individually to avoid any parsing issues
+        await db.query(
+          `CREATE TABLE IF NOT EXISTS products (
+            "id" SERIAL PRIMARY KEY,
+            "product_code" VARCHAR(255) NOT NULL,
+            "product_name" VARCHAR(255) NOT NULL,
+            "product_supplier" VARCHAR(255),
+            "quantity" INTEGER DEFAULT 0,
+            "purchase_price" DECIMAL(10, 2),
+            "sale_price" DECIMAL(10, 2),
+            "image" TEXT,
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )`
+        );
+        
+        await db.query(
+          `CREATE TABLE IF NOT EXISTS tasks (
+            "id" SERIAL PRIMARY KEY,
+            "task_number" VARCHAR(255) NOT NULL,
+            "status" VARCHAR(50) DEFAULT 'pending',
+            "items" JSONB,
+            "body_code_image" TEXT,
+            "barcode_image" TEXT,
+            "warning_code_image" TEXT,
+            "label_image" TEXT,
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "completed_at" TIMESTAMP
+          )`
+        );
+        
+        await db.query(
+          `CREATE TABLE IF NOT EXISTS history (
+            "id" SERIAL PRIMARY KEY,
+            "task_number" VARCHAR(255) NOT NULL,
+            "status" VARCHAR(50),
+            "items" JSONB,
+            "body_code_image" TEXT,
+            "barcode_image" TEXT,
+            "warning_code_image" TEXT,
+            "label_image" TEXT,
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "completed_at" TIMESTAMP
+          )`
+        );
+        
+        await db.query(
+          `CREATE TABLE IF NOT EXISTS activities (
+            "id" SERIAL PRIMARY KEY,
+            "time" VARCHAR(255),
+            "type" VARCHAR(50),
+            "details" TEXT,
+            "actor" VARCHAR(255),
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )`
+        );
+        
+        console.log('数据库表初始化完成');
+      } catch (err) {
+        console.error('数据库表初始化错误:', err);
+      }
+    }
+  }
+}, 2000);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,10 +184,17 @@ app.get('/api/products', async (req, res) => {
 
 app.post('/api/products', async (req, res) => {
   try {
-    const { product_code, product_name, product_supplier, quantity, purchase_price, sale_price } = req.body;
+    const { product_code, product_name, product_supplier, quantity, purchase_price, sale_price, image } = req.body;
+    
+    // 如果有图片，上传到 R2
+    let imageUrl = image;
+    if (image && image.startsWith('data:image')) {
+      imageUrl = await uploadImageToR2(image, `${product_code}_product.jpg`);
+    }
+    
     const result = await db.query(
-      'INSERT INTO products ("product_code", "product_name", "product_supplier", "quantity", "purchase_price", "sale_price", "created_at") VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *',
-      [product_code, product_name, product_supplier, quantity, purchase_price, sale_price]
+      'INSERT INTO products ("product_code", "product_name", "product_supplier", "quantity", "purchase_price", "sale_price", "image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
+      [product_code, product_name, product_supplier, quantity, purchase_price, sale_price, imageUrl]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -103,6 +218,25 @@ app.post('/api/tasks', async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
     
+    // 如果有图片，上传到 R2
+    let bodyCodeImageUrl = body_code_image;
+    let barcodeImageUrl = barcode_image;
+    let warningCodeImageUrl = warning_code_image;
+    let labelImageUrl = label_image;
+    
+    if (body_code_image && body_code_image.startsWith('data:image')) {
+      bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code.jpg`);
+    }
+    if (barcode_image && barcode_image.startsWith('data:image')) {
+      barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number}_barcode.jpg`);
+    }
+    if (warning_code_image && warning_code_image.startsWith('data:image')) {
+      warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number}_warning_code.jpg`);
+    }
+    if (label_image && label_image.startsWith('data:image')) {
+      labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label.jpg`);
+    }
+    
     // 在事务中进行验证和创建任务，防止并发冲突
     await db.query('BEGIN');
     
@@ -124,7 +258,7 @@ app.post('/api/tasks', async (req, res) => {
     
     const result = await db.query(
       'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
-      [task_number, status, JSON.stringify(items), body_code_image, barcode_image, warning_code_image, label_image]
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl]
     );
     
     // 更新相关产品的库存
@@ -154,6 +288,14 @@ app.put('/api/tasks/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
     
+    // 如果有图片，上传到 R2
+    const imageFields = ['body_code_image', 'barcode_image', 'warning_code_image', 'label_image'];
+    for (const field of imageFields) {
+      if (updates[field] && updates[field].startsWith('data:image')) {
+        updates[field] = await uploadImageToR2(updates[field], `${id}_${field}.jpg`);
+      }
+    }
+    
     // 构建动态更新查询
     const updateFields = [];
     const values = [];
@@ -162,7 +304,11 @@ app.put('/api/tasks/:id', async (req, res) => {
     for (const [key, value] of Object.entries(updates)) {
       if (key !== 'id') {
         updateFields.push(`"${key}" = $${paramIndex}`);
-        values.push(key === 'items' ? JSON.stringify(value) : value);
+        if (key === 'items') {
+          values.push(JSON.stringify(value));
+        } else {
+          values.push(value);
+        }
         paramIndex++;
       }
     }
@@ -231,6 +377,15 @@ app.put('/api/products/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
     
+    // 如果有图片，上传到 R2
+    if (updates.image && updates.image.startsWith('data:image')) {
+      // 获取当前产品信息以获取产品代码
+      const currentProduct = await db.query('SELECT product_code FROM products WHERE "id" = $1', [id]);
+      if (currentProduct.rows.length > 0) {
+        updates.image = await uploadImageToR2(updates.image, `${currentProduct.rows[0].product_code}_product.jpg`);
+      }
+    }
+    
     // 构建动态更新查询
     const updateFields = [];
     const values = [];
@@ -239,7 +394,11 @@ app.put('/api/products/:id', async (req, res) => {
     for (const [key, value] of Object.entries(updates)) {
       if (key !== 'id') {
         updateFields.push(`"${key}" = $${paramIndex}`);
-        values.push(value);
+        if (key === 'items') {
+          values.push(JSON.stringify(value));
+        } else {
+          values.push(value);
+        }
         paramIndex++;
       }
     }
@@ -292,9 +451,29 @@ app.get('/api/history', async (req, res) => {
 app.post('/api/history', async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at } = req.body;
+    
+    // 如果有图片，上传到 R2
+    let bodyCodeImageUrl = body_code_image;
+    let barcodeImageUrl = barcode_image;
+    let warningCodeImageUrl = warning_code_image;
+    let labelImageUrl = label_image;
+    
+    if (body_code_image && body_code_image.startsWith('data:image')) {
+      bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code_history.jpg`);
+    }
+    if (barcode_image && barcode_image.startsWith('data:image')) {
+      barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number}_barcode_history.jpg`);
+    }
+    if (warning_code_image && warning_code_image.startsWith('data:image')) {
+      warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number}_warning_code_history.jpg`);
+    }
+    if (label_image && label_image.startsWith('data:image')) {
+      labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label_history.jpg`);
+    }
+    
     const result = await db.query(
       'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8) RETURNING *',
-      [task_number, status, JSON.stringify(items), body_code_image, barcode_image, warning_code_image, label_image, completed_at || new Date().toISOString()]
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, completed_at || new Date().toISOString()]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -327,6 +506,69 @@ app.post('/api/activities', async (req, res) => {
     res.status(500).json({ error: '服务器错误' });
   }
 });
+
+// 辅助函数：将图片上传到 R2 存储
+async function uploadImageToR2(imageBase64, filename) {
+  if (!r2Client || process.env.R2_ENABLED !== 'true') {
+    // 如果 R2 未启用，返回原始 base64 数据
+    return imageBase64;
+  }
+
+  try {
+    // 从 base64 数据中提取 MIME 类型
+    const matches = imageBase64.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) throw new Error('Invalid base64 image string');
+    
+    const mimeType = matches[1];
+    const imageData = Buffer.from(matches[2], 'base64');
+    
+    // 生成唯一文件名
+    const uniqueFilename = `${Date.now()}-${filename}`;
+    
+    const params = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: `images/${uniqueFilename}`,
+      Body: imageData,
+      ContentType: mimeType,
+    };
+    
+    const command = new PutObjectCommand(params);
+    await r2Client.send(command);
+    
+    // 返回 R2 存储的 URL
+    const imageUrl = `${process.env.R2_PUBLIC_URL}/images/${uniqueFilename}`;
+    return imageUrl;
+  } catch (error) {
+    console.error('上传到 R2 失败:', error);
+    // 如果 R2 上传失败，返回原始 base64 数据
+    return imageBase64;
+  }
+}
+
+// 辅助函数：从 R2 删除图片
+async function deleteImageFromR2(url) {
+  if (!r2Client || process.env.R2_ENABLED !== 'true') {
+    return;
+  }
+
+  try {
+    // 从 URL 提取文件键
+    const publicUrl = process.env.R2_PUBLIC_URL;
+    if (url.startsWith(publicUrl)) {
+      const key = url.substring(publicUrl.length + 1); // +1 for leading slash
+      
+      const deleteParams = {
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: key,
+      };
+      
+      const command = new DeleteObjectCommand(deleteParams);
+      await r2Client.send(command);
+    }
+  } catch (error) {
+    console.error('从 R2 删除图片失败:', error);
+  }
+}
 
 // API endpoint to clear demo data (only for development)
 app.post('/api/clear-demo-data', async (req, res) => {
@@ -384,6 +626,7 @@ setTimeout(async () => {
         "quantity" INTEGER DEFAULT 0,
         "purchase_price" DECIMAL(10, 2),
         "sale_price" DECIMAL(10, 2),
+        "image" TEXT,
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`
     );
