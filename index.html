@@ -2213,6 +2213,17 @@
                     return 'image';
                 }
                 return 'unknown';
+            },
+            
+            onImageError(imgElement) {
+                // 当图片加载失败时，显示默认图片
+                imgElement.onerror = null; // 防止循环调用
+                imgElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yNSA2NUgyNS4wMDAxTDQwIDQwTDU1IDU1TDc1IDM1SDc1LjAwMDFMNzUgNjVaIiBzdHJva2U9IiNGRkYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNNzAgNTBDMCUwMCBDNjAgNjAgODAgODAgODAgODBIMjBaIiBzdHJva2U9IiNGRkYiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4='; // 灰色占位符 SVG
+                imgElement.alt = '图片加载失败';
+                imgElement.style.backgroundColor = '#f0f0f0';
+                imgElement.style.display = 'flex';
+                imgElement.style.alignItems = 'center';
+                imgElement.style.justifyContent = 'center';
             }
         };
 
@@ -3249,7 +3260,7 @@
                     <button type="button" class="upload-remove-btn" onclick="resetProductImageUpload()">
                         <i class="fas fa-times"></i>
                     </button>
-                    <img src="${productImagePreview}" class="upload-preview" alt="产品图片预览">
+                    <img src="${productImagePreview}" class="upload-preview" alt="产品图片预览" onerror="Utils.onImageError(this)">
                     <input type="file" id="productImageFile" accept="image/*" class="hidden">
                 `;
                 uploadArea.classList.add('has-image');
@@ -3418,7 +3429,7 @@
                         <div class="recent-product-layout">
                             <div class="recent-product-img-container">
                                 ${product.image ? 
-                                    `<img src="${product.image}" alt="${product.name}" class="recent-product-img">` : 
+                                    `<img src="${product.image}" alt="${product.name}" class="recent-product-img" onerror="Utils.onImageError(this)">` : 
                                     '<div class="text-center text-muted"><i class="fas fa-image fa-lg"></i></div>'
                                 }
                             </div>
@@ -3469,7 +3480,7 @@
                     <tr>
                         <td>
                             ${product.image ? 
-                                `<img src="${product.image}" alt="${product.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;">` : 
+                                `<img src="${product.image}" alt="${product.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="Utils.onImageError(this)">` : 
                                 '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
                             }
                         </td>
@@ -3523,7 +3534,7 @@
                 <div class="gallery-item">
                     <div class="gallery-img">
                         ${product.image ? 
-                            `<img src="${product.image}" alt="${product.name}" class="gallery-img" style="object-fit: cover; width: 100%; height: 100%;">` : 
+                            `<img src="${product.image}" alt="${product.name}" class="gallery-img" style="object-fit: cover; width: 100%; height: 100%;" onerror="Utils.onImageError(this)">` : 
                             '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
                         }
                     </div>
@@ -3755,7 +3766,7 @@
                     <tr>
                         <td>
                             ${product.image ? 
-                                `<img src="${product.image}" alt="${product.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;">` : 
+                                `<img src="${product.image}" alt="${product.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="Utils.onImageError(this)">` : 
                                 '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
                             }
                         </td>
@@ -3960,7 +3971,7 @@
                     `;
                 } else {
                     previewHtml = `
-                        <img src="${taskBodyCodePreview}" class="upload-preview" alt="本体码预览">
+                        <img src="${taskBodyCodePreview}" class="upload-preview" alt="本体码预览" onerror="Utils.onImageError(this)">
                         <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskBodyCodeFileName}</div>
                         <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传本体码文件</div>
                     `;
@@ -4070,7 +4081,7 @@
                     `;
                 } else {
                     previewHtml = `
-                        <img src="${taskWarningCodePreview}" class="upload-preview" alt="警示码预览">
+                        <img src="${taskWarningCodePreview}" class="upload-preview" alt="警示码预览" onerror="Utils.onImageError(this)">
                         <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskWarningCodeFileName}</div>
                         <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传警示码文件</div>
                     `;
@@ -4180,7 +4191,7 @@
                     `;
                 } else {
                     previewHtml = `
-                        <img src="${taskBarcodePreview}" class="upload-preview" alt="条码预览">
+                        <img src="${taskBarcodePreview}" class="upload-preview" alt="条码预览" onerror="Utils.onImageError(this)">
                         <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskBarcodeFileName}</div>
                         <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传条码文件</div>
                     `;
@@ -4296,7 +4307,7 @@
                     `;
                 } else {
                     previewHtml = `
-                        <img src="${taskLabelPreview}" class="upload-preview" alt="箱唛预览">
+                        <img src="${taskLabelPreview}" class="upload-preview" alt="箱唛预览" onerror="Utils.onImageError(this)">
                         <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskLabelFileName}</div>
                         <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传箱唛文件</div>
                     `;
@@ -4521,7 +4532,7 @@
                 <tr>
                     <td>
                         ${item.productImage ? 
-                            `<img src="${item.productImage}" alt="${item.productName}" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;">` : 
+                            `<img src="${item.productImage}" alt="${item.productName}" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="Utils.onImageError(this)">` : 
                             '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
                         }
                     </td>
@@ -4924,7 +4935,7 @@
                                         <div class="task-front">
                                             <div class="task-gallery-img">
                                                 ${firstItemImage ? 
-                                                    `<img src="${firstItemImage}" alt="产品图片">` : 
+                                                    `<img src="${firstItemImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
                                                     '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
                                                 }
                                             </div>
@@ -5137,7 +5148,7 @@
                         </style>
                     </head>
                     <body>
-                        <img src="${task.bodyCodeImage}" alt="任务本体码">
+                        <img src="${task.bodyCodeImage}" alt="任务本体码" onerror="Utils.onImageError(this)">
                         <div class="image-info">
                             <h3>任务本体码</h3>
                             <p>任务号: ${task.taskNumber}</p>
@@ -5192,7 +5203,7 @@
                         </style>
                     </head>
                     <body>
-                        <img src="${task.barcodeImage}" alt="任务条码">
+                        <img src="${task.barcodeImage}" alt="任务条码" onerror="Utils.onImageError(this)">
                         <div class="image-info">
                             <h3>任务条码</h3>
                             <p>任务号: ${task.taskNumber}</p>
@@ -5247,7 +5258,7 @@
                         </style>
                     </head>
                     <body>
-                        <img src="${task.warningCodeImage}" alt="任务警示码">
+                        <img src="${task.warningCodeImage}" alt="任务警示码" onerror="Utils.onImageError(this)">
                         <div class="image-info">
                             <h3>任务警示码</h3>
                             <p>任务号: ${task.taskNumber}</p>
@@ -5302,7 +5313,7 @@
                         </style>
                     </head>
                     <body>
-                        <img src="${task.labelImage}" alt="任务箱唛">
+                        <img src="${task.labelImage}" alt="任务箱唛" onerror="Utils.onImageError(this)">
                         <div class="image-info">
                             <h3>任务箱唛</h3>
                             <p>任务号: ${task.taskNumber}</p>
