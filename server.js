@@ -140,8 +140,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 // Parse JSON bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// 增加请求大小限制以支持图片上传
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname)));
