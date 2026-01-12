@@ -4887,10 +4887,23 @@
                 console.error('创建任务失败:', error);
                 // 检查错误消息是否与商品不存在有关
                 let errorMessage = '创建任务失败，请稍后重试';
-                if (error.message && typeof error.message === 'string' && error.message.includes('商品') && (error.message.includes('不存在') || error.message.includes('不存在或已被删除'))) {
-                    errorMessage = `创建任务失败：${error.message}。请刷新页面重新选择商品。`;
-                } else if (error.message && typeof error.message === 'string') {
-                    errorMessage = `创建任务失败：${error.message}`;
+                if (error.message && typeof error.message === 'string') {
+                    if (error.message.includes('商品') && (error.message.includes('不存在') || error.message.includes('不存在或已被删除'))) {
+                        errorMessage = `创建任务失败：${error.message}。请刷新页面重新选择商品。`;
+                    } else if (error.message.includes('库存不足')) {
+                        errorMessage = `创建任务失败：${error.message}。请调整数量或刷新页面重新选择商品。`;
+                    } else {
+                        errorMessage = `创建任务失败：${error.message}`;
+                    }
+                } else if (error.error && typeof error.error === 'string') {
+                    // 如果错误对象包含 error 属性
+                    if (error.error.includes('商品') && (error.error.includes('不存在') || error.error.includes('不存在或已被删除'))) {
+                        errorMessage = `创建任务失败：${error.error}。请刷新页面重新选择商品。`;
+                    } else if (error.error.includes('库存不足')) {
+                        errorMessage = `创建任务失败：${error.error}。请调整数量或刷新页面重新选择商品。`;
+                    } else {
+                        errorMessage = `创建任务失败：${error.error}`;
+                    }
                 }
                 Utils.showAlert(errorMessage, 'error');
                 submitBtn.disabled = false;
