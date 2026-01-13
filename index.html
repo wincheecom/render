@@ -2431,7 +2431,8 @@
                             product_supplier: product.supplier || '',
                             quantity: parseInt(product.stock) || 0,
                             purchase_price: parseFloat(product.purchasePrice) || 0,
-                            sale_price: parseFloat(product.salePrice) || 0
+                            sale_price: parseFloat(product.salePrice) || 0,
+                            image: product.image || ''
                         })
                     });
                     
@@ -3782,7 +3783,8 @@
                             product_supplier: productData.supplier,
                             quantity: parseInt(productData.stock) || 0,
                             purchase_price: parseFloat(productData.purchasePrice) || 0,
-                            sale_price: parseFloat(productData.salePrice) || 0
+                            sale_price: parseFloat(productData.salePrice) || 0,
+                            image: productData.image
                         })
                     });
                                                 
