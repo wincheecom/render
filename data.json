@@ -1,35 +1,116 @@
 {
-  "products": [],
+  "products": [
+    {
+      "id": "1768312481040",
+      "product_code": "小恐龙",
+      "product_name": "以诚玩具",
+      "product_supplier": 111,
+      "quantity": 3,
+      "purchase_price": 33,
+      "sale_price": null,
+      "created_at": "2026-01-13T13:54:41.040Z"
+    }
+  ],
   "tasks": [
     {
-      "id": "1768286312740",
+      "id": "1768315176672",
       "task_number": "pending",
-      "status": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
       "items": "",
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-13T06:38:32.740Z"
+      "created_at": "2026-01-13T14:39:36.672Z"
     },
     {
-      "id": "1768288489291",
+      "id": "1768315717638",
       "task_number": "pending",
-      "status": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
       "items": "",
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-13T07:14:49.293Z"
+      "created_at": "2026-01-13T14:48:37.638Z"
     },
     {
-      "id": "1768306811135",
+      "id": "1768315793068",
       "task_number": "pending",
-      "status": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":2}]",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
       "items": "",
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-13T12:20:11.136Z"
+      "created_at": "2026-01-13T14:49:53.068Z"
+    },
+    {
+      "id": "1768315803446",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":8}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T14:50:03.446Z"
+    },
+    {
+      "id": "1768318788824",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T15:39:48.824Z"
+    },
+    {
+      "id": "1768318793670",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T15:39:53.670Z"
+    },
+    {
+      "id": "1768318801343",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T15:40:01.343Z"
+    },
+    {
+      "id": "1768318805778",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T15:40:05.778Z"
+    },
+    {
+      "id": "1768318821083",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T15:40:21.083Z"
+    },
+    {
+      "id": "1768318829689",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T15:40:29.689Z"
     }
   ],
   "history": [
@@ -43,6 +124,61 @@
       "label_image": "2026-01-13T12:41:18.939Z",
       "created_at": "2026-01-13T12:41:18.942Z",
       "completed_at": "2026-01-13T12:41:18.942Z"
+    },
+    {
+      "id": "1768313045148",
+      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "\"\"",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "label_image": "2026-01-13T14:04:05.148Z",
+      "created_at": "2026-01-13T14:04:05.148Z",
+      "completed_at": "2026-01-13T14:04:05.148Z"
+    },
+    {
+      "id": "1768314953337",
+      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "\"\"",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "label_image": "2026-01-13T14:35:53.337Z",
+      "created_at": "2026-01-13T14:35:53.337Z",
+      "completed_at": "2026-01-13T14:35:53.337Z"
+    },
+    {
+      "id": "1768314957993",
+      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "\"\"",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "label_image": "2026-01-13T14:35:57.993Z",
+      "created_at": "2026-01-13T14:35:57.993Z",
+      "completed_at": "2026-01-13T14:35:57.993Z"
+    },
+    {
+      "id": "1768314961359",
+      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "\"\"",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "label_image": "2026-01-13T14:36:01.359Z",
+      "created_at": "2026-01-13T14:36:01.360Z",
+      "completed_at": "2026-01-13T14:36:01.360Z"
+    },
+    {
+      "id": "1768315111356",
+      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "\"\"",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "label_image": "2026-01-13T14:38:31.356Z",
+      "created_at": "2026-01-13T14:38:31.356Z",
+      "completed_at": "2026-01-13T14:38:31.356Z"
     }
   ],
   "activities": [
@@ -94,6 +230,97 @@
       "type": "创建发货任务: pending",
       "details": "管理员",
       "created_at": "2026-01-13T12:20:11.161Z"
+    },
+    {
+      "id": "1768312481068",
+      "time": "product",
+      "type": "添加新产品: 小恐龙 (xhc123)",
+      "details": "管理员",
+      "created_at": "2026-01-13T13:54:41.068Z"
+    },
+    {
+      "id": "1768312589184",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T13:56:29.184Z"
+    },
+    {
+      "id": "1768315073989",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T14:37:53.989Z"
+    },
+    {
+      "id": "1768315176689",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T14:39:36.689Z"
+    },
+    {
+      "id": "1768315717659",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T14:48:37.659Z"
+    },
+    {
+      "id": "1768315793091",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T14:49:53.091Z"
+    },
+    {
+      "id": "1768315803461",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T14:50:03.461Z"
+    },
+    {
+      "id": "1768318788845",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T15:39:48.845Z"
+    },
+    {
+      "id": "1768318793694",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T15:39:53.694Z"
+    },
+    {
+      "id": "1768318801359",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T15:40:01.359Z"
+    },
+    {
+      "id": "1768318805806",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T15:40:05.806Z"
+    },
+    {
+      "id": "1768318821102",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T15:40:21.102Z"
+    },
+    {
+      "id": "1768318829712",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T15:40:29.712Z"
     }
   ]
 }

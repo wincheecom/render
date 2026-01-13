@@ -320,6 +320,11 @@
         }
 
         .card {
+            flex: 1;
+            min-width: 280px;
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: 0%;
             background-color: white;
             border-radius: var(--card-radius);
             box-shadow: var(--shadow);
@@ -1025,13 +1030,13 @@
         
         .task-gallery {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
         
         .published-tasks-gallery {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
             margin-top: 16px;
             align-content: start;  /* 使内容顶部对齐 */
@@ -1371,6 +1376,11 @@
             padding: 16px;
             position: relative;
         }
+        
+        /* 隐藏外层card容器，保留任务卡片本身 */
+        .published-tasks-section .card {
+            display: none;
+        }
 
         .task-left-section {
             display: flex;
@@ -1474,6 +1484,11 @@
             
             .gallery-item {
                 width: calc(25% - 9px);
+            }
+            
+            /* 针对已发布任务画廊的响应式调整：从一行2个改为一行1个 */
+            .published-tasks-gallery {
+                grid-template-columns: repeat(1, 1fr);
             }
             
             .task-upload-row {
@@ -1602,6 +1617,11 @@
             .gallery-item {
                 width: calc(50% - 6px);
             }
+            
+            /* 针对已发布任务画廊的响应式调整：中等屏幕下一行显示1个 */
+            .published-tasks-gallery {
+                grid-template-columns: repeat(1, 1fr);
+            }
 
             .recent-product-layout {
                 flex-direction: column;
@@ -1652,6 +1672,11 @@
         @media (max-width: 576px) {
             .gallery-item {
                 width: 100%;
+            }
+            
+            /* 针对已发布任务画廊的响应式调整：小屏幕下一行显示1个 */
+            .published-tasks-gallery {
+                grid-template-columns: repeat(1, 1fr);
             }
             
             .task-upload-row {
@@ -2665,8 +2690,10 @@
                     const tasks = await response.json();
                     
                     // 将数据库字段映射到前端期望的字段名
+                    // 同时修复可能存在的字段错位问题
                     return tasks.map(task => {
-                        return {
+                        // 检测并修复字段错位问题
+                        let fixedTask = {
                             id: task.id,
                             taskNumber: task.task_number || task.taskNumber || '',
                             status: task.status,
@@ -2686,6 +2713,61 @@
                             createdAt: task.created_at || task.createdAt || '',
                             completedAt: task.completed_at || task.completedAt || ''
                         };
+                        
+                        // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
+                        if (typeof fixedTask.taskNumber === 'string' && 
+                            (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed') &&
+                            typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{')) {
+                            // 发生了字段错位，交换这两个字段
+                            const originalTaskNumber = fixedTask.taskNumber;
+                            fixedTask.taskNumber = fixedTask.status;
+                            fixedTask.status = originalTaskNumber;
+                            
+                            // 同时尝试解析原来的status内容到items字段
+                            try {
+                                fixedTask.items = JSON.parse(fixedTask.taskNumber);
+                            } catch (e) {
+                                console.warn('无法解析错位的items数据:', fixedTask.taskNumber);
+                                fixedTask.items = [];
+                            }
+                        }
+                        
+                        // 也检查另一种可能的错位情况（status字段包含JSON字符串而taskNumber是状态字符串）
+                        else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
+                               typeof fixedTask.taskNumber === 'string' && 
+                               (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed')) {
+                            // 发生了字段错位，交换这两个字段
+                            const originalStatus = fixedTask.status;
+                            fixedTask.status = fixedTask.taskNumber;
+                            fixedTask.taskNumber = originalStatus;
+                            
+                            // 同时尝试解析原来的status内容到items字段
+                            try {
+                                fixedTask.items = JSON.parse(originalStatus);
+                            } catch (e) {
+                                console.warn('无法解析错位的items数据:', originalStatus);
+                                fixedTask.items = [];
+                            }
+                        }
+                        
+                        // 还需要处理一种情况：status是JSON字符串但应该是一个状态值
+                        else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
+                               (typeof fixedTask.taskNumber !== 'string' || !['pending', 'processing', 'completed'].includes(fixedTask.taskNumber))) {
+                            // 这种情况下，status可能是错位的items数据，我们应该给它一个合理的状态值
+                            // 假设如果是items数据，则该任务应为pending状态
+                            const originalStatus = fixedTask.status;
+                            fixedTask.status = 'pending';
+                            
+                            // 尝试解析items数据
+                            try {
+                                fixedTask.items = JSON.parse(originalStatus);
+                            } catch (e) {
+                                console.warn('无法解析items数据:', originalStatus);
+                                fixedTask.items = [];
+                            }
+                        }
+                        
+                        return fixedTask;
                     });
                 } catch (error) {
                     console.error('获取任务列表失败:', error);
@@ -5644,7 +5726,7 @@
                             return `
                                 <div class="task-gallery-item" id="task-${task.id}">
                                     <div class="task-flip-container">
-                                        <!-- 正面：原始任务信息 -->
+                                        <!-- 正面：任务信息 -->
                                         <div class="task-front">
                                             <div class="task-gallery-img">
                                                 ${firstItemImage ? 
@@ -5658,9 +5740,6 @@
                                                 <div class="task-gallery-qty">数量: ${itemCount}</div>
                                             </div>
                                             <div class="task-gallery-actions">
-                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
-                                                    删除
-                                                </button>
                                                 <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskDetail('${task.id}')">
                                                     处理发货
                                                 </button>
@@ -5670,25 +5749,46 @@
                                         <!-- 背面：详细信息和按钮 -->
                                         <div class="task-back">
                                             <div class="task-back-content">
+                                                <div class="task-info-container">
+                                                    <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                                    <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                                </div>
                                                 <div class="task-back-badges">
+                                                    <div class="mb-2" style="font-size: 0.85em;">
+                                                        <strong>任务文件：</strong>
+                                                    </div>
                                                     ${task.bodyCodeImage ? 
-                                                        `<span class="badge badge-secondary">有本体码</span>` : 
+                                                        `<span class="badge badge-secondary">本体码</span>` : 
                                                         '<span class="badge badge-secondary">无本体码</span>'
                                                     }
                                                     ${task.barcodeImage ? 
-                                                        `<span class="badge badge-secondary">有条码</span>` : 
+                                                        `<span class="badge badge-secondary">条码</span>` : 
                                                         '<span class="badge badge-secondary">无条码</span>'
                                                     }
                                                     ${task.warningCodeImage ? 
-                                                        `<span class="badge badge-secondary">有警示码</span>` : 
+                                                        `<span class="badge badge-secondary">警示码</span>` : 
                                                         '<span class="badge badge-secondary">无警示码</span>'
                                                     }
+                                                    ${task.manualImage ? 
+                                                        `<span class="badge badge-secondary">说明书</span>` : 
+                                                        '<span class="badge badge-secondary">无说明书</span>'
+                                                    }
                                                     ${task.labelImage ? 
-                                                        `<span class="badge badge-secondary">有箱唛</span>` : 
+                                                        `<span class="badge badge-secondary">箱唛</span>` : 
                                                         '<span class="badge badge-secondary">无箱唛</span>'
+                                                    }
+                                                    ${task.otherImage ? 
+                                                        `<span class="badge badge-secondary">其他</span>` : 
+                                                        '<span class="badge badge-secondary">无其他</span>'
                                                     }
                                                 </div>
                                                 <div class="task-back-actions">
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
+                                                        删除
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskDetail('${task.id}')">
+                                                        返回
+                                                    </button>
                                                     <button class="btn btn-success btn-complete-shipment" onclick="completeShipment('${task.id}')">
                                                         完成发货
                                                     </button>
