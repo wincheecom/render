@@ -678,7 +678,7 @@
         /* ===== 销售运营模块任务上传区域样式 ===== */
         .task-upload-row {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-top: 20px;
             margin-bottom: 20px;
@@ -997,6 +997,147 @@
             gap: 16px;
         }
         
+        .published-tasks-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        /* 为已发布的任务卡片添加相同的样式 */
+        .published-tasks-gallery .task-gallery-item {
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 12px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1500px;
+            min-height: 200px;
+        }
+        
+        .published-tasks-gallery .task-gallery-item:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .published-tasks-gallery .task-flip-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .published-tasks-gallery .task-front,
+        .published-tasks-gallery .task-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--card-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 12px;
+            overflow: auto;
+        }
+        
+        .published-tasks-gallery .task-back {
+            transform: rotateY(180deg);
+            background-color: white;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .published-tasks-gallery .task-back-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+            padding: 10px 0;
+        }
+        
+        .published-tasks-gallery .task-back-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            align-self: center;
+            padding: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .published-tasks-gallery .task-back-actions {
+            width: 100%;
+            padding: 5px;
+        }
+        
+        .task-gallery-item.flipped .task-flip-container {
+            transform: rotateY(180deg);
+        }
+        
+        .published-tasks-gallery .task-gallery-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .published-tasks-gallery .task-gallery-img img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .published-tasks-gallery .task-gallery-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        
+        .published-tasks-gallery .task-gallery-code {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .published-tasks-gallery .task-gallery-qty {
+            font-weight: 600;
+            color: var(--warning);
+            margin-bottom: 8px;
+        }
+        
+        .published-tasks-gallery .task-gallery-actions {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        .published-tasks-gallery .task-gallery-actions .btn {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+        }
+        
         .task-flip-container {
             width: 100%;
             height: 100%;
@@ -1262,7 +1403,7 @@
             }
             
             .task-upload-row {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -1296,7 +1437,7 @@
             }
             
             .task-upload-row {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -1359,7 +1500,7 @@
             }
             
             .task-upload-row {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -1856,6 +1997,14 @@
                                     <div class="upload-area" id="taskLabelUpload">
                                         <!-- 动态内容 -->
                                     </div>
+                                    
+                                    <div class="upload-area" id="taskManualUpload">
+                                        <!-- 动态内容 -->
+                                    </div>
+                                    
+                                    <div class="upload-area" id="taskOtherUpload">
+                                        <!-- 动态内容 -->
+                                    </div>
                                 </div>
                                 
                                 <div class="text-right">
@@ -1873,24 +2022,11 @@
                             <div class="table-header">
                                 <div class="table-title">已发布的任务</div>
                             </div>
-                            <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
-                                <table id="publishedTasksTable">
-                                    <thead>
-                                        <tr>
-                                            <th>货号</th>
-                                            <th>发布时间</th>
-                                            <th>状态</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="publishedTasksBody">
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted py-3">
-                                                暂无已发布任务
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="published-tasks-gallery" id="publishedTasksBody">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p>暂无已发布任务</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3190,7 +3326,7 @@
                         <td>${activity.time}</td>
                         <td><span class="badge ${typeClass}">${typeText}</span></td>
                         <td>${activity.details}</td>
-                        <td>${activity.user}</td>
+                        <td>${activity.actor}</td>
                     </tr>
                 `;
             }).join('');
@@ -3330,7 +3466,7 @@
             initProductUpload();
         }
 
-        function handleProductFormSubmit(e) {
+        async function handleProductFormSubmit(e) {
             e.preventDefault();
             
             const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -3368,7 +3504,7 @@
             }
             
             try {
-                const newProduct = DataManager.addProduct(productData);
+                const newProduct = await DataManager.addProduct(productData);
                 Utils.showAlert(`产品添加成功！货号：${newProduct.code}`, 'success', function() {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存产品';
@@ -3563,10 +3699,14 @@
             `}).join('');
         }
 
-        function editProduct(productId) {
-            const products = DataManager.getAllProducts();
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
+        async function editProduct(productId) {
+            try {
+                const products = await DataManager.getAllProducts();
+                const product = products.find(p => p.id === productId);
+                if (!product) {
+                    Utils.showAlert('未找到指定的产品', 'error');
+                    return;
+                }
             
             document.getElementById('productCode').value = product.code;
             document.getElementById('productName').value = product.name;
@@ -3602,15 +3742,16 @@
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.innerHTML = '<i class="fas fa-save"></i> 更新产品';
             
-            form.addEventListener('submit', async function(e) {
+            // 保存对编辑提交处理函数的引用
+            form.editSubmitHandler = async function(e) {
                 e.preventDefault();
-                
+                            
                 const originalText = submitBtn.innerHTML;
-                
+                            
                 if (submitBtn.disabled) return;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 更新中...';
-                
+                            
                 const productData = {
                     code: document.getElementById('productCode').value,
                     name: document.getElementById('productName').value,
@@ -3620,14 +3761,14 @@
                     salePrice: document.getElementById('productSalePrice').value,
                     image: productImagePreview || ''
                 };
-                
+                            
                 if (!productData.code || !productData.name) {
                     Utils.showAlert('请填写货号和产品名称', 'warning');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                     return;
                 }
-                
+                            
                 try {
                     // 通过API更新产品
                     const response = await fetch(`${DataManager.API_BASE}/api/products/${productId}`, {
@@ -3644,23 +3785,23 @@
                             sale_price: parseFloat(productData.salePrice) || 0
                         })
                     });
-                                    
+                                                
                     if (!response.ok) {
                         throw new Error('更新产品失败');
                     }
-                                    
+                                                
                     Utils.showAlert(`产品更新成功！货号：${productData.code}`, 'success', function() {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存产品';
-                                        
+                                    
                         // 重置表单
                         e.target.reset();
                         resetProductImageUpload();
-                                        
+                                    
                         // 重新绑定原始事件
-                        form.removeEventListener('submit', arguments.callee);
+                        form.removeEventListener('submit', form.editSubmitHandler);
                         form.addEventListener('submit', handleProductFormSubmit);
-                                        
+                                    
                         // 刷新数据
                         initProductAddModule();
                     });
@@ -3670,10 +3811,17 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存产品';
                 }
-            });
-            
+            };
+                        
+            // 绑定编辑提交处理函数
+            form.addEventListener('submit', form.editSubmitHandler);
+                        
             // 滚动到表单顶部
             document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('编辑产品失败:', error);
+                Utils.showAlert('编辑产品失败，请稍后重试', 'error');
+            }
         }
 
         function switchProductView(view) {
@@ -3698,41 +3846,55 @@
             }
         }
 
-        function deleteRecentProduct(productId) {
+        async function deleteRecentProduct(productId) {
             if (!confirm('确定要删除这个产品吗？此操作不可恢复。')) {
                 return;
             }
             
-            const success = DataManager.deleteProduct(productId);
-            if (success) {
-                Utils.showAlert('产品删除成功！', 'success', function() {
-                    updateDashboard();
-                    loadRecentProducts();
-                    if (currentProductView === 'list') {
-                        loadAllProductsInProductAdd();
-                    } else {
-                        loadGalleryProducts();
-                    }
-                });
+            try {
+                const success = await DataManager.deleteProduct(productId);
+                if (success) {
+                    Utils.showAlert('产品删除成功！', 'success', function() {
+                        updateDashboard();
+                        loadRecentProducts();
+                        if (currentProductView === 'list') {
+                            loadAllProductsInProductAdd();
+                        } else {
+                            loadGalleryProducts();
+                        }
+                    });
+                } else {
+                    Utils.showAlert('产品删除失败，请稍后重试', 'error');
+                }
+            } catch (error) {
+                console.error('删除产品失败:', error);
+                Utils.showAlert('删除产品失败，请稍后重试', 'error');
             }
         }
 
-        function deleteProduct(productId) {
+        async function deleteProduct(productId) {
             if (!confirm('确定要删除这个产品吗？此操作不可恢复。')) {
                 return;
             }
             
-            const success = DataManager.deleteProduct(productId);
-            if (success) {
-                Utils.showAlert('产品删除成功！', 'success', function() {
-                    updateDashboard();
-                    loadRecentProducts();
-                    if (currentProductView === 'list') {
-                        loadAllProductsInProductAdd();
-                    } else {
-                        loadGalleryProducts();
-                    }
-                });
+            try {
+                const success = await DataManager.deleteProduct(productId);
+                if (success) {
+                    Utils.showAlert('产品删除成功！', 'success', function() {
+                        updateDashboard();
+                        loadRecentProducts();
+                        if (currentProductView === 'list') {
+                            loadAllProductsInProductAdd();
+                        } else {
+                            loadGalleryProducts();
+                        }
+                    });
+                } else {
+                    Utils.showAlert('产品删除失败，请稍后重试', 'error');
+                }
+            } catch (error) {
+                console.error('删除产品失败:', error);
+                Utils.showAlert('删除产品失败，请稍后重试', 'error');
             }
         }
 
@@ -3772,6 +3934,7 @@
                         </td>
                         <td><code>${product.code}</code></td>
                         <td>${product.name}</td>
+                        <td>${product.supplier || ''}</td>
                         <td>
                             <span class="badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}">
                                 ${product.stock}
@@ -3897,6 +4060,14 @@
             taskLabelFileName = null;
             taskLabelType = null;
             
+            taskManualPreview = null;
+            taskManualFileName = null;
+            taskManualType = null;
+            
+            taskOtherPreview = null;
+            taskOtherFileName = null;
+            taskOtherType = null;
+            
             (async () => {
                 await updateMultiselectDropdown();
             })();
@@ -3907,6 +4078,8 @@
             initTaskBarcodeUpload();
             initTaskWarningCodeUpload();
             initTaskLabelUpload();
+            initTaskManualUpload();
+            initTaskOtherUpload();
             
             // 重新绑定表单提交事件
             const form = document.getElementById('taskForm');
@@ -3955,7 +4128,7 @@
             if (!taskBodyCodePreview) {
                 uploadArea.innerHTML = `
                     <i class="fas fa-barcode upload-icon" style="font-size: 1.8rem;"></i>
-                    <div class="upload-hint">点击上传本体码</div>
+                    <div class="upload-hint">上传本体码</div>
                     <input type="file" id="taskBodyCodeFile" accept="image/*,.pdf" class="hidden">
                 `;
                 uploadArea.classList.remove('has-file');
@@ -4065,7 +4238,7 @@
             if (!taskWarningCodePreview) {
                 uploadArea.innerHTML = `
                     <i class="fas fa-exclamation-triangle upload-icon" style="font-size: 1.8rem;"></i>
-                    <div class="upload-hint">点击上传警示码</div>
+                    <div class="upload-hint">上传警示码</div>
                     <input type="file" id="taskWarningCodeFile" accept="image/*,.pdf" class="hidden">
                 `;
                 uploadArea.classList.remove('has-file');
@@ -4175,7 +4348,7 @@
             if (!taskBarcodePreview) {
                 uploadArea.innerHTML = `
                     <i class="fas fa-barcode upload-icon" style="font-size: 1.8rem;"></i>
-                    <div class="upload-hint">点击上传条码</div>
+                    <div class="upload-hint">上传条码</div>
                     <input type="file" id="taskBarcodeFile" accept="image/*,.pdf" class="hidden">
                 `;
                 uploadArea.classList.remove('has-file');
@@ -4291,7 +4464,7 @@
             if (!taskLabelPreview) {
                 uploadArea.innerHTML = `
                     <i class="fas fa-box upload-icon" style="font-size: 1.8rem;"></i>
-                    <div class="upload-hint">点击上传箱唛</div>
+                    <div class="upload-hint">上传箱唛</div>
                     <input type="file" id="taskLabelFile" accept="image/*,.pdf" class="hidden">
                 `;
                 uploadArea.classList.remove('has-file');
@@ -4391,6 +4564,232 @@
             taskLabelFileName = null;
             taskLabelType = null;
             initTaskLabelUpload();
+        }
+        
+        // 初始化任务说明书上传
+        function initTaskManualUpload() {
+            const uploadArea = document.getElementById('taskManualUpload');
+            
+            // 设置初始内容
+            if (!taskManualPreview) {
+                uploadArea.innerHTML = `
+                    <i class="fas fa-book upload-icon" style="font-size: 1.8rem;"></i>
+                    <div class="upload-hint">上传说明书</div>
+                    <input type="file" id="taskManualFile" accept="image/*,.pdf" class="hidden">
+                `;
+                uploadArea.classList.remove('has-file');
+            } else {
+                let previewHtml = '';
+                if (taskManualType === 'pdf') {
+                    previewHtml = `
+                        <div class="upload-preview pdf">
+                            <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: #e74c3c;"></i>
+                        </div>
+                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskManualFileName}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">PDF文件</div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <img src="${taskManualPreview}" class="upload-preview" alt="说明书预览" onerror="Utils.onImageError(this)">
+                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskManualFileName}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传说明书文件</div>
+                    `;
+                }
+                
+                uploadArea.innerHTML = `
+                    <button type="button" class="upload-remove-btn" onclick="resetTaskManualUpload()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div style="text-align: left; width: 100%;">
+                        ${previewHtml}
+                    </div>
+                    <input type="file" id="taskManualFile" accept="image/*,.pdf" class="hidden">
+                `;
+                uploadArea.classList.add('has-file');
+            }
+            
+            // 重新获取文件输入
+            const fileInput = document.getElementById('taskManualFile');
+            
+            // 清除旧的事件监听器
+            const newUploadArea = uploadArea.cloneNode(true);
+            uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+            
+            // 重新获取元素
+            const newFileInput = document.getElementById('taskManualFile');
+            
+            // 绑定点击事件
+            newUploadArea.addEventListener('click', function(e) {
+                if (e.target.classList.contains('upload-remove-btn')) return;
+                newFileInput.click();
+            });
+            
+            // 绑定拖放事件
+            newUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            newUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            newUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    newFileInput.files = e.dataTransfer.files;
+                    handleTaskManualUpload({ target: newFileInput });
+                }
+            });
+            
+            // 绑定文件输入变化事件
+            newFileInput.onchange = function(e) {
+                handleTaskManualUpload(e);
+            };
+        }
+        
+        function handleTaskManualUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*') && !Utils.isPDF(file)) {
+                Utils.showAlert('请选择图片或PDF文件', 'warning');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                taskManualPreview = e.target.result;
+                taskManualFileName = file.name;
+                taskManualType = Utils.isPDF(file) ? 'pdf' : 'image';
+                initTaskManualUpload();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function resetTaskManualUpload() {
+            taskManualPreview = null;
+            taskManualFileName = null;
+            taskManualType = null;
+            initTaskManualUpload();
+        }
+        
+        // 初始化任务其他文件上传
+        function initTaskOtherUpload() {
+            const uploadArea = document.getElementById('taskOtherUpload');
+        
+            // 设置初始内容
+            if (!taskOtherPreview) {
+                uploadArea.innerHTML = `
+                    <i class="fas fa-paperclip upload-icon" style="font-size: 1.8rem;"></i>
+                    <div class="upload-hint">上传其他</div>
+                    <input type="file" id="taskOtherFile" accept="image/*,.pdf" class="hidden">
+                `;
+                uploadArea.classList.remove('has-file');
+            } else {
+                let previewHtml = '';
+                if (taskOtherType === 'pdf') {
+                    previewHtml = `
+                        <div class="upload-preview pdf">
+                            <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: #e74c3c;"></i>
+                        </div>
+                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskOtherFileName}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">PDF文件</div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <img src="${taskOtherPreview}" class="upload-preview" alt="其他文件预览" onerror="Utils.onImageError(this)">
+                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${taskOtherFileName}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传其他文件</div>
+                    `;
+                }
+                        
+                uploadArea.innerHTML = `
+                    <button type="button" class="upload-remove-btn" onclick="resetTaskOtherUpload()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div style="text-align: left; width: 100%;">
+                        ${previewHtml}
+                    </div>
+                    <input type="file" id="taskOtherFile" accept="image/*,.pdf" class="hidden">
+                `;
+                uploadArea.classList.add('has-file');
+            }
+                    
+            // 重新获取文件输入
+            const fileInput = document.getElementById('taskOtherFile');
+                    
+            // 清除旧的事件监听器
+            const newUploadArea = uploadArea.cloneNode(true);
+            uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+                    
+            // 重新获取元素
+            const newFileInput = document.getElementById('taskOtherFile');
+                    
+            // 绑定点击事件
+            newUploadArea.addEventListener('click', function(e) {
+                if (e.target.classList.contains('upload-remove-btn')) return;
+                newFileInput.click();
+            });
+                    
+            // 绑定拖放事件
+            newUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+                    
+            newUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+                    
+            newUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    newFileInput.files = e.dataTransfer.files;
+                    handleTaskOtherUpload({ target: newFileInput });
+                }
+            });
+                    
+            // 绑定文件输入变化事件
+            newFileInput.onchange = function(e) {
+                handleTaskOtherUpload(e);
+            };
+        }
+                
+        function handleTaskOtherUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+                    
+            if (!file.type.match('image.*') && !Utils.isPDF(file)) {
+                Utils.showAlert('请选择图片或PDF文件', 'warning');
+                return;
+            }
+                    
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                taskOtherPreview = e.target.result;
+                taskOtherFileName = file.name;
+                taskOtherType = Utils.isPDF(file) ? 'pdf' : 'image';
+                initTaskOtherUpload();
+            };
+            reader.readAsDataURL(file);
+        }
+                
+        function resetTaskOtherUpload() {
+            taskOtherPreview = null;
+            taskOtherFileName = null;
+            taskOtherType = null;
+            initTaskOtherUpload();
+        }
+        
+        // 验证上传功能是否正常工作
+        function validateUploadFunctionality() {
+            console.log('上传功能已更新，包含：本体码、条码、警示码、箱唛、说明书、其他共6个上传区域');
+            console.log('任务上传区域现在支持6个上传功能');
         }
 
         async function updateMultiselectDropdown(searchTerm = '') {
@@ -4612,49 +5011,120 @@
         async function loadSalesPublishedTasks() {
             const tasks = await DataManager.getAllTasks();
             const sortedTasks = tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            const tbody = document.getElementById('publishedTasksBody');
+            const container = document.getElementById('publishedTasksBody');
             
-            if (!tbody) return;
+            if (!container) return;
             
             if (sortedTasks.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center text-muted py-3">
-                            暂无已发布任务
-                        </td>
-                    </tr>
+                container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-inbox fa-2x mb-3"></i>
+                        <p>暂无已发布任务</p>
+                    </div>
                 `;
                 return;
             }
             
-            tbody.innerHTML = sortedTasks.map(task => {
-                let statusBadge;
-                if (task.status === 'pending') {
-                    statusBadge = '<span class="badge badge-warning">待处理</span>';
-                } else if (task.status === 'processing') {
-                    statusBadge = '<span class="badge badge-primary">处理中</span>';
+            // 获取所有产品信息以补充任务中的商品详情
+            const allProducts = await DataManager.getAllProducts();
+            
+            container.innerHTML = sortedTasks.map(task => {
+                // 从任务的items中获取第一个商品的信息，如果没有或信息不完整则尝试从数据库中查找
+                let firstProductCode = '无';
+                let firstProductName = '无';
+                let firstProductImage = '';
+                
+                if (task.items && task.items.length > 0) {
+                    // 检查第一个商品的信息是否完整
+                    const firstItem = task.items[0];
+                    
+                    console.log('任务商品信息:', firstItem); // 调试信息
+                    
+                    // 如果任务中的商品信息完整，则使用任务中的信息
+                    if (firstItem.productCode && firstItem.productName) {
+                        firstProductCode = firstItem.productCode;
+                        firstProductName = firstItem.productName;
+                        firstProductImage = firstItem.productImage || '';
+                        console.log('使用任务中的商品信息:', firstProductCode, firstProductName); // 调试信息
+                    } else {
+                        // 如果任务中的商品信息不完整，尝试通过productId查找完整信息
+                        if (firstItem.productId) {
+                            const productInfo = allProducts.find(p => p.id === firstItem.productId);
+                            console.log('通过productId查找产品信息:', firstItem.productId, productInfo); // 调试信息
+                            if (productInfo) {
+                                firstProductCode = productInfo.product_code || productInfo.code || '无';
+                                firstProductName = productInfo.product_name || productInfo.name || '无';
+                                firstProductImage = productInfo.image || '';
+                                console.log('从产品数据库获取信息:', firstProductCode, firstProductName); // 调试信息
+                            } else {
+                                console.log('未找到对应产品信息，productId:', firstItem.productId); // 调试信息
+                            }
+                        } else {
+                            console.log('任务商品中没有productId:', firstItem); // 调试信息
+                        }
+                    }
                 } else {
-                    statusBadge = '<span class="badge badge-success">已完成</span>';
+                    // 如果任务中没有商品信息，尝试从数据库中查找（这种情况不应该发生，但作为后备）
+                    console.warn('任务中缺少商品信息:', task.id);
                 }
                 
-                const firstProductCode = task.items.length > 0 ? task.items[0].productCode : '无';
+                // 计算任务总数量
+                const itemCount = task.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
                 
                 return `
-                    <tr data-task-id="${task.id}">
-                        <td>${firstProductCode}</td>
-                        <td>${task.items.length > 0 ? task.items[0].productName : '无'}</td>
-                        <td>${statusBadge}</td>
-                        <td>
-                            <div class="d-flex gap-4">
-                                <button class="btn btn-sm btn-outline-primary" onclick="viewTaskDetail('${task.id}')">
-                                    详情
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteSalesTask('${task.id}')">
-                                    删除
-                                </button>
+                    <div class="task-gallery-item" id="task-${task.id}" data-task-id="${task.id}">
+                        <div class="task-flip-container">
+                            <!-- 正面：任务信息 -->
+                            <div class="task-front">
+                                <div class="task-gallery-img">
+                                    ${firstProductImage ? 
+                                        `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                        '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                                    }
+                                </div>
+                                <div class="task-gallery-name">${firstProductName}</div>
+                                <div class="task-gallery-code">货号: ${firstProductCode}</div>
+                                <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                <div class="task-gallery-actions">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}')">
+                                        详情
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSalesTask('${task.id}')">
+                                        删除
+                                    </button>
+                                </div>
                             </div>
-                        </td>
-                    </tr>
+                            
+                            <!-- 背面：任务详细信息 -->
+                            <div class="task-back">
+                                <div class="task-back-content">
+                                    <div class="task-back-badges">
+                                        <div class="mb-2">
+                                            <strong>任务号：</strong>
+                                            <span>${task.taskNumber || 'N/A'}</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>创建时间：</strong>
+                                            <span>${Utils.formatDate(task.createdAt)}</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>状态：</strong>
+                                            <span>${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>任务文件：</strong>
+                                            <span>${task.bodyCodeImage || task.barcodeImage || task.warningCodeImage || task.labelImage ? '已上传' : '无'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-back-actions">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}')">
+                                            返回
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
@@ -4715,19 +5185,47 @@
             if (!confirm('确定要删除这个已发布的任务吗？')) {
                 return;
             }
-            
+                    
             try {
+                // 先尝试从服务器删除
                 const success = await DataManager.deleteTask(taskId);
                 if (success) {
                     // 从UI上立即移除任务元素，提供即时反馈
+                    // 对于卡片视图，查找对应的卡片元素
+                    const taskCard = document.querySelector(`#publishedTasksBody [data-task-id="${taskId}"]`);
+                    if (taskCard) {
+                        // 添加过渡效果
+                        taskCard.style.opacity = '0';
+                        taskCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        taskCard.style.transform = 'scale(0.95)';
+                                
+                        setTimeout(() => {
+                            taskCard.remove();
+                                    
+                            // 如果任务列表为空，显示相应提示
+                            const container = document.getElementById('publishedTasksBody');
+                            if (container && container.children.length === 0) {
+                                container.innerHTML = `
+                                    <div class="no-tasks-message text-center text-muted py-5">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <h5>暂无已发布任务</h5>
+                                        <p>暂无待处理的发货任务</p>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                            
+                    // 对于表格视图，也尝试移除对应的行
                     const taskRow = document.querySelector(`#publishedTasksBody tr[data-task-id="${taskId}"]`);
                     if (taskRow) {
                         taskRow.style.opacity = '0';
-                        taskRow.style.transition = 'opacity 0.3s ease';
-                        
+                        taskRow.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        taskRow.style.transform = 'scale(0.95)';
+                                
                         setTimeout(() => {
                             taskRow.remove();
-                            
+                                    
                             // 如果任务列表为空，显示相应提示
                             const tbody = document.getElementById('publishedTasksBody');
                             if (tbody && tbody.children.length === 0) {
@@ -4741,18 +5239,18 @@
                             }
                         }, 300);
                     }
-                    
-                    Utils.showAlert('任务删除成功！', 'success', async function() {
-                        await updateDashboard();
-                        
-                        // 确保数据完全同步后再重新加载任务列表
-                        // 延长等待时间以确保服务器完全处理删除操作
-                        await new Promise(resolve => setTimeout(resolve, 800));
-                        
-                        // 重新加载所有相关的任务列表
-                        await loadSalesPublishedTasks();
-                        loadWarehouseTasksList();
-                    });
+                            
+                    Utils.showAlert('任务删除成功！', 'success');
+                            
+                    // 更新仪表盘和任务列表
+                    await updateDashboard();
+                            
+                    // 延长等待时间以确保服务器完全处理删除操作
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                            
+                    // 重新加载所有相关的任务列表
+                    await loadSalesPublishedTasks();
+                    loadWarehouseTasksList();
                 } else {
                     Utils.showAlert('删除任务失败，请重试', 'error');
                 }
@@ -4853,7 +5351,13 @@
                     warningCodeType: taskWarningCodeType || null,
                     labelImage: taskLabelPreview || '',
                     labelFileName: taskLabelFileName || '',
-                    labelType: taskLabelType || null
+                    labelType: taskLabelType || null,
+                    manualImage: taskManualPreview || '',
+                    manualFileName: taskManualFileName || '',
+                    manualType: taskManualType || null,
+                    otherImage: taskOtherPreview || '',
+                    otherFileName: taskOtherFileName || '',
+                    otherType: taskOtherType || null
                 };
                 
                 const newTask = await DataManager.addTask(taskData);
@@ -4875,6 +5379,8 @@
                     resetTaskBarcodeUpload();
                     resetTaskWarningCodeUpload();
                     resetTaskLabelUpload();
+                    resetTaskManualUpload();
+                    resetTaskOtherUpload();
                     
                     (async () => {
                         await updateMultiselectDropdown();
@@ -5009,7 +5515,30 @@
         let warehouseTaskViewMode = 'gallery'; // 画廊视图
                 
         function toggleTaskDetail(taskId) {
-            const taskElement = document.getElementById(`task-${taskId}`);
+            // 查找具有data-task-id属性的元素，适用于卡片视图
+            // 先尝试查找带data-task-id属性的元素（销售发布的任务）
+            let taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+            
+            // 如果没找到，再尝试查找id属性的元素（仓库任务）
+            if (!taskElement) {
+                taskElement = document.getElementById(`task-${taskId}`);
+            }
+            
+            if (taskElement) {
+                taskElement.classList.toggle('flipped');
+            }
+        }
+        
+        function toggleTaskCardFlip(taskId) {
+            // 查找具有data-task-id属性的元素，适用于卡片视图
+            // 先尝试查找带data-task-id属性的元素（销售发布的任务）
+            let taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+            
+            // 如果没找到，再尝试查找id属性的元素（仓库任务）
+            if (!taskElement) {
+                taskElement = document.getElementById(`task-${taskId}`);
+            }
+            
             if (taskElement) {
                 taskElement.classList.toggle('flipped');
             }
@@ -5024,6 +5553,7 @@
                 const success = await DataManager.deleteTask(taskId);
                 if (success) {
                     // 从UI上立即移除任务元素，提供即时反馈
+                    // 对于仓库任务，查找id为task-${taskId}的元素
                     const taskElement = document.getElementById(`task-${taskId}`);
                     if (taskElement) {
                         taskElement.style.opacity = '0';
@@ -5105,11 +5635,48 @@
                     // addToHistory 方法会自动将任务从tasks表移到history表，无需再次删除
                     await DataManager.addToHistory(taskWithPrice);
                     
+                    // 从UI上立即移除任务元素，提供即时反馈
+                    // 先尝试查找仓库任务元素（id为task-${taskId}）
+                    let taskElement = document.getElementById(`task-${taskId}`);
+                    
+                    // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
+                    if (!taskElement) {
+                        taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                    }
+                    
+                    if (taskElement) {
+                        taskElement.style.opacity = '0';
+                        taskElement.style.transform = 'translateX(-100%)';
+                        taskElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        
+                        setTimeout(() => {
+                            taskElement.remove();
+                            
+                            // 如果是仓库任务列表且任务列表为空，显示相应提示
+                            const container = document.getElementById('warehouseTasks');
+                            if (container && container.children.length === 0) {
+                                container.innerHTML = `
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                        <p>暂无待发货任务</p>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                    
                     Utils.showAlert('任务已完成发货！', 'success', async function() {
                         expandedTaskId = null;
                         
                         await updateDashboard();
+                        
+                        // 确保数据完全同步后再重新加载任务列表
+                        // 延长等待时间以确保服务器完全处理完成操作
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        
+                        // 重新加载所有相关的任务列表
                         loadWarehouseTasksList();
+                        await loadSalesPublishedTasks();
                     });
                 }
             } catch (error) {
@@ -5853,6 +6420,7 @@
         window.deleteSalesTask = deleteSalesTask;
         window.viewTaskDetail = viewTaskDetail;
         window.toggleTaskDetail = toggleTaskDetail;
+        window.toggleTaskCardFlip = toggleTaskCardFlip;
         window.deleteWarehouseTask = deleteWarehouseTask;
         window.completeShipment = completeShipment;
         window.resetProductImageUpload = resetProductImageUpload;

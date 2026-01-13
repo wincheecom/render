@@ -57,6 +57,21 @@ class SimpleDB {
         rows: this.data.products,
         rowCount: this.data.products.length
       };
+    } else if (sql.toLowerCase().includes('select') && sql.includes('FROM products') && sql.includes('WHERE') && params.length > 0) {
+      // 处理带 WHERE 子句的 SELECT 查询，例如: SELECT id FROM products WHERE "id" = $1
+      const whereClause = sql.substring(sql.indexOf('WHERE')).toLowerCase();
+      let filteredProducts = [];
+      
+      if (whereClause.includes('id') && params.length > 0) {
+        // 提取 WHERE 条件中的值
+        const productId = params[0];
+        filteredProducts = this.data.products.filter(p => p.id == productId);
+      }
+      
+      return {
+        rows: filteredProducts,
+        rowCount: filteredProducts.length
+      };
     } else if (sql.includes('INSERT INTO products')) {
       // 解析参数并插入产品
       const [, product_code, product_name, product_supplier, quantity, purchase_price, sale_price] = params;
@@ -162,20 +177,18 @@ class SimpleDB {
         }
       }
       return { rowCount: 1 };
-    } else if (sql.includes('DELETE FROM')) {
-      if (sql.includes('FROM tasks WHERE')) {
-        const id = params[0];
-        const initialLength = this.data.tasks.length;
-        this.data.tasks = this.data.tasks.filter(t => t.id != id);
-        await this.saveToFile();
-        return { rowCount: initialLength - this.data.tasks.length };
-      } else if (sql.includes('FROM products WHERE')) {
-        const id = params[0];
-        const initialLength = this.data.products.length;
-        this.data.products = this.data.products.filter(p => p.id != id);
-        await this.saveToFile();
-        return { rowCount: initialLength - this.data.products.length };
-      }
+    } else if (sql.includes('DELETE FROM products WHERE')) {
+      const id = params[0];
+      const initialLength = this.data.products.length;
+      this.data.products = this.data.products.filter(p => p.id != id);
+      await this.saveToFile();
+      return { rowCount: initialLength - this.data.products.length };
+    } else if (sql.includes('DELETE FROM tasks WHERE')) {
+      const id = params[0];
+      const initialLength = this.data.tasks.length;
+      this.data.tasks = this.data.tasks.filter(t => t.id != id);
+      await this.saveToFile();
+      return { rowCount: initialLength - this.data.tasks.length };
     } else if (sql.includes('COUNT(*) FROM')) {
       if (sql.includes('products')) {
         return { rows: [{ count: this.data.products.length }] };

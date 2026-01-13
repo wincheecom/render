@@ -1,163 +1,39 @@
 {
   "products": [
     {
-      "id": "1768140188489",
-      "product_code": "2122",
-      "product_name": "泛",
-      "product_supplier": 222,
-      "quantity": 29,
-      "purchase_price": 44,
+      "id": "1768283550085",
+      "product_code": "积木盒",
+      "product_name": "以诚玩具",
+      "product_supplier": 500,
+      "quantity": 20,
+      "purchase_price": 30,
       "sale_price": null,
-      "created_at": "2026-01-11T14:03:08.489Z"
-    },
-    {
-      "id": "1768142361383",
-      "product_code": "榉木积木",
-      "product_name": "泛趣",
-      "product_supplier": 22,
-      "quantity": 31,
-      "purchase_price": 44,
-      "sale_price": null,
-      "created_at": "2026-01-11T14:39:21.383Z"
+      "created_at": "2026-01-13T05:52:30.085Z"
     }
   ],
-  "tasks": [
-    {
-      "id": "1768140591567",
-      "task_number": "TK001",
-      "status": "pending",
-      "items": [
-        {
-          "productId": "1768140188489",
-          "productName": "泛",
-          "productCode": "2122",
-          "productImage": "",
-          "quantity": 1
-        }
-      ],
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "label_image": "",
-      "created_at": "2026-01-11T14:09:51.567Z"
-    },
-    {
-      "id": "1768140690063",
-      "task_number": "TK002",
-      "status": "pending",
-      "items": [
-        {
-          "productId": "1768140188489",
-          "productName": "泛",
-          "productCode": "2122",
-          "productImage": "",
-          "quantity": 1
-        }
-      ],
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "label_image": "",
-      "created_at": "2026-01-11T14:11:30.063Z"
-    },
-    {
-      "id": "1768185945645",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768142361383\",\"productName\":\"泛趣\",\"productCode\":\"榉木积木\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "created_at": "2026-01-12T02:45:45.646Z"
-    },
-    {
-      "id": "1768185957698",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768140188489\",\"productName\":\"泛\",\"productCode\":\"2122\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "created_at": "2026-01-12T02:45:57.698Z"
-    },
-    {
-      "id": "1768185970411",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768142361383\",\"productName\":\"泛趣\",\"productCode\":\"榉木积木\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "created_at": "2026-01-12T02:46:10.411Z"
-    },
-    {
-      "id": "1768186596867",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768140188489\",\"productName\":\"泛\",\"productCode\":\"2122\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "created_at": "2026-01-12T02:56:36.867Z"
-    }
-  ],
+  "tasks": [],
   "history": [],
   "activities": [
     {
-      "id": "1768140188504",
+      "id": "1768281018440",
       "time": "product",
-      "type": "添加新产品: 2122 (2122)",
+      "type": "添加新产品: 小飞机玩具 (xiaofeiji)",
       "details": "管理员",
-      "created_at": "2026-01-11T14:03:08.504Z"
+      "created_at": "2026-01-13T05:10:18.440Z"
     },
     {
-      "id": "1768140591580",
-      "time": "task",
-      "type": "创建发货任务: pending",
-      "details": "管理员",
-      "created_at": "2026-01-11T14:09:51.580Z"
-    },
-    {
-      "id": "1768140690081",
-      "time": "task",
-      "type": "创建发货任务: pending",
-      "details": "管理员",
-      "created_at": "2026-01-11T14:11:30.081Z"
-    },
-    {
-      "id": "1768142361399",
+      "id": "1768281415643",
       "time": "product",
-      "type": "添加新产品: 榉木积木 (233)",
+      "type": "添加新产品: 小飞机 (huhao123)",
       "details": "管理员",
-      "created_at": "2026-01-11T14:39:21.399Z"
+      "created_at": "2026-01-13T05:16:55.643Z"
     },
     {
-      "id": "1768185945678",
-      "time": "task",
-      "type": "创建发货任务: pending",
+      "id": "1768283550099",
+      "time": "product",
+      "type": "添加新产品: 积木盒 (jimuhe)",
       "details": "管理员",
-      "created_at": "2026-01-12T02:45:45.678Z"
-    },
-    {
-      "id": "1768185957834",
-      "time": "task",
-      "type": "创建发货任务: pending",
-      "details": "管理员",
-      "created_at": "2026-01-12T02:45:57.834Z"
-    },
-    {
-      "id": "1768185970439",
-      "time": "task",
-      "type": "创建发货任务: pending",
-      "details": "管理员",
-      "created_at": "2026-01-12T02:46:10.439Z"
-    },
-    {
-      "id": "1768186596893",
-      "time": "task",
-      "type": "创建发货任务: pending",
-      "details": "管理员",
-      "created_at": "2026-01-12T02:56:36.893Z"
+      "created_at": "2026-01-13T05:52:30.099Z"
     }
   ]
 }

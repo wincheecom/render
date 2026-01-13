@@ -179,7 +179,7 @@ setTimeout(async () => {
 }, 2000);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -489,17 +489,22 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('准备删除产品，ID:', id);
     const result = await db.query('SELECT id FROM products WHERE "id" = $1', [id]);
+    console.log('查询结果:', result.rows);
     
     if (result.rows.length === 0) {
+      console.log('产品未找到，ID:', id);
       return res.status(404).json({ error: '产品未找到' });
     }
     
+    console.log('开始删除产品，ID:', id);
     await db.query('DELETE FROM products WHERE "id" = $1', [id]);
+    console.log('产品已删除，ID:', id);
     
     res.json({ message: '产品删除成功' });
   } catch (err) {
-    console.error(err);
+    console.error('删除产品时发生错误:', err);
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -705,19 +710,33 @@ app.post('/api/clear-demo-data', async (req, res) => {
   }
 });
 
-// Start the server
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Visit http://localhost:${PORT} to access the application`);
-});
-
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.log(`端口 ${PORT} 已被占用，请使用不同的端口`);
-  } else {
-    console.log('服务器启动错误', err);
+let attempts = 0;
+const maxAttempts = 10;
+const startServer = (port) => {
+  if (attempts >= maxAttempts) {
+    console.log(`已尝试 ${maxAttempts} 次端口，无法找到可用端口，请手动指定端口`);
+    process.exit(1);
   }
-});
+  
+  const server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+    console.log(`Visit http://localhost:${port} to access the application`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`端口 ${port} 已被占用，尝试下一个端口...`);
+      attempts++;
+      const nextPort = port + 1;
+      startServer(nextPort);
+    } else {
+      console.log('服务器启动错误', err);
+      process.exit(1);
+    }
+  });
+};
+
+startServer(PORT);
 
 // Initialize database tables if they don't exist
 setTimeout(async () => {
