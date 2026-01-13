@@ -1,14 +1,25 @@
 {
   "products": [
     {
-      "id": "1768283550085",
-      "product_code": "积木盒",
-      "product_name": "以诚玩具",
-      "product_supplier": 500,
-      "quantity": 20,
+      "id": "1768281018427",
+      "product_code": "huhao123",
+      "product_name": "小飞机玩具",
+      "product_supplier": "以诚玩具厂",
+      "quantity": 500,
       "purchase_price": 30,
       "sale_price": null,
-      "created_at": "2026-01-13T05:52:30.085Z"
+      "created_at": "2026-01-13T05:10:18.427Z",
+      "image": null
+    },
+    {
+      "id": "1768285144284",
+      "product_code": "小飞机几",
+      "product_name": "以诚玩具",
+      "product_supplier": 500,
+      "quantity": 22,
+      "purchase_price": 33,
+      "sale_price": null,
+      "created_at": "2026-01-13T06:19:04.284Z"
     }
   ],
   "tasks": [],
@@ -22,18 +33,11 @@
       "created_at": "2026-01-13T05:10:18.440Z"
     },
     {
-      "id": "1768281415643",
+      "id": "1768285144299",
       "time": "product",
-      "type": "添加新产品: 小飞机 (huhao123)",
+      "type": "添加新产品: 小飞机几 (xiaofeijiji)",
       "details": "管理员",
-      "created_at": "2026-01-13T05:16:55.643Z"
-    },
-    {
-      "id": "1768283550099",
-      "time": "product",
-      "type": "添加新产品: 积木盒 (jimuhe)",
-      "details": "管理员",
-      "created_at": "2026-01-13T05:52:30.099Z"
+      "created_at": "2026-01-13T06:19:04.299Z"
     }
   ]
 }
