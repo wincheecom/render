@@ -35,7 +35,7 @@
             --dark: #212529;
             --gray: #6c757d;
             --gray-light: #e9ecef;
-            --sidebar-width: 250px;
+            --sidebar-width: 200px;
             --header-height: 70px;
             --card-radius: 10px;
             --shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
@@ -179,6 +179,7 @@
             left: var(--sidebar-width);
             right: 0;
             z-index: 100;
+            transition: var(--transition);
         }
 
         .header-left {
@@ -286,6 +287,7 @@
             margin-top: var(--header-height);
             padding: 20px;
             min-height: calc(100vh - var(--header-height));
+            transition: var(--transition);
         }
 
         .module-content {
@@ -406,6 +408,17 @@
             color: var(--dark);
             background-color: rgba(67, 97, 238, 0.05);
             font-size: 0.9rem;
+        }
+        
+        /* 设置表格列宽为相等宽度 */
+        table.equal-width-columns {
+            table-layout: fixed;
+            width: 100%;
+        }
+        
+        table.equal-width-columns th,
+        table.equal-width-columns td {
+            width: calc(100% / 5); /* 均分为5列 */
         }
 
         td {
@@ -961,11 +974,11 @@
 
         /* 视图切换按钮 */
         .view-toggle {
-            display: flex;
+            display: none;
             gap: 8px;
             margin-bottom: 12px;
         }
-
+                
         .view-toggle-btn {
             padding: 6px 12px;
             border: 1px solid #ddd;
@@ -975,20 +988,39 @@
             transition: all 0.3s;
             font-size: 0.85rem;
         }
-
+                
         .view-toggle-btn.active {
             background-color: var(--primary);
             color: white;
             border-color: var(--primary);
         }
-
+                
         .view-toggle-btn:hover:not(.active) {
             background-color: #f8f9fa;
+        }
+                
+        /* 隐藏特定的view-btn按钮 */
+        .view-btn {
+            display: none;
+        }
+                
+        .view-btn.active {
+            display: none;
         }
 
         /* ===== 仓库任务画廊视图样式 ===== */
         .tasks-container {
             min-height: 300px;
+        }
+        
+        /* 隐藏仓库发货模块的标题文字 */
+        #warehouse-operations .card-title {
+            display: none;
+        }
+        
+        /* 隐藏销售运营模块中创建发货任务的标题 */
+        .create-task-section .card-title {
+            display: none;
         }
         
         .task-gallery {
@@ -1002,6 +1034,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-top: 16px;
+            align-content: start;  /* 使内容顶部对齐 */
         }
         
         /* 为已发布的任务卡片添加相同的样式 */
@@ -1017,7 +1050,7 @@
             text-align: center;
             position: relative;
             width: 100%;
-            height: 100%;
+            height: auto;  /* 改为自动高度 */
             perspective: 1500px;
             min-height: 200px;
         }
@@ -1117,13 +1150,21 @@
         .published-tasks-gallery .task-gallery-code {
             font-size: 0.8rem;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         
         .published-tasks-gallery .task-gallery-qty {
             font-weight: 600;
             color: var(--warning);
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+        }
+        
+        /* 使用flexbox使已发布任务的货号和数量在同一行显示 */
+        .published-tasks-gallery .task-front > div.task-gallery-code,
+        .published-tasks-gallery .task-front > div.task-gallery-qty {
+            display: inline-block;
+            width: 48%;
+            text-align: center;
         }
         
         .published-tasks-gallery .task-gallery-actions {
@@ -1265,16 +1306,49 @@
             word-break: break-word;
         }
         
-        .task-gallery-code {
+        /* 让货号和数量在同一行显示 */
+        .task-front {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .task-gallery-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        
+        .task-gallery-code, .task-gallery-qty {
             font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+        
+        .task-gallery-code {
             color: #666;
-            margin-bottom: 8px;
         }
         
         .task-gallery-qty {
             font-weight: 600;
             color: var(--warning);
+        }
+        
+        /* 使用flexbox使货号和数量在同一行显示 */
+        .task-info-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            width: 100%;
             margin-bottom: 8px;
+        }
+        
+        .task-info-container .task-gallery-code,
+        .task-info-container .task-gallery-qty {
+            flex: 1;
+            text-align: center;
+            margin-bottom: 0;
         }
         
         .task-gallery-actions {
@@ -1430,6 +1504,77 @@
                 font-size: 1.4rem;
                 cursor: pointer;
                 color: var(--dark);
+                transition: var(--transition);
+            }
+            
+            /* 侧边栏折叠样式 */
+            .sidebar.collapsed {
+                width: 50px;
+            }
+            
+            .sidebar.collapsed .sidebar-logo {
+                font-size: 1rem;
+                text-align: center;
+            }
+            
+            .sidebar.collapsed .sidebar-logo {
+                font-size: 1rem;
+                text-align: center;
+                padding: 0 8px;
+            }
+            
+            .sidebar.collapsed .menu-item {
+                text-align: center;
+            }
+            
+            .sidebar.collapsed .menu-link {
+                justify-content: center;
+                padding: 12px 8px;
+                font-size: 0.75rem;
+            }
+            
+            .sidebar.collapsed .menu-link span {
+                display: none;
+            }
+            
+            .sidebar.collapsed .menu-link::before {
+                content: attr(data-icon);
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                margin-right: 0;
+            }
+            
+            /* 展开状态下显示文本 */
+            .sidebar:not(.collapsed) .menu-link span {
+                display: inline;
+            }
+            
+            .sidebar:not(.collapsed) .menu-link::before {
+                display: none;
+            }
+            
+            /* 主内容区在侧边栏折叠时的样式 */
+            .header.expanded {
+                left: var(--sidebar-width);
+            }
+            
+            .header.collapsed {
+                left: 50px;
+            }
+            
+            .main-content.expanded {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .main-content.collapsed {
+                margin-left: 50px;
+            }
+            
+            /* 桌面端始终显示切换按钮 */
+            @media (min-width: 993px) {
+                .menu-toggle {
+                    display: block;
+                }
             }
 
             .gallery-item {
@@ -1944,7 +2089,7 @@
                                 <div class="mb-16">
                                     <div class="search-box">
                                         <i class="fas fa-search search-icon"></i>
-                                        <input type="text" class="search-input" id="productSearchInput" placeholder="搜索商品名称或货号...">
+                                        <input type="text" class="search-input" id="productSearchInput" placeholder="点击搜索商品名称或货号，选择商品，创建发货任务">
                                     </div>
                                     
                                     <div class="multiselect-dropdown hidden" id="multiselectDropdown">
@@ -1959,7 +2104,7 @@
                                 <div class="mb-16">
                                     <!-- 任务购物车表格 - 已移除标题和条码/箱唛/警示码列 -->
                                     <div class="table-responsive">
-                                        <table id="taskCartTable">
+                                        <table id="taskCartTable" class="equal-width-columns">
                                             <thead>
                                                 <tr>
                                                     <th>图片</th>
@@ -2018,15 +2163,10 @@
                     
                     <!-- 右边：已发布的任务 -->
                     <div class="published-tasks-section">
-                        <div class="card">
-                            <div class="table-header">
-                                <div class="table-title">已发布的任务</div>
-                            </div>
-                            <div class="published-tasks-gallery" id="publishedTasksBody">
-                                <div class="text-center text-muted py-5">
-                                    <i class="fas fa-inbox fa-2x mb-3"></i>
-                                    <p>暂无已发布任务</p>
-                                </div>
+                        <div class="published-tasks-gallery" id="publishedTasksBody">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-2x mb-3"></i>
+                                <p>暂无已发布任务</p>
                             </div>
                         </div>
                     </div>
@@ -3143,9 +3283,33 @@
             // 初始化各模块
             initDashboard();
             
-            // 响应式菜单切换
+            // 响应式菜单切换 - 支持移动端滑出和桌面端折叠
             document.getElementById('menuToggle').addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('active');
+                const sidebar = document.getElementById('sidebar');
+                const header = document.querySelector('.header');
+                const mainContent = document.querySelector('.main-content');
+                
+                // 检查当前屏幕尺寸
+                if (window.innerWidth <= 992) {
+                    // 移动端：使用滑出效果
+                    sidebar.classList.toggle('active');
+                } else {
+                    // 桌面端：使用折叠效果
+                    sidebar.classList.toggle('collapsed');
+                    
+                    // 更新头部和主内容区的样式
+                    if (sidebar.classList.contains('collapsed')) {
+                        header.classList.remove('expanded');
+                        header.classList.add('collapsed');
+                        mainContent.classList.remove('expanded');
+                        mainContent.classList.add('collapsed');
+                    } else {
+                        header.classList.remove('collapsed');
+                        header.classList.add('expanded');
+                        mainContent.classList.remove('collapsed');
+                        mainContent.classList.add('expanded');
+                    }
+                }
             });
             
             // 添加一些初始数据（如果从未初始化过）
@@ -3172,10 +3336,18 @@
             
             userModules.forEach(moduleId => {
                 const module = modules[moduleId];
+                // 为不同的模块定义相应的图标
+                let icon = 'fa-table'; // 默认图标
+                if (moduleId === 'dashboard') icon = 'fa-chart-line';
+                if (moduleId === 'product-add') icon = 'fa-box-open';
+                if (moduleId === 'sales-operations') icon = 'fa-cart-plus';
+                if (moduleId === 'warehouse-operations') icon = 'fa-warehouse';
+                if (moduleId === 'statistics-analysis') icon = 'fa-chart-bar';
+                
                 const menuItem = document.createElement('li');
                 menuItem.className = 'menu-item';
                 menuItem.innerHTML = `
-                    <a href="#" class="menu-link" data-module="${moduleId}">
+                    <a href="#" class="menu-link" data-module="${moduleId}" data-icon="\\${icon}">
                         <span>${module.name}</span>
                     </a>
                 `;
@@ -3207,6 +3379,20 @@
                     }
                 });
             });
+            
+            // 初始化时确保桌面端默认展开
+            if (window.innerWidth > 992) {
+                const sidebar = document.getElementById('sidebar');
+                const header = document.querySelector('.header');
+                const mainContent = document.querySelector('.main-content');
+                
+                // 确保桌面端侧边栏展开状态
+                sidebar.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                header.classList.add('expanded');
+                mainContent.classList.remove('collapsed');
+                mainContent.classList.add('expanded');
+            }
         }
 
         async function switchModule(moduleId) {
@@ -5085,14 +5271,16 @@
                                     }
                                 </div>
                                 <div class="task-gallery-name">${firstProductName}</div>
-                                <div class="task-gallery-code">货号: ${firstProductCode}</div>
-                                <div class="task-gallery-qty">数量: ${itemCount}</div>
-                                <div class="task-gallery-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}')">
+                                <div class="task-info-container">
+                                    <div class="task-gallery-code">货号: ${firstProductCode}</div>
+                                    <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                </div>
+                                <div class="task-gallery-actions d-flex align-items-center gap-2">
+                                    <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
+                                        ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="toggleTaskCardFlip('${task.id}')">
                                         详情
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSalesTask('${task.id}')">
-                                        删除
                                     </button>
                                 </div>
                             </div>
@@ -5101,24 +5289,28 @@
                             <div class="task-back">
                                 <div class="task-back-content">
                                     <div class="task-back-badges">
-                                        <div class="mb-2">
-                                            <strong>任务号：</strong>
-                                            <span>${task.taskNumber || 'N/A'}</span>
-                                        </div>
-                                        <div class="mb-2">
-                                            <strong>创建时间：</strong>
-                                            <span>${Utils.formatDate(task.createdAt)}</span>
-                                        </div>
-                                        <div class="mb-2">
-                                            <strong>状态：</strong>
-                                            <span>${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}</span>
-                                        </div>
-                                        <div class="mb-2">
+                                        <div class="mb-2" style="font-size: 0.85em;">
                                             <strong>任务文件：</strong>
                                             <span>${task.bodyCodeImage || task.barcodeImage || task.warningCodeImage || task.labelImage ? '已上传' : '无'}</span>
                                         </div>
+                                        <div class="d-flex justify-content-between gap-2">
+                                            <div class="flex-fill" style="font-size: 0.85em;">
+                                                <strong>任务号：</strong>
+                                                <span>${task.taskNumber || 'N/A'}</span>
+                                            </div>
+                                            <div class="flex-fill" style="font-size: 0.85em;">
+                                                <strong>创建时间：</strong>
+                                                <span>${Utils.formatDate(task.createdAt)}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="task-back-actions">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSalesTask('${task.id}')">
+                                            删除
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editTaskFiles('${task.id}')">
+                                            编辑
+                                        </button>
                                         <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}')">
                                             返回
                                         </button>
@@ -5141,7 +5333,7 @@
                     let detailHtml = '<h6>任务详情</h6>';
                     detailHtml += '<p><strong>任务号：</strong>' + task.taskNumber + '</p>';
                     detailHtml += '<p><strong>创建时间：</strong>' + Utils.formatDate(task.createdAt) + '</p>';
-                    detailHtml += '<p><strong>状态：</strong>' + (task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成') + '</p>';
+                    detailHtml += '<p>' + (task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成') + '</p>';
                     
                     // 显示任务文件
                     if (task.bodyCodeImage) {
@@ -5461,8 +5653,10 @@
                                                 }
                                             </div>
                                             <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                            <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                                            <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                            <div class="task-info-container">
+                                                <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                                <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                            </div>
                                             <div class="task-gallery-actions">
                                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
                                                     删除
@@ -5543,6 +5737,355 @@
             
             if (taskElement) {
                 taskElement.classList.toggle('flipped');
+            }
+        }
+        
+        function handleFileSelect(e, uploadAreaId) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*') && !Utils.isPDF(file)) {
+                Utils.showAlert('请选择图片或PDF文件', 'warning');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const uploadArea = document.getElementById(uploadAreaId);
+                let previewHtml = '';
+                if (Utils.isPDF(file)) {
+                    previewHtml = `
+                        <div class="upload-preview pdf">
+                            <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: #e74c3c;"></i>
+                        </div>
+                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${file.name}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">PDF文件</div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <img src="${e.target.result}" class="upload-preview" style="max-width: 100px; max-height: 100px;" alt="预览" onerror="Utils.onImageError(this)">
+                        <div style="font-weight: 500; margin-bottom: 4px; font-size: 0.85rem;">${file.name}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">已上传文件</div>
+                    `;
+                }
+                
+                uploadArea.innerHTML = `
+                    <button type="button" class="upload-remove-btn" onclick="resetEditTaskFile('${uploadAreaId}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div style="text-align: left; width: 100%;">
+                        ${previewHtml}
+                    </div>
+                `;
+                uploadArea.classList.add('has-file');
+                
+                // 保存文件到全局变量，用于后续上传
+                if (uploadAreaId === 'editBodyCodeUpload') {
+                    editTaskBodyCodeFile = file;
+                    editTaskBodyCodeData = e.target.result;
+                } else if (uploadAreaId === 'editBarcodeUpload') {
+                    editTaskBarcodeFile = file;
+                    editTaskBarcodeData = e.target.result;
+                } else if (uploadAreaId === 'editWarningCodeUpload') {
+                    editTaskWarningCodeFile = file;
+                    editTaskWarningCodeData = e.target.result;
+                } else if (uploadAreaId === 'editLabelUpload') {
+                    editTaskLabelFile = file;
+                    editTaskLabelData = e.target.result;
+                } else if (uploadAreaId === 'editManualUpload') {
+                    editTaskManualFile = file;
+                    editTaskManualData = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function handleFileDrop(event, uploadAreaId) {
+            event.preventDefault();
+            document.getElementById(uploadAreaId).classList.remove('dragover');
+            
+            const file = event.dataTransfer.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*') && !Utils.isPDF(file)) {
+                Utils.showAlert('请选择图片或PDF文件', 'warning');
+                return;
+            }
+            
+            const fakeEvent = { target: { files: [file] } };
+            handleFileSelect(fakeEvent, uploadAreaId);
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.target.classList.add('dragover');
+        }
+        
+        function resetEditTaskFile(uploadAreaId) {
+            const uploadArea = document.getElementById(uploadAreaId);
+            if (uploadAreaId === 'editBodyCodeUpload') {
+                editTaskBodyCodeFile = null;
+                editTaskBodyCodeData = null;
+            } else if (uploadAreaId === 'editBarcodeUpload') {
+                editTaskBarcodeFile = null;
+                editTaskBarcodeData = null;
+            } else if (uploadAreaId === 'editWarningCodeUpload') {
+                editTaskWarningCodeFile = null;
+                editTaskWarningCodeData = null;
+            } else if (uploadAreaId === 'editLabelUpload') {
+                editTaskLabelFile = null;
+                editTaskLabelData = null;
+            } else if (uploadAreaId === 'editManualUpload') {
+                editTaskManualFile = null;
+                editTaskManualData = null;
+            }
+            
+            // 重置上传区域内容
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <div class="upload-text">拖拽文件到此处或点击上传</div>
+                <div class="upload-hint">支持JPG、PNG、PDF格式</div>
+            `;
+            uploadArea.classList.remove('has-file');
+        }
+        
+        function editTaskFiles(taskId) {
+            // 查找任务详情
+            (async function() {
+                try {
+                    const task = await DataManager.getTaskById(taskId);
+                    if (!task) {
+                        Utils.showAlert('任务不存在！', 'error');
+                        return;
+                    }
+                    
+                    // 创建一个模态框来编辑任务文件
+                    const modalHtml = `
+                    <div class="modal fade" id="editTaskFilesModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">编辑任务文件 - ${task.taskNumber}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group mb-3">
+                                        <label>上传本体码</label>
+                                        <div class="upload-area" id="editBodyCodeUpload" ondrop="handleFileDrop(event, 'editBodyCodeUpload')" ondragover="handleDragOver(event)">
+                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                            <div class="upload-text">拖拽文件到此处或点击上传</div>
+                                            <div class="upload-hint">支持JPG、PNG、PDF格式</div>
+                                            ${task.bodyCodeImage ? `<div class="upload-preview-container mt-2"><img src="${task.bodyCodeImage}" alt="本体码预览" style="max-width: 100px; max-height: 100px;"></div>` : ''}
+                                        </div>
+                                        <input type="file" id="editBodyCodeFile" accept="image/*,application/pdf" style="display: none;">
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label>上传条码</label>
+                                        <div class="upload-area" id="editBarcodeUpload" ondrop="handleFileDrop(event, 'editBarcodeUpload')" ondragover="handleDragOver(event)">
+                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                            <div class="upload-text">拖拽文件到此处或点击上传</div>
+                                            <div class="upload-hint">支持JPG、PNG、PDF格式</div>
+                                            ${task.barcodeImage ? `<div class="upload-preview-container mt-2"><img src="${task.barcodeImage}" alt="条码预览" style="max-width: 100px; max-height: 100px;"></div>` : ''}
+                                        </div>
+                                        <input type="file" id="editBarcodeFile" accept="image/*,application/pdf" style="display: none;">
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label>上传警示码</label>
+                                        <div class="upload-area" id="editWarningCodeUpload" ondrop="handleFileDrop(event, 'editWarningCodeUpload')" ondragover="handleDragOver(event)">
+                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                            <div class="upload-text">拖拽文件到此处或点击上传</div>
+                                            <div class="upload-hint">支持JPG、PNG、PDF格式</div>
+                                            ${task.warningCodeImage ? `<div class="upload-preview-container mt-2"><img src="${task.warningCodeImage}" alt="警示码预览" style="max-width: 100px; max-height: 100px;"></div>` : ''}
+                                        </div>
+                                        <input type="file" id="editWarningCodeFile" accept="image/*,application/pdf" style="display: none;">
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label>上传箱唛</label>
+                                        <div class="upload-area" id="editLabelUpload" ondrop="handleFileDrop(event, 'editLabelUpload')" ondragover="handleDragOver(event)">
+                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                            <div class="upload-text">拖拽文件到此处或点击上传</div>
+                                            <div class="upload-hint">支持JPG、PNG、PDF格式</div>
+                                            ${task.labelImage ? `<div class="upload-preview-container mt-2"><img src="${task.labelImage}" alt="箱唛预览" style="max-width: 100px; max-height: 100px;"></div>` : ''}
+                                        </div>
+                                        <input type="file" id="editLabelFile" accept="image/*,application/pdf" style="display: none;">
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label>上传说明书</label>
+                                        <div class="upload-area" id="editManualUpload" ondrop="handleFileDrop(event, 'editManualUpload')" ondragover="handleDragOver(event)">
+                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                            <div class="upload-text">拖拽文件到此处或点击上传</div>
+                                            <div class="upload-hint">支持JPG、PNG、PDF格式</div>
+                                            ${task.manualImage ? `<div class="upload-preview-container mt-2"><img src="${task.manualImage}" alt="说明书预览" style="max-width: 100px; max-height: 100px;"></div>` : ''}
+                                        </div>
+                                        <input type="file" id="editManualFile" accept="image/*,application/pdf" style="display: none;">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <button type="button" class="btn btn-primary" onclick="saveTaskFiles('${task.id}')">保存更改</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    
+                    // 将模态框添加到页面中
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    
+                    // 显示模态框
+                    const modalElement = document.getElementById('editTaskFilesModal');
+                    const bsModal = new bootstrap.Modal(modalElement);
+                    bsModal.show();
+                    
+                    // 添加事件监听器
+                    document.getElementById('editBodyCodeUpload').addEventListener('click', () => {
+                        document.getElementById('editBodyCodeFile').click();
+                    });
+                    
+                    document.getElementById('editBarcodeUpload').addEventListener('click', () => {
+                        document.getElementById('editBarcodeFile').click();
+                    });
+                    
+                    document.getElementById('editWarningCodeUpload').addEventListener('click', () => {
+                        document.getElementById('editWarningCodeFile').click();
+                    });
+                    
+                    document.getElementById('editLabelUpload').addEventListener('click', () => {
+                        document.getElementById('editLabelFile').click();
+                    });
+                    
+                    document.getElementById('editManualUpload').addEventListener('click', () => {
+                        document.getElementById('editManualFile').click();
+                    });
+                    
+                    // 文件选择事件监听
+                    document.getElementById('editBodyCodeFile').addEventListener('change', function(e) {
+                        handleFileSelect(e, 'editBodyCodeUpload');
+                    });
+                    
+                    document.getElementById('editBarcodeFile').addEventListener('change', function(e) {
+                        handleFileSelect(e, 'editBarcodeUpload');
+                    });
+                    
+                    document.getElementById('editWarningCodeFile').addEventListener('change', function(e) {
+                        handleFileSelect(e, 'editWarningCodeUpload');
+                    });
+                    
+                    document.getElementById('editLabelFile').addEventListener('change', function(e) {
+                        handleFileSelect(e, 'editLabelUpload');
+                    });
+                    
+                    document.getElementById('editManualFile').addEventListener('change', function(e) {
+                        handleFileSelect(e, 'editManualUpload');
+                    });
+                    
+                    // 模态框关闭时清理
+                    modalElement.addEventListener('hidden.bs.modal', function() {
+                        modalElement.remove();
+                    });
+                } catch (error) {
+                    console.error('编辑任务文件失败:', error);
+                    Utils.showAlert('编辑任务文件失败，请稍后重试', 'error');
+                }
+            })();
+        }
+        
+        // 定义全局变量来存储编辑的文件
+        let editTaskBodyCodeFile = null;
+        let editTaskBodyCodeData = null;
+        let editTaskBarcodeFile = null;
+        let editTaskBarcodeData = null;
+        let editTaskWarningCodeFile = null;
+        let editTaskWarningCodeData = null;
+        let editTaskLabelFile = null;
+        let editTaskLabelData = null;
+        let editTaskManualFile = null;
+        let editTaskManualData = null;
+        
+        async function saveTaskFiles(taskId) {
+            try {
+                // 获取当前任务数据
+                const task = await DataManager.getTaskById(taskId);
+                if (!task) {
+                    Utils.showAlert('任务不存在！', 'error');
+                    return;
+                }
+                
+                // 准备更新数据
+                const updateData = {};
+                
+                // 如果有新的本体码文件，处理并更新
+                if (editTaskBodyCodeData) {
+                    updateData.bodyCodeImage = editTaskBodyCodeData;
+                    updateData.bodyCodeType = Utils.isPDF(editTaskBodyCodeFile) ? 'pdf' : 'image';
+                    updateData.bodyCodeFileName = editTaskBodyCodeFile.name;
+                }
+                
+                // 如果有新的条码文件，处理并更新
+                if (editTaskBarcodeData) {
+                    updateData.barcodeImage = editTaskBarcodeData;
+                    updateData.barcodeType = Utils.isPDF(editTaskBarcodeFile) ? 'pdf' : 'image';
+                    updateData.barcodeFileName = editTaskBarcodeFile.name;
+                }
+                
+                // 如果有新的警示码文件，处理并更新
+                if (editTaskWarningCodeData) {
+                    updateData.warningCodeImage = editTaskWarningCodeData;
+                    updateData.warningCodeType = Utils.isPDF(editTaskWarningCodeFile) ? 'pdf' : 'image';
+                    updateData.warningCodeFileName = editTaskWarningCodeFile.name;
+                }
+                
+                // 如果有新的箱唛文件，处理并更新
+                if (editTaskLabelData) {
+                    updateData.labelImage = editTaskLabelData;
+                    updateData.labelType = Utils.isPDF(editTaskLabelFile) ? 'pdf' : 'image';
+                    updateData.labelFileName = editTaskLabelFile.name;
+                }
+                
+                // 如果有新的说明书文件，处理并更新
+                if (editTaskManualData) {
+                    updateData.manualImage = editTaskManualData;
+                    updateData.manualType = Utils.isPDF(editTaskManualFile) ? 'pdf' : 'image';
+                    updateData.manualFileName = editTaskManualFile.name;
+                }
+                
+                // 更新任务
+                const success = await DataManager.updateTask(taskId, updateData);
+                if (success) {
+                    Utils.showAlert('任务文件更新成功！', 'success', function() {
+                        // 关闭模态框
+                        const modalElement = document.querySelector('#editTaskFilesModal');
+                        if (modalElement) {
+                            const bsModal = bootstrap.Modal.getInstance(modalElement);
+                            if (bsModal) {
+                                bsModal.hide();
+                            }
+                        }
+                        
+                        // 重置全局变量
+                        editTaskBodyCodeFile = null;
+                        editTaskBodyCodeData = null;
+                        editTaskBarcodeFile = null;
+                        editTaskBarcodeData = null;
+                        editTaskWarningCodeFile = null;
+                        editTaskWarningCodeData = null;
+                        editTaskLabelFile = null;
+                        editTaskLabelData = null;
+                        editTaskManualFile = null;
+                        editTaskManualData = null;
+                        
+                        // 刷新任务列表
+                        loadSalesPublishedTasks();
+                    });
+                } else {
+                    Utils.showAlert('更新任务文件失败，请重试', 'error');
+                }
+            } catch (error) {
+                console.error('保存任务文件失败:', error);
+                Utils.showAlert('保存任务文件失败，请稍后重试', 'error');
             }
         }
 

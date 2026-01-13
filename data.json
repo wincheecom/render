@@ -1,27 +1,6 @@
 {
-  "products": [
-    {
-      "id": "1768286272455",
-      "product_code": "飞机到是",
-      "product_name": "完场前",
-      "product_supplier": 550,
-      "quantity": 20,
-      "purchase_price": 33,
-      "sale_price": null,
-      "created_at": "2026-01-13T06:37:52.455Z"
-    }
-  ],
+  "products": [],
   "tasks": [
-    {
-      "id": "1768286306173",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
-      "body_code_image": "",
-      "barcode_image": "",
-      "warning_code_image": "",
-      "created_at": "2026-01-13T06:38:26.173Z"
-    },
     {
       "id": "1768286312740",
       "task_number": "pending",
@@ -31,9 +10,41 @@
       "barcode_image": "",
       "warning_code_image": "",
       "created_at": "2026-01-13T06:38:32.740Z"
+    },
+    {
+      "id": "1768288489291",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T07:14:49.293Z"
+    },
+    {
+      "id": "1768306811135",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":2}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-13T12:20:11.136Z"
     }
   ],
-  "history": [],
+  "history": [
+    {
+      "id": "1768308078942",
+      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
+      "status": "\"\"",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "label_image": "2026-01-13T12:41:18.939Z",
+      "created_at": "2026-01-13T12:41:18.942Z",
+      "completed_at": "2026-01-13T12:41:18.942Z"
+    }
+  ],
   "activities": [
     {
       "id": "1768281018440",
@@ -69,6 +80,20 @@
       "type": "创建发货任务: pending",
       "details": "管理员",
       "created_at": "2026-01-13T06:38:32.755Z"
+    },
+    {
+      "id": "1768288489321",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T07:14:49.321Z"
+    },
+    {
+      "id": "1768306811161",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-13T12:20:11.161Z"
     }
   ]
 }
