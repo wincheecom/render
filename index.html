@@ -2767,6 +2767,26 @@
                             }
                         }
                         
+                        // 额外检查：如果taskNumber字段包含JSON数组（以[{开头），则生成新的任务号
+                        if (typeof fixedTask.taskNumber === 'string' && fixedTask.taskNumber.startsWith('[{')) {
+                            console.warn('检测到taskNumber字段包含JSON数据，正在修复:', fixedTask.taskNumber);
+                            // 临时保存原始内容用于解析到items
+                            const originalTaskNumber = fixedTask.taskNumber;
+                            // 为这种错位的任务生成新的任务号
+                            fixedTask.taskNumber = Utils.generateTaskNumber();
+                            
+                            // 如果items为空且原taskNumber内容看起来像items数据，尝试解析它
+                            if (!fixedTask.items || fixedTask.items.length === 0) {
+                                try {
+                                    fixedTask.items = JSON.parse(originalTaskNumber);
+                                    console.log('已将错位的taskNumber数据解析到items字段');
+                                } catch (e) {
+                                    console.warn('无法解析错位的items数据:', originalTaskNumber);
+                                    fixedTask.items = [];
+                                }
+                            }
+                        }
+                        
                         return fixedTask;
                     });
                 } catch (error) {
@@ -2884,8 +2904,112 @@
             
             static async getTaskById(taskId) {
                 try {
-                    const tasks = await this.getAllTasks();
-                    return tasks.find(t => t.id === taskId);
+                    // 直接获取指定ID的任务，而不是获取所有任务
+                    const response = await fetch(`${this.API_BASE}/api/tasks`);
+                    if (!response.ok) throw new Error('获取任务详情失败');
+                    const tasks = await response.json();
+                    
+                    // 找到指定ID的任务
+                    const task = tasks.find(t => t.id == taskId);
+                    if (!task) return null;
+                    
+                    // 将数据库字段映射到前端期望的字段名
+                    // 并修复可能存在的字段错位问题（复用getAllTasks中的逻辑）
+                    let fixedTask = {
+                        id: task.id,
+                        taskNumber: task.task_number || task.taskNumber || '',
+                        status: task.status,
+                        items: task.items || [],
+                        bodyCodeImage: task.body_code_image || task.bodyCodeImage || '',
+                        bodyCodeFileName: task.body_code_file_name || task.bodyCodeFileName || '',
+                        bodyCodeType: task.body_code_type || task.bodyCodeType || null,
+                        barcodeImage: task.barcode_image || task.barcodeImage || '',
+                        barcodeFileName: task.barcode_file_name || task.barcodeFileName || '',
+                        barcodeType: task.barcode_type || task.barcodeType || null,
+                        warningCodeImage: task.warning_code_image || task.warningCodeImage || '',
+                        warningCodeFileName: task.warning_code_file_name || task.warningCodeFileName || '',
+                        warningCodeType: task.warning_code_type || task.warningCodeType || null,
+                        labelImage: task.label_image || task.labelImage || '',
+                        labelFileName: task.label_file_name || task.labelFileName || '',
+                        labelType: task.label_type || task.labelType || null,
+                        createdAt: task.created_at || task.createdAt || '',
+                        completedAt: task.completed_at || task.completedAt || ''
+                    };
+                    
+                    // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
+                    if (typeof fixedTask.taskNumber === 'string' && 
+                        (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed') &&
+                        typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{')) {
+                        // 发生了字段错位，交换这两个字段
+                        const originalTaskNumber = fixedTask.taskNumber;
+                        fixedTask.taskNumber = fixedTask.status;
+                        fixedTask.status = originalTaskNumber;
+                        
+                        // 同时尝试解析原来的status内容到items字段
+                        try {
+                            fixedTask.items = JSON.parse(fixedTask.taskNumber);
+                        } catch (e) {
+                            console.warn('无法解析错位的items数据:', fixedTask.taskNumber);
+                            fixedTask.items = [];
+                        }
+                    }
+                    
+                    // 也检查另一种可能的错位情况（status字段包含JSON字符串而taskNumber是状态字符串）
+                    else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
+                           typeof fixedTask.taskNumber === 'string' && 
+                           (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed')) {
+                        // 发生了字段错位，交换这两个字段
+                        const originalStatus = fixedTask.status;
+                        fixedTask.status = fixedTask.taskNumber;
+                        fixedTask.taskNumber = originalStatus;
+                        
+                        // 同时尝试解析原来的status内容到items字段
+                        try {
+                            fixedTask.items = JSON.parse(originalStatus);
+                        } catch (e) {
+                            console.warn('无法解析错位的items数据:', originalStatus);
+                            fixedTask.items = [];
+                        }
+                    }
+                    
+                    // 还需要处理一种情况：status是JSON字符串但应该是一个状态值
+                    else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
+                           (typeof fixedTask.taskNumber !== 'string' || !['pending', 'processing', 'completed'].includes(fixedTask.taskNumber))) {
+                        // 这种情况下，status可能是错位的items数据，我们应该给它一个合理的状态值
+                        // 假设如果是items数据，则该任务应为pending状态
+                        const originalStatus = fixedTask.status;
+                        fixedTask.status = 'pending';
+                        
+                        // 尝试解析items数据
+                        try {
+                            fixedTask.items = JSON.parse(originalStatus);
+                        } catch (e) {
+                            console.warn('无法解析items数据:', originalStatus);
+                            fixedTask.items = [];
+                        }
+                    }
+                    
+                    // 额外检查：如果taskNumber字段包含JSON数组（以[{开头），则生成新的任务号
+                    if (typeof fixedTask.taskNumber === 'string' && fixedTask.taskNumber.startsWith('[{')) {
+                        console.warn('检测到taskNumber字段包含JSON数据，正在修复:', fixedTask.taskNumber);
+                        // 临时保存原始内容用于解析到items
+                        const originalTaskNumber = fixedTask.taskNumber;
+                        // 为这种错位的任务生成新的任务号
+                        fixedTask.taskNumber = Utils.generateTaskNumber();
+                        
+                        // 如果items为空且原taskNumber内容看起来像items数据，尝试解析它
+                        if (!fixedTask.items || fixedTask.items.length === 0) {
+                            try {
+                                fixedTask.items = JSON.parse(originalTaskNumber);
+                                console.log('已将错位的taskNumber数据解析到items字段');
+                            } catch (e) {
+                                console.warn('无法解析错位的items数据:', originalTaskNumber);
+                                fixedTask.items = [];
+                            }
+                        }
+                    }
+                    
+                    return fixedTask;
                 } catch (error) {
                     console.error('获取任务详情失败:', error);
                     return null;
@@ -2905,6 +3029,101 @@
             static async addToHistory(task) {
                 // 在数据库中，任务完成后会从tasks表移动到history表
                 try {
+                    // 确保任务数据经过字段错位修复
+                    let fixedTask = {
+                        id: task.id,
+                        taskNumber: task.task_number || task.taskNumber || '',
+                        status: task.status,
+                        items: task.items || [],
+                        bodyCodeImage: task.body_code_image || task.bodyCodeImage || '',
+                        bodyCodeFileName: task.body_code_file_name || task.bodyCodeFileName || '',
+                        bodyCodeType: task.body_code_type || task.bodyCodeType || null,
+                        barcodeImage: task.barcode_image || task.barcodeImage || '',
+                        barcodeFileName: task.barcode_file_name || task.barcodeFileName || '',
+                        barcodeType: task.barcode_type || task.barcodeType || null,
+                        warningCodeImage: task.warning_code_image || task.warningCodeImage || '',
+                        warningCodeFileName: task.warning_code_file_name || task.warningCodeFileName || '',
+                        warningCodeType: task.warning_code_type || task.warningCodeType || null,
+                        labelImage: task.label_image || task.labelImage || '',
+                        labelFileName: task.label_file_name || task.labelFileName || '',
+                        labelType: task.label_type || task.labelType || null,
+                        createdAt: task.created_at || task.createdAt || '',
+                        completedAt: task.completed_at || task.completedAt || ''
+                    };
+                    
+                    // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
+                    if (typeof fixedTask.taskNumber === 'string' && 
+                        (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed') &&
+                        typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{')) {
+                        // 发生了字段错位，交换这两个字段
+                        const originalTaskNumber = fixedTask.taskNumber;
+                        fixedTask.taskNumber = fixedTask.status;
+                        fixedTask.status = originalTaskNumber;
+                        
+                        // 同时尝试解析原来的status内容到items字段
+                        try {
+                            fixedTask.items = JSON.parse(fixedTask.taskNumber);
+                        } catch (e) {
+                            console.warn('无法解析错位的items数据:', fixedTask.taskNumber);
+                            fixedTask.items = [];
+                        }
+                    }
+                    
+                    // 也检查另一种可能的错位情况（status字段包含JSON字符串而taskNumber是状态字符串）
+                    else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
+                           typeof fixedTask.taskNumber === 'string' && 
+                           (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed')) {
+                        // 发生了字段错位，交换这两个字段
+                        const originalStatus = fixedTask.status;
+                        fixedTask.status = fixedTask.taskNumber;
+                        fixedTask.taskNumber = originalStatus;
+                        
+                        // 同时尝试解析原来的status内容到items字段
+                        try {
+                            fixedTask.items = JSON.parse(originalStatus);
+                        } catch (e) {
+                            console.warn('无法解析错位的items数据:', originalStatus);
+                            fixedTask.items = [];
+                        }
+                    }
+                    
+                    // 还需要处理一种情况：status是JSON字符串但应该是一个状态值
+                    else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
+                           (typeof fixedTask.taskNumber !== 'string' || !['pending', 'processing', 'completed'].includes(fixedTask.taskNumber))) {
+                        // 这种情况下，status可能是错位的items数据，我们应该给它一个合理的状态值
+                        // 假设如果是items数据，则该任务应为pending状态
+                        const originalStatus = fixedTask.status;
+                        fixedTask.status = 'pending';
+                        
+                        // 尝试解析items数据
+                        try {
+                            fixedTask.items = JSON.parse(originalStatus);
+                        } catch (e) {
+                            console.warn('无法解析items数据:', originalStatus);
+                            fixedTask.items = [];
+                        }
+                    }
+                    
+                    // 额外检查：如果taskNumber字段包含JSON数组（以[{开头），则生成新的任务号
+                    if (typeof fixedTask.taskNumber === 'string' && fixedTask.taskNumber.startsWith('[{')) {
+                        console.warn('检测到taskNumber字段包含JSON数据，正在修复:', fixedTask.taskNumber);
+                        // 临时保存原始内容用于解析到items
+                        const originalTaskNumber = fixedTask.taskNumber;
+                        // 为这种错位的任务生成新的任务号
+                        fixedTask.taskNumber = Utils.generateTaskNumber();
+                        
+                        // 如果items为空且原taskNumber内容看起来像items数据，尝试解析它
+                        if (!fixedTask.items || fixedTask.items.length === 0) {
+                            try {
+                                fixedTask.items = JSON.parse(originalTaskNumber);
+                                console.log('已将错位的taskNumber数据解析到items字段');
+                            } catch (e) {
+                                console.warn('无法解析错位的items数据:', originalTaskNumber);
+                                fixedTask.items = [];
+                            }
+                        }
+                    }
+                    
                     // 从tasks表删除已完成的任务
                     const deleteSuccess = await this.deleteTask(task.id);
                     if (!deleteSuccess) {
@@ -2918,7 +3137,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(task)
+                        body: JSON.stringify(fixedTask)
                     });
                     
                     if (!response.ok) {
@@ -2937,7 +3156,7 @@
                     
                     // 将数据库字段映射到前端期望的字段名
                     return history.map(record => {
-                        return {
+                        let mappedRecord = {
                             id: record.id,
                             taskNumber: record.task_number || record.taskNumber,
                             status: record.status,
@@ -2957,6 +3176,29 @@
                             createdAt: record.created_at || record.createdAt,
                             completedAt: record.completed_at || record.completedAt
                         };
+                        
+                        // 检查并修复历史记录中的字段错位问题
+                        // 如果taskNumber字段包含JSON数组（以[{开头），则生成新的任务号
+                        if (typeof mappedRecord.taskNumber === 'string' && mappedRecord.taskNumber.startsWith('[{')) {
+                            console.warn('检测到历史记录taskNumber字段包含JSON数据，正在修复:', mappedRecord.taskNumber);
+                            // 临时保存原始内容用于解析到items
+                            const originalTaskNumber = mappedRecord.taskNumber;
+                            // 为这种错位的任务生成新的任务号
+                            mappedRecord.taskNumber = Utils.generateTaskNumber();
+                            
+                            // 如果items为空且原taskNumber内容看起来像items数据，尝试解析它
+                            if (!mappedRecord.items || mappedRecord.items.length === 0) {
+                                try {
+                                    mappedRecord.items = JSON.parse(originalTaskNumber);
+                                    console.log('已将错位的taskNumber数据解析到items字段');
+                                } catch (e) {
+                                    console.warn('无法解析错位的items数据:', originalTaskNumber);
+                                    mappedRecord.items = [];
+                                }
+                            }
+                        }
+                        
+                        return mappedRecord;
                     });
                 } catch (error) {
                     console.error('获取历史记录失败:', error);
