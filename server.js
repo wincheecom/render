@@ -647,7 +647,7 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
       const productCheck = await db.query('SELECT * FROM products WHERE "id" = $1 FOR UPDATE', [item.productId]);
       if (productCheck.rows.length === 0) {
         await db.query('ROLLBACK');
-        return res.status(400).json({ error: `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在` });
+        return res.status(400).json({ error: `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在或已被删除` });
       }
       
       // 检查库存是否足够
@@ -675,13 +675,19 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('创建任务错误:', err);
     try {
       await db.query('ROLLBACK');
     } catch (rollbackErr) {
       console.error('回滚失败:', rollbackErr);
     }
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    
+    // 检查错误是否与商品不存在相关
+    if (err.message && (err.message.includes('商品') || err.message.includes('product'))) {
+      res.status(400).json({ error: '商品不存在或库存不足，请刷新页面重试', message: err.message });
+    } else {
+      res.status(500).json({ error: '服务器错误', message: err.message });
+    }
   }
 });
 
