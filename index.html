@@ -5805,7 +5805,7 @@
                     return `
                         <div style="padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; ${isSelected ? 'background-color: rgba(67, 97, 238, 0.08);' : ''}" 
                              data-id="${product.id}"
-                             onclick="selectSingleProduct('${product.id}', '${product.name}', '${product.code}', '${product.image}')">
+                             onclick="handleSelectSingleProduct('${product.id}', '${product.name}', '${product.code}', '${product.image}')">
                             ${product.image ? 
                                 `<img src="${product.image}" alt="${product.name}" style="width: 28px; height: 28px; object-fit: cover; border-radius: 4px;" onerror="Utils.onImageError(this)">` : 
                                 '<div class="text-center text-muted"><i class="fas fa-image"></i></div>'
@@ -5823,8 +5823,48 @@
                 `;
             }
         }
-
-        function selectSingleProduct(productId, productName, productCode, productImage) {
+                
+        async function handleSelectSingleProduct(productId, productName, productCode, productImage) {
+            // 包装函数，用于处理异步的 selectSingleProduct 调用
+            selectSingleProduct(productId, productName, productCode, productImage);
+        }
+                
+        async function selectSingleProduct(productId, productName, productCode, productImage) {
+            // 验证商品是否仍然存在于数据库中
+            try {
+                const products = await DataManager.getAllProducts();
+                const existingProduct = products.find(p => p.id === productId);
+                
+                if (!existingProduct) {
+                    Utils.showAlert(`商品 ${productName} (ID: ${productId}) 不存在或已被删除`, 'error');
+                    // 隐藏下拉菜单
+                    const dropdown = document.getElementById('multiselectDropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                    return;
+                }
+                
+                if (existingProduct.stock < 1) {
+                    Utils.showAlert(`商品 ${productName} 库存不足，无法添加到任务`, 'warning');
+                    // 隐藏下拉菜单
+                    const dropdown = document.getElementById('multiselectDropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                    return;
+                }
+            } catch (error) {
+                console.error('验证商品存在性失败:', error);
+                Utils.showAlert('无法验证商品信息，请稍后重试', 'error');
+                // 隐藏下拉菜单
+                const dropdown = document.getElementById('multiselectDropdown');
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                }
+                return;
+            }
+            
             // 清空之前的选中状态
             selectedProduct = {
                 id: productId,
