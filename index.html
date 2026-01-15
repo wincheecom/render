@@ -1810,6 +1810,134 @@
             font-size: 1rem;
             margin-top: 10px;
         }
+        
+        /* 登录卡片样式优化 */
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+            text-align: center;
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            text-align: left;
+            margin-bottom: 0;
+        }
+        
+        /* 隐藏表单标签 */
+        .login-form .form-group label {
+            display: none;
+        }
+        
+        /* 调整输入框样式以适应隐藏标签 */
+        .login-form .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .btn-primary {
+            margin-top: 10px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .link-secondary {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .link-secondary:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        /* 注册表单容器样式 */
+        .register-form-container {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid var(--gray-light);
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            display: none; /* 默认隐藏 */
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .register-form-container.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+            }
+            to {
+                max-height: 500px; /* 足够容纳表单的高度 */
+                opacity: 1;
+            }
+        }
+        
+        .register-form-container .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .register-form-container .form-control,
+        .register-form-container .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .register-form-container .form-control:focus,
+        .register-form-container .form-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-header .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -1821,29 +1949,55 @@
             
             <form class="login-form" id="loginForm">
                 <div class="form-group">
-                    <label for="username">用户名</label>
-                    <input type="text" id="username" class="form-control" placeholder="admin / sales / warehouse" required>
+                    <label for="username">邮箱</label>
+                    <input type="email" id="username" class="form-control" placeholder="邮箱地址" required>
                 </div>
-                
+                            
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" id="password" class="form-control" placeholder="请输入密码" value="123456" required>
+                    <input type="password" id="password" class="form-control" placeholder="密码" required>
                 </div>
-                
+                            
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i> 登录
                 </button>
+                            
+                <div class="text-center mt-3">
+                    <a href="#" id="showRegisterLink" class="link-secondary">还没有账户？立即注册</a>
+                </div>
             </form>
-            
-            <div class="user-options">
-                <div class="user-badge" data-user="admin">管理员 (admin)</div>
-                <div class="user-badge" data-user="sales">销售运营 (sales)</div>
-                <div class="user-badge" data-user="warehouse">仓库管理 (warehouse)</div>
+                        
+            <!-- 注册表单 (下拉显示) -->
+            <div id="registerFormContainer" class="register-form-container">
+                <div class="modal-header">
+                    <h5 class="modal-title">用户注册</h5>
+                </div>
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label for="registerName" class="form-label">姓名</label>
+                        <input type="text" class="form-control" id="registerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerEmail" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="registerEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerPassword" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="registerPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerRole" class="form-label">角色</label>
+                        <select class="form-select" id="registerRole" required>
+                            <option value="">请选择角色</option>
+                            <option value="sales">销售运营</option>
+                            <option value="warehouse">仓库管理</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">注册</button>
+                </form>
             </div>
             
-            <div class="mt-16 text-center">
-                <small class="text-muted" style="font-size: 0.8rem;">提示：所有预设用户密码均为 123456</small>
-            </div>
+
         </div>
     </div>
     
@@ -2286,6 +2440,29 @@
                                 <p class="text-muted text-center my-5">暂无利润数据</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- 按销售运营账户统计 -->
+                <div class="card mt-25">
+                    <div class="card-title">销售运营账户统计</div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>销售运营</th>
+                                    <th>发货任务数</th>
+                                    <th>发货总量</th>
+                                    <th>销售额</th>
+                                    <th>利润</th>
+                                </tr>
+                            </thead>
+                            <tbody id="creatorStatistics">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">正在加载数据...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 
@@ -2861,7 +3038,9 @@
                             body_code_image: task.bodyCodeImage || '',
                             barcode_image: task.barcodeImage || '',
                             warning_code_image: task.warningCodeImage || '',
-                            label_image: task.labelImage || ''
+                            label_image: task.labelImage || '',
+                            creator_name: user ? user.name : null,
+                            creator_role: user ? user.role : null
                         })
                     });
                     
@@ -2890,6 +3069,8 @@
                         labelImage: newTask.label_image || newTask.labelImage || '',
                         labelFileName: newTask.label_file_name || newTask.labelFileName || '',
                         labelType: newTask.label_type || newTask.labelType || null,
+                        creator_name: newTask.creator_name || newTask.creatorName || null,
+                        creator_role: newTask.creator_role || newTask.creatorRole || null,
                         createdAt: newTask.created_at || newTask.createdAt || '',
                         completedAt: newTask.completed_at || newTask.completedAt || ''
                     };
@@ -3552,6 +3733,58 @@
                 
                 return monthlyData;
             }
+            
+            static async getCreatorStatistics(filter = 'day') {
+                try {
+                    const history = await this.getHistory();
+                    const products = await this.getAllProducts();
+                    const { startDate, endDate } = Utils.getDateRange(filter);
+                    
+                    const filteredHistory = history.filter(task => {
+                        const taskDate = new Date(task.completedAt || task.createdAt);
+                        return taskDate >= startDate && taskDate < endDate;
+                    });
+                    
+                    const creatorStats = {};
+                    
+                    filteredHistory.forEach(task => {
+                        const creatorName = task.creatorName || task.creator_name || 'Unknown';
+                        
+                        if (!creatorStats[creatorName]) {
+                            creatorStats[creatorName] = {
+                                name: creatorName,
+                                totalShipments: 0,
+                                totalSales: 0,
+                                totalProfit: 0,
+                                totalTasks: 0,
+                                tasks: []
+                            };
+                        }
+                        
+                        creatorStats[creatorName].totalTasks++;
+                        creatorStats[creatorName].tasks.push(task);
+                        
+                        task.items.forEach(item => {
+                            creatorStats[creatorName].totalShipments += item.quantity;
+                            
+                            const product = products.find(p => p.id === item.productId);
+                            if (product) {
+                                const itemSales = product.salePrice * item.quantity;
+                                const itemCost = product.purchasePrice * item.quantity;
+                                const itemProfit = itemSales - itemCost;
+                                
+                                creatorStats[creatorName].totalSales += itemSales;
+                                creatorStats[creatorName].totalProfit += itemProfit;
+                            }
+                        });
+                    });
+                    
+                    return Object.values(creatorStats).sort((a, b) => b.totalSales - a.totalSales);
+                } catch (error) {
+                    console.error('获取创建者统计数据失败:', error);
+                    return [];
+                }
+            }
         }
         
         // ============================================
@@ -3633,6 +3866,7 @@
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             initLogin();
+            initRegister();
             checkLoginStatus();
         });
 
@@ -3657,17 +3891,38 @@
             // 用户快捷选择
             userBadges.forEach(badge => {
                 badge.addEventListener('click', function() {
-                    const user = this.getAttribute('data-user');
-                    document.getElementById('username').value = user;
+                    const email = this.getAttribute('data-user');
+                    document.getElementById('username').value = email;
                     document.getElementById('password').value = '123456';
                 });
             });
         }
         
-        function checkLoginStatus() {
+        async function checkLoginStatus() {
             const savedUser = DataManager.getCurrentUser();
-            if (savedUser && users[savedUser.username]) {
-                loginUser(savedUser.username);
+            if (savedUser) {
+                // 检查令牌是否仍然有效
+                try {
+                    const response = await fetch(`${DataManager.API_BASE}/api/auth/me`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // 令牌有效，直接进入主系统
+                        document.getElementById('loginPage').style.display = 'none';
+                        document.getElementById('mainSystem').style.display = 'block';
+                        initMainSystem();
+                    } else {
+                        // 令牌无效，清除本地存储
+                        DataManager.logout();
+                    }
+                } catch (error) {
+                    console.error('验证登录状态失败:', error);
+                    DataManager.logout();
+                }
             }
         }
 
@@ -3701,6 +3956,67 @@
                 console.error('登录错误:', error);
                 Utils.showAlert(error.message || '登录失败，请稍后重试', 'error');
             }
+        }
+        
+        // 注册功能初始化
+        function initRegister() {
+            const showRegisterLink = document.getElementById('showRegisterLink');
+            const registerForm = document.getElementById('registerForm');
+            const registerFormContainer = document.getElementById('registerFormContainer');
+            
+            // 显示/隐藏注册表单
+            showRegisterLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 切换注册表单的显示/隐藏
+                registerFormContainer.classList.toggle('show');
+                
+                // 更新链接文本
+                if (registerFormContainer.classList.contains('show')) {
+                    showRegisterLink.textContent = '取消注册';
+                } else {
+                    showRegisterLink.textContent = '还没有账户？立即注册';
+                }
+            });
+            
+            // 注册表单提交
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('registerName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const role = document.getElementById('registerRole').value;
+                
+                try {
+                    const response = await fetch(`${DataManager.API_BASE}/api/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name, email, password, role })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || '注册失败');
+                    }
+                    
+                    Utils.showAlert('注册成功，请使用邮箱和密码登录', 'success');
+                    
+                    // 隐藏注册表单并重置链接文本
+                    registerFormContainer.classList.remove('show');
+                    showRegisterLink.textContent = '还没有账户？立即注册';
+                    
+                    // 清空表单
+                    registerForm.reset();
+                    
+                } catch (error) {
+                    console.error('注册错误:', error);
+                    Utils.showAlert(error.message || '注册失败，请稍后重试', 'error');
+                }
+            });
         }
         
         function loginUser(username) {
@@ -3794,7 +4110,23 @@
             menuList.innerHTML = '';
             
             const user = DataManager.getCurrentUser();
-            const userModules = users[user.username].modules;
+            if (!user) return;
+            
+            // 根据用户角色确定可访问的模块
+            let userModules = [];
+            switch(user.role) {
+                case 'admin':
+                    userModules = ['dashboard', 'product-add', 'sales-operations', 'warehouse-operations', 'statistics-analysis'];
+                    break;
+                case 'sales':
+                    userModules = ['dashboard', 'sales-operations', 'statistics-analysis'];
+                    break;
+                case 'warehouse':
+                    userModules = ['dashboard', 'warehouse-operations'];
+                    break;
+                default:
+                    userModules = ['dashboard'];
+            }
             
             userModules.forEach(moduleId => {
                 const module = modules[moduleId];
@@ -5754,6 +6086,7 @@
                     let detailHtml = '<h6>任务详情</h6>';
                     detailHtml += '<p><strong>任务号：</strong>' + task.taskNumber + '</p>';
                     detailHtml += '<p><strong>创建时间：</strong>' + Utils.formatDate(task.createdAt) + '</p>';
+                    detailHtml += '<p><strong>创建者：</strong>' + (task.creatorName || task.creator_name || 'N/A') + '</p>';
                     detailHtml += '<p>' + (task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成') + '</p>';
                     
                     // 显示任务文件
@@ -6833,6 +7166,10 @@
                 updateShipmentChart(stats.monthlyShipments);
                 updateSalesChart(stats.monthlySales);
                 updateProfitChart(stats.monthlyProfit);
+                
+                // 加载按销售运营账户的统计信息
+                const creatorStats = await DataManager.getCreatorStatistics(currentStatisticsFilter);
+                updateCreatorStatistics(creatorStats);
             } catch (error) {
                 console.error('加载统计数据失败:', error);
                 Utils.showAlert('加载统计数据失败，请稍后重试', 'error');
@@ -6896,6 +7233,26 @@
                         </div>
                     </div>
                 </div>
+            `).join('');
+        }
+        
+        function updateCreatorStatistics(stats) {
+            const container = document.getElementById('creatorStatistics');
+            if (!container) return;
+            
+            if (stats.length === 0) {
+                container.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">暂无销售运营账户数据</td></tr>';
+                return;
+            }
+            
+            container.innerHTML = stats.map(stat => `
+                <tr>
+                    <td>${stat.name}</td>
+                    <td>${stat.totalTasks}</td>
+                    <td>${stat.totalShipments}</td>
+                    <td>${Utils.formatCurrency(stat.totalSales)}</td>
+                    <td>${Utils.formatCurrency(stat.totalProfit)}</td>
+                </tr>
             `).join('');
         }
 

@@ -14,7 +14,8 @@ const DEFAULT_DATA = {
   products: [],
   tasks: [],
   history: [],
-  activities: []
+  activities: [],
+  users: []
 };
 
 class SimpleDB {
@@ -33,9 +34,85 @@ class SimpleDB {
       } else {
         this.data = JSON.parse(fileContent);
       }
+      
+      // 确保用户表存在并初始化默认用户
+      await this.initializeUsers();
     } catch (error) {
       // 文件不存在或格式错误，使用默认数据
       this.data = { ...DEFAULT_DATA };
+      
+      // 初始化用户数据
+      await this.initializeUsers();
+      
+      await this.saveToFile();
+    }
+  }
+  
+  // 初始化用户数据
+  async initializeUsers() {
+    if (!this.data.users) {
+      this.data.users = [];
+    }
+    
+    if (this.data.users.length === 0) {
+      // 添加默认用户
+      const bcrypt = require('bcrypt');
+      const saltRounds = 10;
+      
+      // 为不同角色创建默认用户
+      const adminPasswordHash = await bcrypt.hash('123456', saltRounds);
+      const salesPasswordHash = await bcrypt.hash('123456', saltRounds);
+      const warehousePasswordHash = await bcrypt.hash('123456', saltRounds);
+      
+      this.data.users.push(
+        {
+          id: Date.now().toString() + '_admin', // 简单的 ID 生成
+          email: 'admin@example.com',
+          password_hash: adminPasswordHash,
+          name: '管理员',
+          role: 'admin',
+          company_name: '公司名称',
+          currency: 'USD',
+          language: 'en',
+          settings: {},
+          is_active: true,
+          last_login: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: Date.now().toString() + '_sales',
+          email: 'sales@example.com',
+          password_hash: salesPasswordHash,
+          name: '销售运营',
+          role: 'sales',
+          company_name: '公司名称',
+          currency: 'USD',
+          language: 'en',
+          settings: {},
+          is_active: true,
+          last_login: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: Date.now().toString() + '_warehouse',
+          email: 'warehouse@example.com',
+          password_hash: warehousePasswordHash,
+          name: '仓库管理',
+          role: 'warehouse',
+          company_name: '公司名称',
+          currency: 'USD',
+          language: 'en',
+          settings: {},
+          is_active: true,
+          last_login: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      );
+      
+      console.log('已添加默认用户数据');
       await this.saveToFile();
     }
   }
@@ -198,7 +275,72 @@ class SimpleDB {
         return { rows: [{ count: this.data.history.length }] };
       } else if (sql.includes('activities')) {
         return { rows: [{ count: this.data.activities.length }] };
+      } else if (sql.includes('users')) {
+        return { rows: [{ count: this.data.users.length }] };
       }
+    } else if (sql.includes('SELECT * FROM users')) {
+      return {
+        rows: this.data.users,
+        rowCount: this.data.users.length
+      };
+    } else if (sql.includes('INSERT INTO users')) {
+      // 解析用户插入参数
+      const [email, password_hash, name, role, company_name] = params;
+      const newUser = {
+        id: Date.now().toString(), // 简单的 ID 生成
+        email,
+        password_hash,
+        name,
+        role,
+        company_name: company_name || '',
+        currency: 'USD',
+        language: 'en',
+        settings: {},
+        is_active: true,
+        last_login: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      this.data.users.push(newUser);
+      await this.saveToFile();
+      return {
+        rows: [newUser],
+        rowCount: 1
+      };
+    } else if (sql.includes('UPDATE users SET') && sql.includes('last_login = NOW()') && params.length > 0) {
+      // 处理更新最后登录时间
+      const userId = params[0];
+      const user = this.data.users.find(u => u.id == userId);
+      if (user) {
+        user.last_login = new Date().toISOString();
+        user.updated_at = new Date().toISOString();
+        await this.saveToFile();
+      }
+      return { rowCount: 1 };
+    } else if (sql.includes('SELECT * FROM users WHERE email = $1 AND is_active = true')) {
+      // 根据邮箱查找活跃用户
+      const email = params[0];
+      const user = this.data.users.find(u => u.email === email && u.is_active === true);
+      return {
+        rows: user ? [user] : [],
+        rowCount: user ? 1 : 0
+      };
+    } else if (sql.includes('SELECT id FROM users WHERE email = $1')) {
+      // 检查邮箱是否已存在
+      const email = params[0];
+      const user = this.data.users.find(u => u.email === email);
+      return {
+        rows: user ? [user] : [],
+        rowCount: user ? 1 : 0
+      };
+    } else if (sql.includes('SELECT id, email, name, role, company_name, currency, language, settings, is_active, last_login, created_at, updated_at FROM users WHERE id = $1')) {
+      // 获取完整用户信息
+      const userId = params[0];
+      const user = this.data.users.find(u => u.id == userId);
+      return {
+        rows: user ? [user] : [],
+        rowCount: user ? 1 : 0
+      };
     }
 
     return { rows: [], rowCount: 0 };

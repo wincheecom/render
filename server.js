@@ -141,6 +141,8 @@ setTimeout(async () => {
             "barcode_image" TEXT,
             "warning_code_image" TEXT,
             "label_image" TEXT,
+            "creator_name" VARCHAR(255),
+            "creator_role" VARCHAR(50),
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -156,6 +158,8 @@ setTimeout(async () => {
             "barcode_image" TEXT,
             "warning_code_image" TEXT,
             "label_image" TEXT,
+            "creator_name" VARCHAR(255),
+            "creator_role" VARCHAR(50),
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -360,11 +364,16 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, name, companyName } = req.body;
+    const { email, password, name, companyName, role } = req.body;
     
     // 验证输入参数
-    if (!email || !password || !name) {
-      return res.status(400).json({ error: '邮箱、密码和姓名都是必填项' });
+    if (!email || !password || !name || !role) {
+      return res.status(400).json({ error: '邮箱、密码、姓名和角色都是必填项' });
+    }
+    
+    // 验证角色是否为允许的角色
+    if (!['sales', 'warehouse'].includes(role)) {
+      return res.status(400).json({ error: '角色必须是 sales 或 warehouse' });
     }
     
     // 检查邮箱是否已存在
@@ -382,12 +391,12 @@ app.post('/api/auth/register', async (req, res) => {
     // 哈希密码
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // 创建新用户，默认角色为 sales
+    // 创建新用户
     const result = await db.query(
       `INSERT INTO users (email, password_hash, name, role, company_name) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING id, email, name, role, company_name, currency, language, settings, created_at`,
-      [email, hashedPassword, name, 'sales', companyName || '']
+      [email, hashedPassword, name, role, companyName || '']
     );
     
     const user = result.rows[0];
@@ -502,7 +511,7 @@ app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, 
 
 app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, creator_name, creator_role } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -543,8 +552,8 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     
     const result = await db.query(
-      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl]
+      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "creator_name", "creator_role", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, creator_name, creator_role]
     );
     
     // 更新相关产品的库存
@@ -634,9 +643,9 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     
     // 将任务数据移动到历史表
     await db.query(
-      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)`,
-      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.completed_at || new Date().toISOString()]
+      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "creator_name", "creator_role", "created_at", "completed_at")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)`,
+      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.creator_name, task.creator_role, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
@@ -741,7 +750,7 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
 
 app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at, creator_name, creator_role } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -763,8 +772,8 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     }
     
     const result = await db.query(
-      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, completed_at || new Date().toISOString()]
+      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "creator_name", "creator_role", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, creator_name, creator_role, completed_at || new Date().toISOString()]
     );
     res.json(result.rows[0]);
   } catch (err) {
