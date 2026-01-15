@@ -88,6 +88,49 @@ const initDB = async () => {
 // 初始化数据库连接
 initDB();
 
+// 强制确保管理员账户存在（在应用启动后稍等片刻执行）
+setTimeout(async () => {
+  try {
+    // 检查当前使用的数据库类型
+    if (db && typeof db.query === 'function') {
+      // 简单判断是否为简化数据库（通过检查是否包含特定方法）
+      if (!(db.constructor && db.constructor.toString().includes('SimpleDB'))) {
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        const adminPasswordHash = await bcrypt.hash('123456', saltRounds);
+        
+        // 检查是否已存在管理员账户
+        const result = await db.query('SELECT id, email FROM users WHERE email = $1', ['admin@example.com']);
+        if (result.rows.length === 0) {
+          // 如果不存在，插入默认管理员账户
+          await db.query(
+            `INSERT INTO users (email, password_hash, name, role, company_name) 
+             VALUES ($1, $2, $3, $4, $5)` ,
+            ['admin@example.com', adminPasswordHash, '管理员1', 'admin', '公司名称']
+          );
+          console.log('已添加默认管理员账户 admin@example.com');
+        }
+        
+        // 检查第二个管理员账户
+        const result2 = await db.query('SELECT id, email FROM users WHERE email = $1', ['admin2@example.com']);
+        if (result2.rows.length === 0) {
+          // 如果不存在，插入第二个管理员账户
+          await db.query(
+            `INSERT INTO users (email, password_hash, name, role, company_name) 
+             VALUES ($1, $2, $3, $4, $5)` ,
+            ['admin2@example.com', adminPasswordHash, '管理员2', 'admin', '公司名称']
+          );
+          console.log('已添加默认管理员账户 admin2@example.com');
+        }
+        
+        console.log('管理员账户检查完成');
+      }
+    }
+  } catch (error) {
+    console.error('确保管理员账户存在时出错:', error);
+  }
+}, 3000); // 3秒后执行，确保数据库连接已建立
+
 // 初始化数据库表（仅在使用 PostgreSQL 时）
 setTimeout(async () => {
   // 检查当前使用的数据库类型
