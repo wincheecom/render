@@ -2512,7 +2512,18 @@
             
             static async getAllProducts() {
                 try {
-                    const response = await fetch(`${this.API_BASE}/api/products`);
+                    const user = this.getCurrentUser();
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
+                    const response = await fetch(`${this.API_BASE}/api/products`, {
+                        headers: headers
+                    });
                     if (!response.ok) throw new Error('获取产品列表失败');
                     const products = await response.json();
                     return products.map(product => {
@@ -2547,11 +2558,18 @@
             
             static async addProduct(product) {
                 try {
+                    const user = this.getCurrentUser();
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/products`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: headers,
                         body: JSON.stringify({
                             product_code: product.code,
                             product_name: product.name,
@@ -2602,12 +2620,19 @@
                     if (product) {
                         const newQuantity = Math.max(0, (product.stock || product.quantity || 0) - quantity);
                         
+                        const user = this.getCurrentUser();
+                        const headers = {
+                            'Content-Type': 'application/json',
+                        };
+                        
+                        if (user && user.role) {
+                            headers['x-user-role'] = user.role;
+                        }
+                        
                         // 更新数据库中的产品数量
                         const response = await fetch(`${this.API_BASE}/api/products/${productId}`, {
                             method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
+                            headers: headers,
                             body: JSON.stringify({
                                 quantity: newQuantity
                             })
@@ -2629,8 +2654,16 @@
             
             static async deleteProduct(productId) {
                 try {
+                    const user = this.getCurrentUser();
+                    const headers = {};
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/products/${productId}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
+                        headers: headers
                     });
                     
                     if (!response.ok) {
@@ -2647,7 +2680,16 @@
             
             static async getAllTasks() {
                 try {
-                    const response = await fetch(`${this.API_BASE}/api/tasks`);
+                    const user = this.getCurrentUser();
+                    const headers = {};
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
+                    const response = await fetch(`${this.API_BASE}/api/tasks`, {
+                        headers: headers
+                    });
                     if (!response.ok) throw new Error('获取任务列表失败');
                     const tasks = await response.json();
                     
@@ -2764,11 +2806,18 @@
             
             static async addTask(task) {
                 try {
+                    const user = this.getCurrentUser();
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/tasks`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: headers,
                         body: JSON.stringify({
                             task_number: Utils.generateTaskNumber(),
                             status: 'pending',
@@ -2822,11 +2871,18 @@
             
             static async updateTask(taskId, updates) {
                 try {
+                    const user = this.getCurrentUser();
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/tasks/${taskId}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: headers,
                         body: JSON.stringify(updates)
                     });
                     
@@ -2844,8 +2900,16 @@
             
             static async deleteTask(taskId) {
                 try {
+                    const user = this.getCurrentUser();
+                    const headers = {};
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/tasks/${taskId}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
+                        headers: headers
                     });
                     
                     if (!response.ok) {
@@ -2867,7 +2931,16 @@
             static async getTaskById(taskId) {
                 try {
                     // 直接获取指定ID的任务，而不是获取所有任务
-                    const response = await fetch(`${this.API_BASE}/api/tasks`);
+                    const user = this.getCurrentUser();
+                    const headers = {};
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
+                    const response = await fetch(`${this.API_BASE}/api/tasks`, {
+                        headers: headers
+                    });
                     if (!response.ok) throw new Error('获取任务详情失败');
                     const tasks = await response.json();
                     
@@ -3094,11 +3167,18 @@
                     }
                     
                     // 添加到history表
+                    const user = this.getCurrentUser();
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/history`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: headers,
                         body: JSON.stringify(fixedTask)
                     });
                     
@@ -3112,7 +3192,16 @@
             
             static async getHistory() {
                 try {
-                    const response = await fetch(`${this.API_BASE}/api/history`);
+                    const user = this.getCurrentUser();
+                    const headers = {};
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
+                    const response = await fetch(`${this.API_BASE}/api/history`, {
+                        headers: headers
+                    });
                     if (!response.ok) throw new Error('获取历史记录失败');
                     const history = await response.json();
                     
@@ -3171,7 +3260,16 @@
             
             static async getActivities() {
                 try {
-                    const response = await fetch(`${this.API_BASE}/api/activities`);
+                    const user = this.getCurrentUser();
+                    const headers = {};
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
+                    const response = await fetch(`${this.API_BASE}/api/activities`, {
+                        headers: headers
+                    });
                     if (!response.ok) throw new Error('获取活动记录失败');
                     const activities = await response.json();
                     
@@ -3208,11 +3306,17 @@
                         actor: userName
                     };
                     
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    if (user && user.role) {
+                        headers['x-user-role'] = user.role;
+                    }
+                    
                     const response = await fetch(`${this.API_BASE}/api/activities`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: headers,
                         body: JSON.stringify(activity)
                     });
                     

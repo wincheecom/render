@@ -238,8 +238,23 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// 权限中间件
+function requireRole(requiredRoles) {
+  return (req, res, next) => {
+    // 在生产环境中，这里应该验证用户身份和角色
+    // 目前我们模拟一个简单验证，检查请求头中的角色信息
+    const userRole = req.headers['x-user-role'] || 'admin'; // 默认为admin用于测试
+    
+    if (!requiredRoles.includes(userRole)) {
+      return res.status(403).json({ error: '权限不足', message: `需要 ${requiredRoles.join(' 或 ')} 角色才能访问此资源` });
+    }
+    
+    next();
+  };
+}
+
 // API routes for products
-app.get('/api/products', async (req, res) => {
+app.get('/api/products', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM products ORDER BY "created_at" DESC');
     res.json(result.rows);
@@ -249,7 +264,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-app.post('/api/products', async (req, res) => {
+app.post('/api/products', requireRole(['admin']), async (req, res) => {
   try {
     const { product_code, product_name, product_supplier, quantity, purchase_price, sale_price, image } = req.body;
     
@@ -271,7 +286,7 @@ app.post('/api/products', async (req, res) => {
 });
 
 // API routes for tasks
-app.get('/api/tasks', async (req, res) => {
+app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM tasks ORDER BY "created_at" DESC');
     res.json(result.rows);
@@ -281,7 +296,7 @@ app.get('/api/tasks', async (req, res) => {
   }
 });
 
-app.post('/api/tasks', async (req, res) => {
+app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
     
@@ -350,7 +365,7 @@ app.post('/api/tasks', async (req, res) => {
   }
 });
 
-app.put('/api/tasks/:id', async (req, res) => {
+app.put('/api/tasks/:id', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -396,7 +411,7 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/tasks/:id', async (req, res) => {
+app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -439,7 +454,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
 });
 
 // API routes for products
-app.put('/api/products/:id', async (req, res) => {
+app.put('/api/products/:id', requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -486,7 +501,7 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/products/:id', async (req, res) => {
+app.delete('/api/products/:id', requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     console.log('准备删除产品，ID:', id);
@@ -510,7 +525,7 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // API routes for history
-app.get('/api/history', async (req, res) => {
+app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM history ORDER BY "created_at" DESC');
     res.json(result.rows);
@@ -520,7 +535,7 @@ app.get('/api/history', async (req, res) => {
   }
 });
 
-app.post('/api/history', async (req, res) => {
+app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at } = req.body;
     
@@ -555,7 +570,7 @@ app.post('/api/history', async (req, res) => {
 });
 
 // API routes for activities
-app.get('/api/activities', async (req, res) => {
+app.get('/api/activities', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM activities ORDER BY "created_at" DESC');
     res.json(result.rows);
@@ -565,7 +580,7 @@ app.get('/api/activities', async (req, res) => {
   }
 });
 
-app.post('/api/activities', async (req, res) => {
+app.post('/api/activities', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const { time, type, details, actor } = req.body;
     const result = await db.query(
