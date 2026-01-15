@@ -41,7 +41,9 @@ async function initializeDatabase() {
     
     // 检查是否已有用户
     const usersResult = await pool.query('SELECT COUNT(*) FROM users');
-    if (parseInt(usersResult.rows[0].count) === 0) {
+    const userCount = parseInt(usersResult.rows[0].count);
+    
+    if (userCount === 0) {
       // 添加默认用户
       const bcrypt = require('bcrypt');
       const saltRounds = 10;
@@ -67,6 +69,25 @@ async function initializeDatabase() {
       );
       
       console.log('已添加默认用户数据');
+    } else {
+      // 如果用户表已存在，确保至少有一个管理员账户
+      const adminResult = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1', ['admin']);
+      const adminCount = parseInt(adminResult.rows[0].count);
+      
+      if (adminCount === 0) {
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        const adminPasswordHash = await bcrypt.hash('123456', saltRounds);
+        
+        // 插入默认管理员账户
+        await pool.query(
+          `INSERT INTO users (email, password_hash, name, role, company_name)
+           VALUES ($1, $2, $3, $4, $5)`,
+          ['admin@example.com', adminPasswordHash, '管理员1', 'admin', '公司名称']
+        );
+        
+        console.log('已添加默认管理员账户');
+      }
     }
     
     // 检查 products 表是否为空
