@@ -6351,25 +6351,9 @@
                     return;
                 }
                 
-                // 额外验证：再次检查购物车中的商品是否仍然存在
-                // 防止在验证期间商品被删除的情况
-                const finalProducts = await DataManager.getAllProducts();
-                for (const item of taskCart) {
-                    const product = finalProducts.find(p => p.id === item.productId);
-                    if (!product) {
-                        Utils.showAlert(`商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 已被删除，请刷新页面重新选择商品`, 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
-                        return;
-                    }
-                    // 检查最终库存是否足够
-                    if (product.stock < item.quantity) {
-                        Utils.showAlert(`商品 ${product.name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})，请调整数量或刷新页面重新选择商品`, 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
-                        return;
-                    }
-                }
+                // 仅进行一次最终验证，减少不必要的重复验证
+                // 因为后端已经使用事务和行级锁保护了数据一致性
+                // 只需处理最明显的错误情况
                 
                 const taskData = {
                     items: taskCart.map(item => ({
@@ -6399,31 +6383,7 @@
                     otherType: taskOtherType || null
                 };
                 
-                // 最后一次验证，确保在提交前商品依然存在
-                const finalValidationProducts = await DataManager.getAllProducts();
-                let finalValidationError = '';
-                let hasFinalValidationError = false;
-                
-                for (const item of taskData.items) {
-                    const product = finalValidationProducts.find(p => p.id === item.productId);
-                    if (!product) {
-                        finalValidationError = `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在或已被删除`;
-                        hasFinalValidationError = true;
-                        break;
-                    }
-                    if ((product.stock !== undefined ? product.stock : product.quantity) < item.quantity) {
-                        finalValidationError = `商品 ${product.name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock !== undefined ? product.stock : product.quantity})`;
-                        hasFinalValidationError = true;
-                        break;
-                    }
-                }
-                
-                if (hasFinalValidationError) {
-                    Utils.showAlert(finalValidationError, 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
-                    return;
-                }
+
                 
                 const newTask = await DataManager.addTask(taskData);
                 
