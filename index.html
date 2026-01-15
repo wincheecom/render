@@ -6308,6 +6308,32 @@
                     otherType: taskOtherType || null
                 };
                 
+                // 最后一次验证，确保在提交前商品依然存在
+                const finalValidationProducts = await DataManager.getAllProducts();
+                let finalValidationError = '';
+                let hasFinalValidationError = false;
+                
+                for (const item of taskData.items) {
+                    const product = finalValidationProducts.find(p => p.id === item.productId);
+                    if (!product) {
+                        finalValidationError = `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在或已被删除`;
+                        hasFinalValidationError = true;
+                        break;
+                    }
+                    if ((product.stock !== undefined ? product.stock : product.quantity) < item.quantity) {
+                        finalValidationError = `商品 ${product.name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock !== undefined ? product.stock : product.quantity})`;
+                        hasFinalValidationError = true;
+                        break;
+                    }
+                }
+                
+                if (hasFinalValidationError) {
+                    Utils.showAlert(finalValidationError, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                    return;
+                }
+                
                 const newTask = await DataManager.addTask(taskData);
                 
                 Utils.showAlert(`发货任务创建成功！任务号：${newTask.taskNumber}`, 'success', async function() {
