@@ -56,9 +56,11 @@ async function initializeDatabase() {
          VALUES 
          ($1, $2, $3, $4, $5),
          ($6, $7, $8, $9, $10),
-         ($11, $12, $13, $14, $15);`,
+         ($11, $12, $13, $14, $15),
+         ($16, $17, $18, $19, $20);`,
         [
-          'admin@example.com', adminPasswordHash, '管理员', 'admin', '公司名称',
+          'admin@example.com', adminPasswordHash, '管理员1', 'admin', '公司名称',
+          'admin2@example.com', adminPasswordHash, '管理员2', 'admin', '公司名称',
           'sales@example.com', salesPasswordHash, '销售运营', 'sales', '公司名称',
           'warehouse@example.com', warehousePasswordHash, '仓库管理', 'warehouse', '公司名称'
         ]
