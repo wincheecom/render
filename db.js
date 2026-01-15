@@ -16,6 +16,57 @@ const pool = new Pool({
 // 初始化数据库，添加示例数据
 async function initializeDatabase() {
   try {
+    // 首先创建用户表（如果不存在）
+    await pool.query(
+      `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`
+    );
+    
+    await pool.query(
+      `CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'sales', 'warehouse')),
+        company_name VARCHAR(255),
+        currency VARCHAR(10) DEFAULT 'USD',
+        language VARCHAR(10) DEFAULT 'en',
+        settings JSONB DEFAULT '{}',
+        is_active BOOLEAN DEFAULT true,
+        last_login TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )`
+    );
+    
+    // 检查是否已有用户
+    const usersResult = await pool.query('SELECT COUNT(*) FROM users');
+    if (parseInt(usersResult.rows[0].count) === 0) {
+      // 添加默认用户
+      const bcrypt = require('bcrypt');
+      const saltRounds = 10;
+      
+      // 为不同角色创建默认用户
+      const adminPasswordHash = await bcrypt.hash('123456', saltRounds);
+      const salesPasswordHash = await bcrypt.hash('123456', saltRounds);
+      const warehousePasswordHash = await bcrypt.hash('123456', saltRounds);
+      
+      await pool.query(
+        `INSERT INTO users (email, password_hash, name, role, company_name) 
+         VALUES 
+         ($1, $2, $3, $4, $5),
+         ($6, $7, $8, $9, $10),
+         ($11, $12, $13, $14, $15);`,
+        [
+          'admin@example.com', adminPasswordHash, '管理员', 'admin', '公司名称',
+          'sales@example.com', salesPasswordHash, '销售运营', 'sales', '公司名称',
+          'warehouse@example.com', warehousePasswordHash, '仓库管理', 'warehouse', '公司名称'
+        ]
+      );
+      
+      console.log('已添加默认用户数据');
+    }
+    
     // 检查 products 表是否为空
     const productsResult = await pool.query('SELECT COUNT(*) FROM products');
     if (parseInt(productsResult.rows[0].count) === 0) {

@@ -4,6 +4,8 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
@@ -181,6 +183,9 @@ setTimeout(async () => {
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// JWT 配置
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+
 // Enable CORS for all routes
 app.use(cors());
 
@@ -241,17 +246,216 @@ app.get('/', (req, res) => {
 // 权限中间件
 function requireRole(requiredRoles) {
   return (req, res, next) => {
-    // 在生产环境中，这里应该验证用户身份和角色
-    // 目前我们模拟一个简单验证，检查请求头中的角色信息
-    const userRole = req.headers['x-user-role'] || 'admin'; // 默认为admin用于测试
+    // 首先检查Authorization头中的JWT令牌
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
     
-    if (!requiredRoles.includes(userRole)) {
-      return res.status(403).json({ error: '权限不足', message: `需要 ${requiredRoles.join(' 或 ')} 角色才能访问此资源` });
+    if (!token) {
+      // 如果没有令牌，仍支持旧的x-user-role头用于兼容性
+      const userRole = req.headers['x-user-role'] || 'admin'; // 默认为admin用于测试
+      
+      if (!requiredRoles.includes(userRole)) {
+        return res.status(403).json({ error: '权限不足', message: `需要 ${requiredRoles.join(' 或 ')} 角色才能访问此资源` });
+      }
+      
+      next();
+      return;
     }
     
-    next();
+    // 使用JWT令牌验证用户身份
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: '令牌无效' });
+      }
+      
+      // 检查用户角色是否在所需角色列表中
+      if (!requiredRoles.includes(user.role)) {
+        return res.status(403).json({ error: '权限不足', message: `需要 ${requiredRoles.join(' 或 ')} 角色才能访问此资源` });
+      }
+      
+      req.user = user; // 将用户信息附加到请求对象
+      next();
+    });
   };
 }
+
+// 验证 JWT Token 的中间件
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    return res.status(401).json({ error: '访问被拒绝，缺少令牌' });
+  }
+  
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: '令牌无效' });
+    }
+    req.user = user; // 将用户信息附加到请求对象
+    next();
+  });
+}
+
+// 用户认证相关 API
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // 验证输入参数
+    if (!email || !password) {
+      return res.status(400).json({ error: '邮箱和密码都是必填项' });
+    }
+    
+    // 查询用户
+    const result = await db.query('SELECT * FROM users WHERE email = $1 AND is_active = true', [email]);
+    
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: '邮箱或密码错误' });
+    }
+    
+    const user = result.rows[0];
+    
+    // 验证密码
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    
+    if (!validPassword) {
+      return res.status(401).json({ error: '邮箱或密码错误' });
+    }
+    
+    // 生成 JWT Token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        role: user.role 
+      }, 
+      JWT_SECRET, 
+      { expiresIn: '24h' }
+    );
+    
+    // 更新最后登录时间
+    await db.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
+    
+    // 返回用户信息和令牌（不包含密码）
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        companyName: user.company_name,
+        currency: user.currency,
+        language: user.language,
+        settings: user.settings
+      }
+    });
+  } catch (err) {
+    console.error('登录错误:', err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, name, companyName } = req.body;
+    
+    // 验证输入参数
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: '邮箱、密码和姓名都是必填项' });
+    }
+    
+    // 检查邮箱是否已存在
+    const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: '该邮箱已被注册' });
+    }
+    
+    // 密码长度验证
+    if (password.length < 6) {
+      return res.status(400).json({ error: '密码长度至少为6位' });
+    }
+    
+    // 哈希密码
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 创建新用户，默认角色为 sales
+    const result = await db.query(
+      `INSERT INTO users (email, password_hash, name, role, company_name) 
+       VALUES ($1, $2, $3, $4, $5) 
+       RETURNING id, email, name, role, company_name, currency, language, settings, created_at`,
+      [email, hashedPassword, name, 'sales', companyName || '']
+    );
+    
+    const user = result.rows[0];
+    
+    // 生成 JWT Token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        role: user.role 
+      }, 
+      JWT_SECRET, 
+      { expiresIn: '24h' }
+    );
+    
+    res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        companyName: user.company_name,
+        currency: user.currency,
+        language: user.language,
+        settings: user.settings
+      }
+    });
+  } catch (err) {
+    console.error('注册错误:', err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
+// 获取当前用户信息
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT id, email, name, role, company_name, currency, language, settings, is_active, last_login, created_at, updated_at FROM users WHERE id = $1', 
+      [req.user.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '用户不存在' });
+    }
+    
+    const user = result.rows[0];
+    
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      companyName: user.company_name,
+      currency: user.currency,
+      language: user.language,
+      settings: user.settings,
+      isActive: user.is_active,
+      lastLogin: user.last_login,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    });
+  } catch (err) {
+    console.error('获取用户信息错误:', err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
 
 // API routes for products
 app.get('/api/products', requireRole(['admin', 'sales']), async (req, res) => {
