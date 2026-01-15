@@ -338,10 +338,7 @@
         }
 
         .card-title {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 0;
-            color: var(--dark);
+            display: none;
         }
         
         .card-header {
@@ -354,15 +351,20 @@
 
         .stat-card {
             text-align: center;
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
         }
-
+                
         .stat-number {
             font-size: 2.2rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 4px;
         }
-
+                
         .stat-label {
             color: var(--gray);
             font-size: 0.85rem;
@@ -386,6 +388,23 @@
         /* 产品画廊视图的表头不需要底部边框 */
         #productGalleryView .table-header {
             border-bottom: none;
+        }
+        
+        /* 已发布任务画廊视图容器也不需要额外的边框 */
+        .published-tasks-section {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            padding: 0;
+        }
+        
+        /* 确保画廊容器本身没有底部边框 */
+        .published-tasks-gallery {
+            border: none !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            background: transparent;
         }
 
         .table-title {
@@ -1036,10 +1055,23 @@
         
         .published-tasks-gallery {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 16px;
             margin-top: 16px;
-            align-content: start;  /* 使内容顶部对齐 */
+            align-content: start;
+        }
+        
+        /* 在较大屏幕上显示多列卡片 */
+        @media (min-width: 768px) {
+            .published-tasks-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .published-tasks-gallery {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
         
         /* 为已发布的任务卡片添加相同的样式 */
@@ -1189,16 +1221,21 @@
             height: 100%;
         }
         
-        .task-gallery-item {
+
+        
+        /* 任务卡片样式 */
+        .task-front {
+            /* 应用统计卡样式 */
+            text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
             box-shadow: var(--shadow);
-            padding: 12px;
+            padding: 20px;
             transition: var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
+            overflow: auto;
             position: relative;
             width: 100%;
             height: 100%;
@@ -1206,77 +1243,9 @@
             min-height: 200px;
         }
         
-        .task-gallery-item:hover {
+        .task-front:hover {
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
-        }
-        
-        /* 3D翻转容器 */
-        .task-flip-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            transform-origin: center;
-        }
-        
-        .task-gallery-item.flipped .task-flip-container {
-            transform: rotateY(180deg);
-        }
-        
-        /* 翻转卡片的正面和背面 */
-        .task-front,
-        .task-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: var(--card-radius);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 12px;
-            overflow: auto;
-        }
-        
-        .task-back {
-            transform: rotateY(180deg);
-            background-color: white;
-            overflow: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* 任务详情背页样式 */
-        .task-back-content {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            justify-content: center;
-            flex: 1;
-            min-height: 0;
-            padding: 10px 0;
-        }
-        
-        .task-back-badges {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            align-self: center;
-            padding: 5px;
-            margin-bottom: 5px;
-        }
-        
-        .task-back-actions {
-            width: 100%;
-            padding: 5px;
         }
         
         .btn-complete-shipment {
@@ -2188,6 +2157,9 @@
                     
                     <!-- 右边：已发布的任务 -->
                     <div class="published-tasks-section">
+                        <div class="card mb-25">
+                            <div class="card-title">已发布的任务</div>
+                        </div>
                         <div class="published-tasks-gallery" id="publishedTasksBody">
                             <div class="text-center text-muted py-5">
                                 <i class="fas fa-inbox fa-2x mb-3"></i>
@@ -2219,20 +2191,10 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">待发货任务列表</div>
-                        <div class="view-toggle">
-                            <button class="btn btn-sm btn-outline-secondary view-btn active" disabled>
-                                <i class="fas fa-th"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="warehouseTasks" class="tasks-container">
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-check-circle fa-2x mb-3"></i>
-                            <p>暂无待发货任务</p>
-                        </div>
+                <div id="warehouseTasks" class="tasks-container">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                        <p>暂无待发货任务</p>
                     </div>
                 </div>
             </div>
@@ -5584,63 +5546,22 @@
                 const itemCount = task.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
                 
                 return `
-                    <div class="task-gallery-item" id="task-${task.id}" data-task-id="${task.id}">
-                        <div class="task-flip-container">
-                            <!-- 正面：任务信息 -->
-                            <div class="task-front">
-                                <div class="task-gallery-img">
-                                    ${firstProductImage ? 
-                                        `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
-                                        '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
-                                    }
-                                </div>
-                                <div class="task-gallery-name">${firstProductName}</div>
-                                <div class="task-info-container">
-                                    <div class="task-gallery-code">货号: ${firstProductCode}</div>
-                                    <div class="task-gallery-qty">数量: ${itemCount}</div>
-                                </div>
-                                <div class="task-gallery-actions d-flex align-items-center gap-2">
-                                    <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
-                                        ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
-                                    </span>
-                                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="toggleTaskCardFlip('${task.id}')">
-                                        详情
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- 背面：任务详细信息 -->
-                            <div class="task-back">
-                                <div class="task-back-content">
-                                    <div class="task-back-badges">
-                                        <div class="mb-2" style="font-size: 0.85em;">
-                                            <strong>任务文件：</strong>
-                                            <span>${task.bodyCodeImage || task.barcodeImage || task.warningCodeImage || task.labelImage ? '已上传' : '无'}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between gap-2">
-                                            <div class="flex-fill" style="font-size: 0.85em;">
-                                                <strong>任务号：</strong>
-                                                <span>${task.taskNumber || 'N/A'}</span>
-                                            </div>
-                                            <div class="flex-fill" style="font-size: 0.85em;">
-                                                <strong>创建时间：</strong>
-                                                <span>${Utils.formatDate(task.createdAt)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="task-back-actions">
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSalesTask('${task.id}')">
-                                            删除
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="editTaskFiles('${task.id}')">
-                                            编辑
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}')">
-                                            返回
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
+                        <div class="task-gallery-img">
+                            ${firstProductImage ? 
+                                `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                            }
+                        </div>
+                        <div class="task-gallery-name">${firstProductName}</div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-code">货号: ${firstProductCode}</div>
+                            <div class="task-gallery-qty">数量: ${itemCount}</div>
+                        </div>
+                        <div class="task-gallery-actions d-flex align-items-center gap-2">
+                            <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
+                                ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
+                            </span>
                         </div>
                     </div>
                 `;
@@ -5966,77 +5887,22 @@
                             const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
                                             
                             return `
-                                <div class="task-gallery-item" id="task-${task.id}">
-                                    <div class="task-flip-container">
-                                        <!-- 正面：任务信息 -->
-                                        <div class="task-front">
-                                            <div class="task-gallery-img">
-                                                ${firstItemImage ? 
-                                                    `<img src="${firstItemImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
-                                                    '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
-                                                }
-                                            </div>
-                                            <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                            <div class="task-info-container">
-                                                <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                                                <div class="task-gallery-qty">数量: ${itemCount}</div>
-                                            </div>
-                                            <div class="task-gallery-actions">
-                                                <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskDetail('${task.id}')">
-                                                    处理发货
-                                                </button>
-                                            </div>
-                                        </div>
-                                                        
-                                        <!-- 背面：详细信息和按钮 -->
-                                        <div class="task-back">
-                                            <div class="task-back-content">
-                                                <div class="task-info-container">
-                                                    <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                                                    <div class="task-gallery-qty">数量: ${itemCount}</div>
-                                                </div>
-                                                <div class="task-back-badges">
-                                                    <div class="mb-2" style="font-size: 0.85em;">
-                                                        <strong>任务文件：</strong>
-                                                    </div>
-                                                    ${task.bodyCodeImage ? 
-                                                        `<span class="badge badge-secondary">本体码</span>` : 
-                                                        '<span class="badge badge-secondary">无本体码</span>'
-                                                    }
-                                                    ${task.barcodeImage ? 
-                                                        `<span class="badge badge-secondary">条码</span>` : 
-                                                        '<span class="badge badge-secondary">无条码</span>'
-                                                    }
-                                                    ${task.warningCodeImage ? 
-                                                        `<span class="badge badge-secondary">警示码</span>` : 
-                                                        '<span class="badge badge-secondary">无警示码</span>'
-                                                    }
-                                                    ${task.manualImage ? 
-                                                        `<span class="badge badge-secondary">说明书</span>` : 
-                                                        '<span class="badge badge-secondary">无说明书</span>'
-                                                    }
-                                                    ${task.labelImage ? 
-                                                        `<span class="badge badge-secondary">箱唛</span>` : 
-                                                        '<span class="badge badge-secondary">无箱唛</span>'
-                                                    }
-                                                    ${task.otherImage ? 
-                                                        `<span class="badge badge-secondary">其他</span>` : 
-                                                        '<span class="badge badge-secondary">无其他</span>'
-                                                    }
-                                                </div>
-                                                <div class="task-back-actions">
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseTask('${task.id}')">
-                                                        删除
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskDetail('${task.id}')">
-                                                        返回
-                                                    </button>
-                                                    <button class="btn btn-success btn-complete-shipment" onclick="completeShipment('${task.id}')">
-                                                        完成发货
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="task-front" id="task-${task.id}-front">
+                                    <div class="task-gallery-img">
+                                        ${firstItemImage ? 
+                                            `<img src="${firstItemImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                            '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                                        }
+                                    </div>
+                                    <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
+                                    <div class="task-info-container">
+                                        <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                        <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                    </div>
+                                    <div class="task-gallery-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskDetail('${task.id}')">
+                                            处理发货
+                                        </button>
                                     </div>
                                 </div>
                             `;
@@ -6053,33 +5919,13 @@
         let warehouseTaskViewMode = 'gallery'; // 画廊视图
                 
         function toggleTaskDetail(taskId) {
-            // 查找具有data-task-id属性的元素，适用于卡片视图
-            // 先尝试查找带data-task-id属性的元素（销售发布的任务）
-            let taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-            
-            // 如果没找到，再尝试查找id属性的元素（仓库任务）
-            if (!taskElement) {
-                taskElement = document.getElementById(`task-${taskId}`);
-            }
-            
-            if (taskElement) {
-                taskElement.classList.toggle('flipped');
-            }
+            // 由于已移除翻转功能，此函数可以保留作为空函数或执行其他操作
+            console.log('任务详情查看功能，当前为占位函数');
         }
         
         function toggleTaskCardFlip(taskId) {
-            // 查找具有data-task-id属性的元素，适用于卡片视图
-            // 先尝试查找带data-task-id属性的元素（销售发布的任务）
-            let taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-            
-            // 如果没找到，再尝试查找id属性的元素（仓库任务）
-            if (!taskElement) {
-                taskElement = document.getElementById(`task-${taskId}`);
-            }
-            
-            if (taskElement) {
-                taskElement.classList.toggle('flipped');
-            }
+            // 由于已移除翻转功能，此函数可以保留作为空函数或执行其他操作
+            console.log('任务卡片翻转功能已移除');
         }
         
         function handleFileSelect(e, uploadAreaId) {
@@ -7307,7 +7153,6 @@
         window.deleteSalesTask = deleteSalesTask;
         window.viewTaskDetail = viewTaskDetail;
         window.toggleTaskDetail = toggleTaskDetail;
-        window.toggleTaskCardFlip = toggleTaskCardFlip;
         window.deleteWarehouseTask = deleteWarehouseTask;
         window.completeShipment = completeShipment;
         window.resetProductImageUpload = resetProductImageUpload;
