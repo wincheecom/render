@@ -5852,7 +5852,27 @@
             updateTaskCart();
         }
 
-        function addProductToTaskCart(product) {
+        async function addProductToTaskCart(product) {
+            // 验证商品是否仍然存在于数据库中
+            try {
+                const products = await DataManager.getAllProducts();
+                const existingProduct = products.find(p => p.id === product.id);
+                
+                if (!existingProduct) {
+                    Utils.showAlert(`商品 ${product.name} (ID: ${product.id}) 不存在或已被删除`, 'error');
+                    return;
+                }
+                
+                if (existingProduct.stock < 1) {
+                    Utils.showAlert(`商品 ${product.name} 库存不足，无法添加到任务`, 'warning');
+                    return;
+                }
+            } catch (error) {
+                console.error('验证商品存在性失败:', error);
+                Utils.showAlert('无法验证商品信息，请稍后重试', 'error');
+                return;
+            }
+            
             // 对于单选功能，直接替换购物车中的商品
             taskCart = [{
                 productId: product.id,
@@ -5940,7 +5960,20 @@
             try {
                 const products = await DataManager.getAllProducts();
                 const product = products.find(p => p.id === taskCart[index].productId);
-                if (product && product.stock < newQuantity) {
+                
+                if (!product) {
+                    Utils.showAlert(`商品 ${taskCart[index].productName || '未知商品'} (ID: ${taskCart[index].productId}) 不存在或已被删除`, 'error');
+                    // 从购物车中移除不存在的商品
+                    taskCart.splice(index, 1);
+                    if (taskCart.length === 0) {
+                        selectedProduct = null;
+                    }
+                    updateTaskCart();
+                    updateSelectedTags();
+                    return;
+                }
+                
+                if (product.stock < newQuantity) {
                     Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
                     return;
                 }
@@ -5962,7 +5995,20 @@
             try {
                 const products = await DataManager.getAllProducts();
                 const product = products.find(p => p.id === taskCart[index].productId);
-                if (product && product.stock < newQuantity) {
+                
+                if (!product) {
+                    Utils.showAlert(`商品 ${taskCart[index].productName || '未知商品'} (ID: ${taskCart[index].productId}) 不存在或已被删除`, 'error');
+                    // 从购物车中移除不存在的商品
+                    taskCart.splice(index, 1);
+                    if (taskCart.length === 0) {
+                        selectedProduct = null;
+                    }
+                    updateTaskCart();
+                    updateSelectedTags();
+                    return;
+                }
+                
+                if (product.stock < newQuantity) {
                     Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
                     // 恢复输入框的值为当前数量
                     updateTaskCart();
@@ -5978,6 +6024,8 @@
         }
 
         function removeCartItem(index) {
+            if (!taskCart[index]) return;
+            
             const productId = taskCart[index].productId;
             taskCart.splice(index, 1);
             
@@ -6369,18 +6417,18 @@
                 let errorMessage = '创建任务失败，请稍后重试';
                 if (error.message && typeof error.message === 'string') {
                     if (error.message.includes('商品') && (error.message.includes('不存在') || error.message.includes('不存在或已被删除'))) {
-                        errorMessage = `创建任务失败：${error.message}。请刷新页面重新选择商品。`;
+                        errorMessage = `创建任务失败：${error.message}。商品可能在此期间被删除或库存发生变化，请刷新页面重新选择商品。`;
                     } else if (error.message.includes('库存不足')) {
-                        errorMessage = `创建任务失败：${error.message}。请调整数量或刷新页面重新选择商品。`;
+                        errorMessage = `创建任务失败：${error.message}。库存可能在此期间发生变化，请调整数量或刷新页面重新选择商品。`;
                     } else {
                         errorMessage = `创建任务失败：${error.message}`;
                     }
                 } else if (error.error && typeof error.error === 'string') {
                     // 如果错误对象包含 error 属性
                     if (error.error.includes('商品') && (error.error.includes('不存在') || error.error.includes('不存在或已被删除'))) {
-                        errorMessage = `创建任务失败：${error.error}。请刷新页面重新选择商品。`;
+                        errorMessage = `创建任务失败：${error.error}。商品可能在此期间被删除或库存发生变化，请刷新页面重新选择商品。`;
                     } else if (error.error.includes('库存不足')) {
-                        errorMessage = `创建任务失败：${error.error}。请调整数量或刷新页面重新选择商品。`;
+                        errorMessage = `创建任务失败：${error.error}。库存可能在此期间发生变化，请调整数量或刷新页面重新选择商品。`;
                     } else {
                         errorMessage = `创建任务失败：${error.error}`;
                     }
