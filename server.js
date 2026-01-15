@@ -460,6 +460,42 @@ app.post('/api/auth/reset-admin-password', async (req, res) => {
   }
 });
 
+// 重置管理员密码的GET端点（用于浏览器访问）
+app.get('/api/auth/reset-admin-password', async (req, res) => {
+  try {
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    const newPassword = '123456'; // 默认密码
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    
+    // 重置所有管理员账户的密码
+    const result = await db.query(
+      'UPDATE users SET password_hash = $1 WHERE role = $2 RETURNING email',
+      [hashedPassword, 'admin']
+    );
+    
+    console.log(`重置了 ${result.rowCount} 个管理员账户的密码`);
+    
+    res.send(`
+      <html>
+      <head><title>重置管理员密码</title></head>
+      <body>
+        <h2>重置管理员密码</h2>
+        <p>成功重置了 ${result.rowCount} 个管理员账户的密码</p>
+        <p>默认密码: 123456</p>
+        <ul>
+          ${result.rows.map(row => `<li>${row.email}</li>`).join('')}
+        </ul>
+        <a href="/">返回首页</a>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error('重置管理员密码错误:', err);
+    res.status(500).send(`<h2>服务器错误</h2><p>${err.message}</p><a href="/">返回首页</a>`);
+  }
+});
+
 // 获取当前用户信息
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
