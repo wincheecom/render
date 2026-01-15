@@ -2749,7 +2749,7 @@
                             image: product.image || '',
                             createdAt: product.created_at || product.createdAt || ''
                         };
-                        
+                                                
                         // 始终计算利润率，不管属性是否存在
                         mappedProduct.profitMargin = Utils.calculateProfitMargin(mappedProduct.purchasePrice, mappedProduct.salePrice);
                         
@@ -4462,9 +4462,9 @@
                 code: document.getElementById('productCode').value,
                 name: document.getElementById('productName').value,
                 supplier: document.getElementById('productSupplier').value,
-                stock: document.getElementById('productQuantity').value || 0,
-                purchasePrice: document.getElementById('productPurchasePrice').value,
-                salePrice: document.getElementById('productSalePrice').value,
+                stock: parseInt(document.getElementById('productQuantity').value) || 0,
+                purchasePrice: parseFloat(document.getElementById('productPurchasePrice').value) || 0,
+                salePrice: parseFloat(document.getElementById('productSalePrice').value) || 0,
                 image: productImagePreview || ''
             };
             
