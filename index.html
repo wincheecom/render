@@ -6308,26 +6308,6 @@
                     otherType: taskOtherType || null
                 };
                 
-                // 在创建任务前，验证购物车中的商品是否仍然存在
-                const allProducts = await DataManager.getAllProducts();
-                const invalidItems = [];
-                
-                for (const item of taskData.items) {
-                    const productExists = allProducts.some(p => p.id === item.productId);
-                    if (!productExists) {
-                        invalidItems.push(item);
-                    }
-                }
-                
-                if (invalidItems.length > 0) {
-                    let errorMessage = '以下商品已不存在，请刷新页面重新选择商品:\n';
-                    invalidItems.forEach(item => {
-                        errorMessage += `- 商品ID: ${item.productId}, 名称: ${item.productName}\n`;
-                    });
-                    Utils.showAlert(errorMessage, 'error');
-                    return;
-                }
-                
                 const newTask = await DataManager.addTask(taskData);
                 
                 Utils.showAlert(`发货任务创建成功！任务号：${newTask.taskNumber}`, 'success', async function() {
