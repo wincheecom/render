@@ -166,24 +166,6 @@ setTimeout(async () => {
         );
         
         await db.query(
-          `CREATE TABLE IF NOT EXISTS users (
-            "id" SERIAL PRIMARY KEY,
-            "email" VARCHAR(255) UNIQUE NOT NULL,
-            "password_hash" TEXT NOT NULL,
-            "name" VARCHAR(255) NOT NULL,
-            "role" VARCHAR(50) DEFAULT 'sales',
-            "company_name" VARCHAR(255),
-            "currency" VARCHAR(10) DEFAULT 'CNY',
-            "language" VARCHAR(10) DEFAULT 'zh',
-            "settings" JSONB,
-            "is_active" BOOLEAN DEFAULT true,
-            "last_login" TIMESTAMP,
-            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          )`
-        );
-        
-        await db.query(
           `CREATE TABLE IF NOT EXISTS activities (
             "id" SERIAL PRIMARY KEY,
             "time" VARCHAR(255),
