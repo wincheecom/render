@@ -315,6 +315,7 @@ app.post('/api/auth/login', async (req, res) => {
     const result = await db.query('SELECT * FROM users WHERE email = $1 AND is_active = true', [email]);
     
     if (result.rows.length === 0) {
+      console.log(`登录失败: 用户 ${email} 不存在`);
       return res.status(401).json({ error: '邮箱或密码错误' });
     }
     
@@ -324,6 +325,7 @@ app.post('/api/auth/login', async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password_hash);
     
     if (!validPassword) {
+      console.log(`登录失败: 用户 ${email} 密码错误`);
       return res.status(401).json({ error: '邮箱或密码错误' });
     }
     
@@ -428,6 +430,32 @@ app.post('/api/auth/register', async (req, res) => {
     });
   } catch (err) {
     console.error('注册错误:', err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
+// 重置管理员密码的API（仅在开发环境或紧急情况下使用）
+app.post('/api/auth/reset-admin-password', async (req, res) => {
+  try {
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    const newPassword = '123456'; // 默认密码
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    
+    // 重置所有管理员账户的密码
+    const result = await db.query(
+      'UPDATE users SET password_hash = $1 WHERE role = $2 RETURNING email',
+      [hashedPassword, 'admin']
+    );
+    
+    console.log(`重置了 ${result.rowCount} 个管理员账户的密码`);
+    
+    res.json({ 
+      message: `成功重置了 ${result.rowCount} 个管理员账户的密码`,
+      count: result.rowCount
+    });
+  } catch (err) {
+    console.error('重置管理员密码错误:', err);
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
