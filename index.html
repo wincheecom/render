@@ -6324,36 +6324,8 @@
                     return;
                 }
                 
-                // 重新获取最新产品列表以确保数据一致性
-                const products = await DataManager.getAllProducts();
-                let validationError = '';
-                let hasValidationError = false;
-                
-                // 对购物车中的每项进行详细验证
-                for (const item of taskCart) {
-                    const product = products.find(p => p.id === item.productId);
-                    if (!product) {
-                        validationError = `商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在或已被删除`;
-                        hasValidationError = true;
-                        break;
-                    }
-                    if (product.stock < item.quantity) {
-                        validationError = `商品 ${product.name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.stock})`;
-                        hasValidationError = true;
-                        break;
-                    }
-                }
-                
-                if (hasValidationError) {
-                    Utils.showAlert(validationError, 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
-                    return;
-                }
-                
-                // 仅进行一次最终验证，减少不必要的重复验证
-                // 因为后端已经使用事务和行级锁保护了数据一致性
-                // 只需处理最明显的错误情况
+                // 仅进行基本验证，后端会处理详细验证和数据一致性
+                // 避免从前端获取所有产品数据，提高性能
                 
                 const taskData = {
                     items: taskCart.map(item => ({
