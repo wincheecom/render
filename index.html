@@ -2891,6 +2891,52 @@
                 }
             }
             
+            static async getProductById(productId) {
+                try {
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    
+                    // 使用JWT令牌进行身份验证
+                    const token = localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN);
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
+                    const response = await fetch(`${this.API_BASE}/api/products/${productId}`, {
+                        headers: headers
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            return null; // 商品不存在
+                        }
+                        throw new Error(`获取商品信息失败: ${response.statusText}`);
+                    }
+                    
+                    const product = await response.json();
+                    
+                    // 将数据库返回的数据映射到前端期望的格式
+                    const mappedProduct = {
+                        id: product.id,
+                        code: product.product_code || product.code,
+                        name: product.product_name || product.name,
+                        supplier: product.product_supplier || product.supplier || '',
+                        quantity: product.quantity || product.stock || 0,
+                        purchasePrice: product.purchase_price || product.purchasePrice || 0,
+                        salePrice: product.sale_price || product.salePrice || 0,
+                        image: product.image || '',
+                        profitMargin: Utils.calculateProfitMargin(product.purchase_price || 0, product.sale_price || 0),
+                        createdAt: product.created_at || product.createdAt
+                    };
+                    
+                    return mappedProduct;
+                } catch (error) {
+                    console.error('获取单个产品失败:', error);
+                    throw error;
+                }
+            }
+            
             static async getAllTasks() {
                 try {
                     const user = this.getCurrentUser();
@@ -6324,8 +6370,36 @@
                     return;
                 }
                 
-                // 仅进行基本验证，后端会处理详细验证和数据一致性
-                // 避免从前端获取所有产品数据，提高性能
+                // 在提交前重新验证购物车中的每个商品是否存在和库存是否充足
+                // 避免在用户选择商品后但在提交前商品被删除导致的错误
+                for (const item of taskCart) {
+                    try {
+                        // 使用单个产品查询API验证商品是否存在
+                        const product = await DataManager.getProductById(item.productId);
+                        
+                        if (!product) {
+                            Utils.showAlert(`商品 ${item.productName || '未知商品'} (ID: ${item.productId}) 不存在或已被删除`, 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                            return;
+                        }
+                        
+                        // 检查库存是否充足
+                        if (product.quantity < item.quantity) {
+                            Utils.showAlert(`商品 ${product.product_name || item.productName} 库存不足 (需要: ${item.quantity}, 库存: ${product.quantity})`, 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                            return;
+                        }
+                    } catch (validationError) {
+                        // 如果获取商品信息失败，可能是网络问题或商品确实不存在
+                        console.error('验证商品失败:', validationError);
+                        Utils.showAlert(`验证商品 ${item.productName || '未知商品'} 时出现问题，请刷新页面重试`, 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
+                        return;
+                    }
+                }
                 
                 const taskData = {
                     items: taskCart.map(item => ({

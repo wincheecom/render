@@ -536,6 +536,36 @@
       "last_login": null,
       "created_at": "2026-01-16T06:38:29.259Z",
       "updated_at": "2026-01-16T06:38:29.259Z"
+    },
+    {
+      "id": "1768546051925",
+      "email": "admin@example.com",
+      "password_hash": "$2b$10$8TLBqqtD2qnIKaV.mvj3rey0OpFbIVWkQAtfxHnZ7NZgWBPAlbyL2",
+      "name": "管理员1",
+      "role": "admin",
+      "company_name": "公司名称",
+      "currency": "USD",
+      "language": "en",
+      "settings": {},
+      "is_active": true,
+      "last_login": null,
+      "created_at": "2026-01-16T06:47:31.925Z",
+      "updated_at": "2026-01-16T06:47:31.927Z"
+    },
+    {
+      "id": "1768546051931",
+      "email": "admin2@example.com",
+      "password_hash": "$2b$10$8TLBqqtD2qnIKaV.mvj3rey0OpFbIVWkQAtfxHnZ7NZgWBPAlbyL2",
+      "name": "管理员2",
+      "role": "admin",
+      "company_name": "公司名称",
+      "currency": "USD",
+      "language": "en",
+      "settings": {},
+      "is_active": true,
+      "last_login": null,
+      "created_at": "2026-01-16T06:47:31.931Z",
+      "updated_at": "2026-01-16T06:47:31.931Z"
     }
   ]
 }
