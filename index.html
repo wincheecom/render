@@ -5878,10 +5878,8 @@
         async function selectSingleProduct(productId, productName, productCode, productImage) {
             // 使用传入的参数作为基础信息，但仍然需要验证商品是否仍然存在和有库存
             try {
-                // 为了提高性能和准确性，直接根据ID获取特定商品信息
-                // 而不是获取所有商品然后查找
-                const allProducts = await DataManager.getAllProducts();
-                const product = allProducts.find(p => p.id === productId);
+                // 使用新的getProductById方法，直接获取特定商品信息，提高性能
+                const product = await DataManager.getProductById(productId);
                 
                 // 验证商品是否存在
                 if (!product) {
@@ -5944,8 +5942,7 @@
         async function addProductToTaskCart(product) {
             // 验证商品是否仍然存在于数据库中
             try {
-                const products = await DataManager.getAllProducts();
-                const existingProduct = products.find(p => p.id === product.id);
+                const existingProduct = await DataManager.getProductById(product.id);
                 
                 if (!existingProduct) {
                     Utils.showAlert(`商品 ${product.name} (ID: ${product.id}) 不存在或已被删除`, 'error');
@@ -6047,8 +6044,7 @@
             if (newQuantity < 1) return;
             
             try {
-                const products = await DataManager.getAllProducts();
-                const product = products.find(p => p.id === taskCart[index].productId);
+                const product = await DataManager.getProductById(taskCart[index].productId);
                 
                 if (!product) {
                     Utils.showAlert(`商品 ${taskCart[index].productName || '未知商品'} (ID: ${taskCart[index].productId}) 不存在或已被删除`, 'error');
@@ -6062,7 +6058,7 @@
                     return;
                 }
                 
-                if (product.stock < newQuantity) {
+                if (product.quantity < newQuantity) {
                     Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
                     return;
                 }
@@ -6082,8 +6078,7 @@
             if (isNaN(newQuantity) || newQuantity < 1) return;
             
             try {
-                const products = await DataManager.getAllProducts();
-                const product = products.find(p => p.id === taskCart[index].productId);
+                const product = await DataManager.getProductById(taskCart[index].productId);
                 
                 if (!product) {
                     Utils.showAlert(`商品 ${taskCart[index].productName || '未知商品'} (ID: ${taskCart[index].productId}) 不存在或已被删除`, 'error');
@@ -6097,7 +6092,7 @@
                     return;
                 }
                 
-                if (product.stock < newQuantity) {
+                if (product.quantity < newQuantity) {
                     Utils.showAlert(`库存不足！当前库存：${product.stock}`, 'warning');
                     // 恢复输入框的值为当前数量
                     updateTaskCart();
