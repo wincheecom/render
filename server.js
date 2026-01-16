@@ -20,8 +20,7 @@ const r2Config = {
     accessKeyId: process.env.R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
-  forcePathStyle: true, // 确保使用路径样式而不是子域名
-  signatureVersion: 'v4', // 明确指定签名版本
+  forcePathStyle: false, // Cloudflare R2 使用虚拟托管样式
 };
 
 console.log('R2 配置状态检查:');
