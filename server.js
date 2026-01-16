@@ -184,8 +184,6 @@ setTimeout(async () => {
             "barcode_image" TEXT,
             "warning_code_image" TEXT,
             "label_image" TEXT,
-            "creator_name" VARCHAR(255),
-            "creator_role" VARCHAR(50),
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -201,8 +199,6 @@ setTimeout(async () => {
             "barcode_image" TEXT,
             "warning_code_image" TEXT,
             "label_image" TEXT,
-            "creator_name" VARCHAR(255),
-            "creator_role" VARCHAR(50),
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -618,7 +614,7 @@ app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, 
 
 app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, creator_name, creator_role } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -659,8 +655,8 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     
     const result = await db.query(
-      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "creator_name", "creator_role", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, creator_name, creator_role]
+      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl]
     );
     
     // 更新相关产品的库存
@@ -756,9 +752,9 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     
     // 将任务数据移动到历史表
     await db.query(
-      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "creator_name", "creator_role", "created_at", "completed_at")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)`,
-      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.creator_name, task.creator_role, task.completed_at || new Date().toISOString()]
+      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at") 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)`,
+      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
@@ -863,7 +859,7 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
 
 app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at, creator_name, creator_role } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -885,8 +881,8 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     }
     
     const result = await db.query(
-      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "creator_name", "creator_role", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, creator_name, creator_role, completed_at || new Date().toISOString()]
+      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, completed_at || new Date().toISOString()]
     );
     res.json(result.rows[0]);
   } catch (err) {
