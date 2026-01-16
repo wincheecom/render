@@ -776,6 +776,22 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
 });
 
 // API routes for products
+app.get('/api/products/:id', requireRole(['admin', 'sales']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query('SELECT * FROM products WHERE "id" = $1', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '产品未找到' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
 app.put('/api/products/:id', requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
