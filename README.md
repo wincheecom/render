@@ -44,20 +44,20 @@
 
 1. 确保你已经安装了 Node.js 和 PostgreSQL
 2. 克隆或下载这个仓库
-3. 在 PostgreSQL 中创建数据库：
+3. 在 PostgreSQL 中创建数据库并运行项目：
+   
+   ```sql
+   CREATE DATABASE funseek;
+   ```
 
-```sql
-CREATE DATABASE funseek;
-```
-
-4. 在项目根目录运行：
-
-```bash
-npm install
-npm start
-```
-
-5. 打开浏览器访问 `http://localhost:3000`
+   在项目根目录运行：
+   
+   ```bash
+   npm install
+   npm start
+   ```
+   
+   然后打开浏览器访问 `http://localhost:3000`
 
 ## 数据库管理
 

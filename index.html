@@ -138,28 +138,6 @@
             transform: translateY(-2px);
         }
 
-        .user-options {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .user-badge {
-            background-color: var(--gray-light);
-            padding: 6px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-badge:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-
         /* ===== 主系统样式 ===== */
         .main-container {
             display: none;
@@ -256,10 +234,6 @@
             list-style: none;
         }
 
-        .menu-item {
-            margin-bottom: 4px;
-        }
-
         .menu-link {
             display: flex;
             align-items: center;
@@ -272,6 +246,7 @@
             border-left: 4px solid transparent;
             font-size: 0.9rem;
             text-align: center;
+            margin-bottom: 4px;
         }
 
         .menu-link:hover, .menu-link.active {
@@ -305,12 +280,14 @@
         }
 
         /* ===== 通用卡片样式 ===== */
+        /*
         .page-title {
             font-size: 1.6rem;
             font-weight: 700;
             margin-bottom: 20px;
             color: var(--dark);
         }
+        */
 
         .card-container {
             display: grid;
@@ -324,7 +301,7 @@
             min-width: 280px;
             flex-grow: 1;
             flex-shrink: 1;
-            flex-basis: 0%;
+            flex-basis: 0;
             background-color: white;
             border-radius: var(--card-radius);
             box-shadow: var(--shadow);
@@ -341,14 +318,6 @@
             display: none;
         }
         
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
-        }
-
         .stat-card {
             text-align: center;
             background-color: white;
@@ -1220,6 +1189,15 @@
             width: 100%;
             height: 100%;
         }
+        .card {
+            flex: 1;
+            min-width: 280px;
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
         
 
         
@@ -1243,11 +1221,24 @@
             min-height: 200px;
         }
         
+                }
+        
         .task-front:hover {
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
         
+        /* 隐藏特定任务卡片 */
+        div#task-1768315717638-front.task-front {
+            display: none !important;
+        }
+        
+        
+        
+        
+
+        
+
         .btn-complete-shipment {
             width: 100%;
             padding: 14px;
@@ -1523,7 +1514,7 @@
             
             .sidebar.collapsed .menu-link::before {
                 content: attr(data-icon);
-                font-family: "Font Awesome 6 Free";
+                font-family: "Font Awesome 6 Free", "FontAwesome", sans-serif;
                 font-weight: 900;
                 margin-right: 0;
             }
@@ -2495,11 +2486,11 @@
         // 数据存储键名
         // ============================================
         const STORAGE_KEYS = {
-            USER: 'fanqu_user',
-            PRODUCTS: 'fanqu_products',
-            TASKS: 'fanqu_tasks',
-            HISTORY: 'fanqu_history',
-            ACTIVITIES: 'fanqu_activities'
+            USER: 'funseek_user',
+            PRODUCTS: 'funseek_products',
+            TASKS: 'funseek_tasks',
+            HISTORY: 'funseek_history',
+            ACTIVITIES: 'funseek_activities'
         };
 
         // ============================================
@@ -2509,11 +2500,6 @@
             formatDate(dateString) {
                 const date = new Date(dateString);
                 return date.toLocaleString('zh-CN');
-            },
-            
-            formatDateShort(dateString) {
-                const date = new Date(dateString);
-                return date.toLocaleDateString('zh-CN');
             },
             
             generateTaskNumber() {
@@ -2541,37 +2527,6 @@
                 
                 if (callback && typeof callback === 'function') {
                     setTimeout(callback, 2000);
-                }
-            },
-            
-            refreshPageData() {
-                updateDashboard();
-                updateWarehouseStats();
-                
-                if (document.getElementById('product-add').classList.contains('active')) {
-                    loadRecentProducts();
-                    if (currentProductView === 'list') {
-                        loadAllProductsInProductAdd();
-                    } else {
-                        loadGalleryProducts();
-                    }
-                }
-                
-                if (document.getElementById('sales-operations').classList.contains('active')) {
-                    (async () => {
-                        await updateMultiselectDropdown();
-                    })();
-                    (async () => {
-                        await loadSalesPublishedTasks();
-                    })();
-                }
-                
-                if (document.getElementById('warehouse-operations').classList.contains('active')) {
-                    loadWarehouseTasksList();
-                }
-                
-                if (document.getElementById('statistics-analysis').classList.contains('active')) {
-                    loadStatisticsData();
                 }
             },
             
@@ -2644,6 +2599,7 @@
                 return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
             },
             
+            /*
             previewFile(fileData, fileName) {
                 if (!fileData) return null;
                 
@@ -2654,6 +2610,7 @@
                 }
                 return 'unknown';
             },
+            */
             
             onImageError(imgElement) {
                 // 当图片加载失败时，显示默认图片
@@ -2824,6 +2781,8 @@
                 }
             }
             
+            // 移除未使用的updateProductStock方法
+            /*
             static async updateProductStock(productId, quantity) {
                 try {
                     const products = await this.getAllProducts();
@@ -2863,6 +2822,7 @@
                     return false;
                 }
             }
+            */
             
             static async deleteProduct(productId) {
                 try {
@@ -4014,7 +3974,7 @@
             showRegisterLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 
-                // 切换注册表单的显示/隐藏
+                // 显示/隐藏注册表单的切换
                 registerFormContainer.classList.toggle('show');
                 
                 // 更新链接文本
@@ -4159,7 +4119,7 @@
             if (!user) return;
             
             // 根据用户角色确定可访问的模块
-            let userModules = [];
+            let userModules;
             switch(user.role) {
                 case 'admin':
                     userModules = ['dashboard', 'product-add', 'sales-operations', 'warehouse-operations', 'statistics-analysis'];
@@ -4279,8 +4239,7 @@
                 
                 document.getElementById('totalProducts').textContent = products.length;
                 
-                const pendingTasksCount = tasks.filter(t => t.status === 'pending').length;
-                document.getElementById('pendingTasks').textContent = pendingTasksCount;
+                document.getElementById('pendingTasks').textContent = tasks.filter(t => t.status === 'pending').length;
                 
                 const completedCount = history.length;
                 document.getElementById('completedTasks').textContent = completedCount;
@@ -4305,8 +4264,7 @@
                 const tasks = await DataManager.getAllTasks();
                 const history = await DataManager.getHistory();
                 
-                const pendingTasksCount = tasks.filter(t => t.status === 'pending').length;
-                document.getElementById('warehousePendingTasks').textContent = pendingTasksCount;
+                document.getElementById('warehousePendingTasks').textContent = tasks.filter(t => t.status === 'pending').length;
                 
                 const today = new Date().toDateString();
                 const todayTasks = tasks.filter(t => {
@@ -4423,7 +4381,11 @@
                     <button type="button" class="upload-remove-btn" onclick="resetProductImageUpload()">
                         <i class="fas fa-times"></i>
                     </button>
-                    <img src="${productImagePreview}" class="upload-preview" alt="产品图片预览" onerror="Utils.onImageError(this)">
+                    <img src="${productImagePreview}" class="upload-preview" alt="产品图片预览" <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+onerror="Utils.onImageError(this)">
                     <input type="file" id="productImageFile" accept="image/*" class="hidden">
                 `;
                 uploadArea.classList.add('has-image');
@@ -5342,6 +5304,67 @@
             };
         }
 
+        function initProductUpload() {
+            const uploadArea = document.getElementById('productImageUpload');
+            
+            // 设置初始内容
+            if (!productImagePreview) {
+                uploadArea.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <div class="upload-text">点击上传产品图片</div>
+                    <input type="file" id="productImageFile" accept="image/*" class="hidden">
+                `;
+                uploadArea.classList.remove('has-image');
+            } else {
+                uploadArea.innerHTML = `
+                    <button type="button" class="upload-remove-btn" onclick="resetProductImageUpload()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <img src="${productImagePreview}" class="upload-preview" alt="产品图片预览" onerror="Utils.onImageError(this)">
+                    <input type="file" id="productImageFile" accept="image/*" class="hidden">
+                `;
+                uploadArea.classList.add('has-image');
+            }
+            
+            // 清除旧的事件监听器
+            const newUploadArea = uploadArea.cloneNode(true);
+            uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+            
+            // 重新获取元素
+            const newFileInput = document.getElementById('productImageFile');
+            
+            // 绑定点击事件
+            newUploadArea.addEventListener('click', function(e) {
+                if (e.target.classList.contains('upload-remove-btn')) return;
+                newFileInput.click();
+            });
+            
+            // 绑定拖放事件
+            newUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            newUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            newUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    newFileInput.files = e.dataTransfer.files;
+                    handleProductImageUpload({ target: newFileInput });
+                }
+            });
+            
+            // 绑定文件输入变化事件
+            newFileInput.onchange = function(e) {
+                handleProductImageUpload(e);
+            };
+        }
+
         function handleTaskWarningCodeUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -5381,7 +5404,7 @@
                 `;
                 uploadArea.classList.remove('has-file');
             } else {
-                let previewHtml = '';
+                let previewHtml;
                 if (taskBarcodeType === 'pdf') {
                     previewHtml = `
                         <div class="upload-preview pdf">
@@ -5422,7 +5445,7 @@
             
             // 绑定点击事件
             newUploadArea.addEventListener('click', function(e) {
-                if (e.target.classList.contains('upload-remove-btn')) return;
+                if (e.target && e.target.classList && e.target.classList.contains('upload-remove-btn')) return;
                 newFileInput.click();
             });
             
@@ -5497,7 +5520,7 @@
                 `;
                 uploadArea.classList.remove('has-file');
             } else {
-                let previewHtml = '';
+                let previewHtml;
                 if (taskLabelType === 'pdf') {
                     previewHtml = `
                         <div class="upload-preview pdf">
@@ -5538,7 +5561,7 @@
             
             // 绑定点击事件
             newUploadArea.addEventListener('click', function(e) {
-                if (e.target.classList.contains('upload-remove-btn')) return;
+                if (e.target && e.target.classList && e.target.classList.contains('upload-remove-btn')) return;
                 newFileInput.click();
             });
             
@@ -5548,6 +5571,40 @@
                 this.classList.add('dragover');
             });
             
+            newUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            newUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    newFileInput.files = e.dataTransfer.files;
+                    handleTaskLabelUpload({ target: newFileInput });
+                }
+            });
+            
+            // 绑定文件输入变化事件
+            newFileInput.onchange = function(e) {
+                handleTaskLabelUpload(e);
+            };
+        }
+
+        function handleTaskLabelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*') && !Utils.isPDF(file)) {
+                Utils.showAlert('请选择图片或PDF文件', 'warning');
+                return;
+            }
+            
+            // 检查文件大小（3M限制）
+            if (file.size > 3 * 1024 * 1024) { // 3MB
+                Utils.showAlert('文件大小不能超过3MB', 'warning');
+                return;
+            }
             newUploadArea.addEventListener('dragleave', function(e) {
                 e.preventDefault();
                 this.classList.remove('dragover');
@@ -5648,7 +5705,7 @@
             
             // 绑定点击事件
             newUploadArea.addEventListener('click', function(e) {
-                if (e.target.classList.contains('upload-remove-btn')) return;
+                if (e.target && e.target.classList && e.target.classList.contains('upload-remove-btn')) return;
                 newFileInput.click();
             });
             
@@ -5758,7 +5815,7 @@
                     
             // 绑定点击事件
             newUploadArea.addEventListener('click', function(e) {
-                if (e.target.classList.contains('upload-remove-btn')) return;
+                if (e.target && e.target.classList && e.target.classList.contains('upload-remove-btn')) return;
                 newFileInput.click();
             });
                     
@@ -7164,7 +7221,7 @@
             if (task.warningCodeType === 'pdf') {
                 printWindow.document.write(`
                     <!DOCTYPE html>
-                    <html>
+                    <html lang="zh-CN">
                     <head>
                         <title>任务警示码预览 - ${task.taskNumber}</title>
                         <style>
@@ -7188,7 +7245,7 @@
             } else {
                 printWindow.document.write(`
                     <!DOCTYPE html>
-                    <html>
+                    <html lang="zh-CN">
                     <head>
                         <title>任务警示码预览 - ${task.taskNumber}</title>
                         <style>
@@ -7219,7 +7276,7 @@
             if (task.labelType === 'pdf') {
                 printWindow.document.write(`
                     <!DOCTYPE html>
-                    <html>
+                    <html lang="zh-CN">
                     <head>
                         <title>任务箱唛预览 - ${task.taskNumber}</title>
                         <style>
@@ -7243,7 +7300,7 @@
             } else {
                 printWindow.document.write(`
                     <!DOCTYPE html>
-                    <html>
+                    <html lang="zh-CN">
                     <head>
                         <title>任务箱唛预览 - ${task.taskNumber}</title>
                         <style>
