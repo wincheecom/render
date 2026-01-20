@@ -1188,6 +1188,128 @@
         .task-flip-container {
             width: 100%;
             height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            -webkit-transform-style: preserve-3d;
+            -webkit-transition: transform 0.6s;
+            transform-origin: center;
+            -webkit-transform-origin: center;
+        }
+        
+        .task-front, .task-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--card-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 12px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: var(--shadow);
+            box-sizing: border-box;
+            -webkit-backface-visibility: hidden;
+            top: 0;
+            left: 0;
+        }
+        
+        .task-back {
+            transform: rotateY(180deg);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            top: 0;
+            left: 0;
+        }
+        
+        .task-flip-container.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .task-back-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            justify-content: flex-start;
+            flex: 1;
+            min-height: 0;
+            padding: 6px;
+            overflow: hidden;
+            box-sizing: border-box;
+            max-height: calc(100% - 15px);
+            flex-grow: 1;
+        }
+        
+        .task-files-container {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-bottom: 6px;
+            overflow-y: auto;
+            max-height: 200px;
+            padding: 2px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        
+        .task-file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            min-height: 50px;
+            justify-content: center;
+            background-color: #fafafa;
+        }
+        
+        .file-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 2px;
+        }
+        
+        .file-preview {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        
+        .no-file {
+            font-size: 0.65rem;
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        .task-back-actions {
+            width: 100%;
+            padding: 3px;
+            flex-shrink: 0;
+        }
+        
+        .back-action-buttons {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+        
+        .back-action-buttons .btn {
+            flex: 1;
+            padding: 5px;
+            font-size: 0.75rem;
         }
         .card {
             flex: 1;
@@ -1221,17 +1343,12 @@
             min-height: 200px;
         }
         
-                }
-        
         .task-front:hover {
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
         
-        /* 隐藏特定任务卡片 */
-        div#task-1768315717638-front.task-front {
-            display: none !important;
-        }
+
         
         
         
@@ -6250,9 +6367,9 @@ onerror="Utils.onImageError(this)">
                                 '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
                             }
                         </div>
-                        <div class="task-gallery-name">${firstProductName}</div>
+                        <div class="task-gallery-code">货号: ${firstProductCode}</div>
                         <div class="task-info-container">
-                            <div class="task-gallery-code">货号: ${firstProductCode}</div>
+                            <div class="task-gallery-name">${firstProductName}</div>
                             <div class="task-gallery-qty">数量: ${itemCount}</div>
                         </div>
                         <div class="task-gallery-actions d-flex align-items-center gap-2">
@@ -6571,22 +6688,59 @@ onerror="Utils.onImageError(this)">
                             const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
                                             
                             return `
-                                <div class="task-front" id="task-${task.id}-front">
-                                    <div class="task-gallery-img">
-                                        ${firstItemImage ? 
-                                            `<img src="${firstItemImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
-                                            '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
-                                        }
-                                    </div>
-                                    <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                    <div class="task-info-container">
+                                <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
+                                    <!-- 卡片正面 -->
+                                    <div class="task-front" id="task-${task.id}-front">
+                                        <div class="task-gallery-img">
+                                            ${firstItemImage ? 
+                                                `<img src="${firstItemImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                                            }
+                                        </div>
                                         <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                                        <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                        <div class="task-info-container">
+                                            <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
+                                            <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                        </div>
+                                        <div class="task-gallery-actions">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">
+                                                处理发货
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="task-gallery-actions">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskDetail('${task.id}')">
-                                            处理发货
-                                        </button>
+                                    
+                                    <!-- 卡片背面 -->
+                                    <div class="task-back">
+                                        <div class="task-back-content">
+                                            <div class="task-files-container">
+                                                <div class="task-file-item">
+                                                    <div class="file-label">本体码</div>
+                                                    ${task.bodyCodeImage ? `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">条码</div>
+                                                    ${task.barcodeImage ? `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">警示码</div>
+                                                    ${task.warningCodeImage ? `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">箱唛</div>
+                                                    ${task.labelImage ? `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">说明书</div>
+                                                    ${task.manualImage ? `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                </div>
+                                            </div>
+                                            <div class="task-back-actions">
+                                                <div class="back-action-buttons">
+                                                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
+                                                    <button class="btn btn-sm btn-success" onclick="completeShipment('${task.id}'); event.stopPropagation();">确认发货</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             `;
@@ -6608,8 +6762,18 @@ onerror="Utils.onImageError(this)">
         }
         
         function toggleTaskCardFlip(taskId) {
-            // 由于已移除翻转功能，此函数可以保留作为空函数或执行其他操作
-            console.log('任务卡片翻转功能已移除');
+            const frontElement = document.querySelector(`#task-${taskId}-front`);
+            if (!frontElement) {
+                console.error(`任务卡片前端元素 #task-${taskId}-front 不存在`);
+                return;
+            }
+            
+            const flipContainer = frontElement.parentElement;
+            if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
+                flipContainer.classList.toggle('flipped');
+            } else {
+                console.error(`未找到有效的翻转容器`);
+            }
         }
         
         function handleFileSelect(e, uploadAreaId) {
