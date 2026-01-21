@@ -5,7 +5,7 @@
       "product_code": "小恐龙",
       "product_name": "泛趣",
       "product_supplier": 555,
-      "quantity": 17,
+      "quantity": 16,
       "purchase_price": 33,
       "sale_price": null,
       "created_at": "2026-01-21T01:20:10.413Z"
@@ -31,6 +31,16 @@
       "barcode_image": "",
       "warning_code_image": "",
       "created_at": "2026-01-21T05:05:47.018Z"
+    },
+    {
+      "id": "1768972194839",
+      "task_number": "pending",
+      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
+      "items": "",
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "created_at": "2026-01-21T05:09:54.839Z"
     }
   ],
   "history": [
@@ -524,6 +534,13 @@
       "type": "创建发货任务: pending",
       "details": "管理员",
       "created_at": "2026-01-21T05:05:47.150Z"
+    },
+    {
+      "id": "1768972194859",
+      "time": "task",
+      "type": "创建发货任务: pending",
+      "details": "管理员",
+      "created_at": "2026-01-21T05:09:54.859Z"
     }
   ],
   "users": [

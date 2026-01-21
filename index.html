@@ -1078,6 +1078,27 @@
             }
         }
         
+        /* 销售运营模块中的已发布任务：始终保持每行2列 */
+        .sales-operations-container .published-tasks-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 16px;
+            margin-top: 16px;
+            align-content: start;
+        }
+        
+        @media (max-width: 767px) {
+            .sales-operations-container .published-tasks-gallery {
+                grid-template-columns: repeat(1, 1fr) !important;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .sales-operations-container .published-tasks-gallery {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
         /* 为已发布的任务卡片添加相同的样式 */
         .published-tasks-gallery .task-gallery-item {
             background-color: white;
