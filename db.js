@@ -2,7 +2,8 @@ const { Pool } = require('pg');
 
 // PostgreSQL 连接池配置
 const pool = new Pool({
-  connectionString: `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'funseek'}`,
+  // 在 Render 环境中使用 DATABASE_URL，否则使用单独的连接参数
+  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'funseek'}`,
   ssl: {
     rejectUnauthorized: false
   },
