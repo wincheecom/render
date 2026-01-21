@@ -184,6 +184,7 @@ setTimeout(async () => {
             "label_image" TEXT,
             "manual_image" TEXT,
             "other_image" TEXT,
+            "creator_name" VARCHAR(255),
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -201,6 +202,7 @@ setTimeout(async () => {
             "label_image" TEXT,
             "manual_image" TEXT,
             "other_image" TEXT,
+            "creator_name" VARCHAR(255),
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -616,7 +618,7 @@ app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, 
 
 app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -665,8 +667,8 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     
     const result = await db.query(
-      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl]
+      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name]
     );
     
     // 更新相关产品的库存
@@ -885,7 +887,7 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
 
 app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, completed_at } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name, completed_at } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -915,8 +917,8 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     }
     
     const result = await db.query(
-      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, completed_at || new Date().toISOString()]
+      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name, completed_at || new Date().toISOString()]
     );
     res.json(result.rows[0]);
   } catch (err) {

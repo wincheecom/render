@@ -174,7 +174,7 @@ class SimpleDB {
         rowCount: this.data.tasks.length
       };
     } else if (sql.includes('INSERT INTO tasks')) {
-      const [, task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image] = params;
+      const [, task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name] = params;
       const newTask = {
         id: Date.now().toString(),
         task_number,
@@ -184,6 +184,9 @@ class SimpleDB {
         barcode_image,
         warning_code_image,
         label_image,
+        manual_image,
+        other_image,
+        creator_name,
         created_at: new Date().toISOString()
       };
       this.data.tasks.push(newTask);
@@ -198,7 +201,7 @@ class SimpleDB {
         rowCount: this.data.history.length
       };
     } else if (sql.includes('INSERT INTO history')) {
-      const [, task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, completed_at] = params;
+      const [, task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name, completed_at] = params;
       const newHistory = {
         id: Date.now().toString(),
         task_number,
@@ -210,6 +213,7 @@ class SimpleDB {
         label_image,
         manual_image,
         other_image,
+        creator_name,
         created_at: new Date().toISOString(),
         completed_at: completed_at || new Date().toISOString()
       };

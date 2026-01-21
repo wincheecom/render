@@ -125,6 +125,9 @@ async function initializeDatabase() {
         "barcode_image" TEXT,
         "warning_code_image" TEXT,
         "label_image" TEXT,
+        "manual_image" TEXT,
+        "other_image" TEXT,
+        "creator_name" VARCHAR(255),
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "completed_at" TIMESTAMP
       )
@@ -144,6 +147,7 @@ async function initializeDatabase() {
         "label_image" TEXT,
         "manual_image" TEXT,
         "other_image" TEXT,
+        "creator_name" VARCHAR(255),
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "completed_at" TIMESTAMP
       )
