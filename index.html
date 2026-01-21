@@ -7018,7 +7018,7 @@ onerror="Utils.onImageError(this)">
                                 <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
                                     ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
                                 </span>
-                                <button class="btn btn-sm btn-danger delete-task-btn" onclick="deleteSalesTask('${task.id}', event)" title="删除任务">
+                                <button class="btn btn-sm btn-danger delete-task-btn" onclick="deleteTaskWithConfirmation('${task.id}', event)" title="删除任务">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -7081,11 +7081,7 @@ onerror="Utils.onImageError(this)">
             })();
         }
 
-        async function deleteSalesTask(taskId, event) {
-            if (event) {
-                event.stopPropagation();
-            }
-            
+        async function deleteSalesTask(taskId) {
             if (!confirm('确定要删除这个已发布的任务吗？')) {
                 return;
             }

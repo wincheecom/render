@@ -885,13 +885,15 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
 
 app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, completed_at } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, completed_at } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
     let barcodeImageUrl = barcode_image;
     let warningCodeImageUrl = warning_code_image;
     let labelImageUrl = label_image;
+    let manualImageUrl = manual_image;
+    let otherImageUrl = other_image;
     
     if (body_code_image && body_code_image.startsWith('data:image')) {
       bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code_history.jpg`);
@@ -905,10 +907,16 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     if (label_image && label_image.startsWith('data:image')) {
       labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label_history.jpg`);
     }
+    if (manual_image && manual_image.startsWith('data:image')) {
+      manualImageUrl = await uploadImageToR2(manual_image, `${task_number}_manual_history.jpg`);
+    }
+    if (other_image && other_image.startsWith('data:image')) {
+      otherImageUrl = await uploadImageToR2(other_image, `${task_number}_other_history.jpg`);
+    }
     
     const result = await db.query(
-      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, completed_at || new Date().toISOString()]
+      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, completed_at || new Date().toISOString()]
     );
     res.json(result.rows[0]);
   } catch (err) {
