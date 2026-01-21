@@ -684,11 +684,6 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('创建任务错误:', err);
-    try {
-      await db.query('ROLLBACK');
-    } catch (rollbackErr) {
-      console.error('回滚失败:', rollbackErr);
-    }
     
     // 检查错误是否与商品不存在相关
     if (err.message && (err.message.includes('商品') || err.message.includes('product'))) {
@@ -778,11 +773,6 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     res.json({ message: '任务已移动到历史记录' });
   } catch (err) {
     console.error(err);
-    try {
-      await db.query('ROLLBACK');
-    } catch (rollbackErr) {
-      console.error('回滚失败:', rollbackErr);
-    }
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -1074,11 +1064,6 @@ app.post('/api/clear-demo-data', async (req, res) => {
     res.json({ message: '演示数据已清除' });
   } catch (err) {
     console.error('清除演示数据失败:', err);
-    try {
-      await db.query('ROLLBACK');
-    } catch (rollbackErr) {
-      console.error('回滚失败:', rollbackErr);
-    }
     res.status(500).json({ error: '清除演示数据失败' });
   }
 });
