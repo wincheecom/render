@@ -67,10 +67,10 @@ try {
 
 console.log('R2 客户端初始化完成:', !!r2Client);
 
-// 尝试连接到 PostgreSQL，如果失败则使用简化数据库
+// 强制使用 PostgreSQL 数据库，不允许降级
 const initDB = async () => {
   try {
-    // 尝试导入 PostgreSQL 数据库模块
+    // 导入 PostgreSQL 数据库模块
     const pgDb = require('./db');
     
     // 测试连接
@@ -78,9 +78,8 @@ const initDB = async () => {
     db = pgDb;
     console.log('使用 PostgreSQL 数据库');
   } catch (error) {
-    // 如果 PostgreSQL 不可用，则使用简化数据库
-    console.log('PostgreSQL 不可用，使用简化数据库');
-    db = require('./simple_db');
+    console.error('PostgreSQL 连接失败，不允许降级到简化数据库:', error.message);
+    throw error; // 重新抛出错误，不使用简化数据库
   }
 };
 
