@@ -182,6 +182,8 @@ setTimeout(async () => {
             "barcode_image" TEXT,
             "warning_code_image" TEXT,
             "label_image" TEXT,
+            "manual_image" TEXT,
+            "other_image" TEXT,
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -197,6 +199,8 @@ setTimeout(async () => {
             "barcode_image" TEXT,
             "warning_code_image" TEXT,
             "label_image" TEXT,
+            "manual_image" TEXT,
+            "other_image" TEXT,
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "completed_at" TIMESTAMP
           )`
@@ -612,13 +616,15 @@ app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, 
 
 app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
     let barcodeImageUrl = barcode_image;
     let warningCodeImageUrl = warning_code_image;
     let labelImageUrl = label_image;
+    let manualImageUrl = manual_image;
+    let otherImageUrl = other_image;
     
     if (body_code_image && body_code_image.startsWith('data:image')) {
       bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code.jpg`);
@@ -631,6 +637,12 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     if (label_image && label_image.startsWith('data:image')) {
       labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label.jpg`);
+    }
+    if (manual_image && manual_image.startsWith('data:image')) {
+      manualImageUrl = await uploadImageToR2(manual_image, `${task_number}_manual.jpg`);
+    }
+    if (other_image && other_image.startsWith('data:image')) {
+      otherImageUrl = await uploadImageToR2(other_image, `${task_number}_other.jpg`);
     }
     
     // 在事务中进行验证和创建任务，防止并发冲突
@@ -653,8 +665,8 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     
     const result = await db.query(
-      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl]
+      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *',
+      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl]
     );
     
     // 更新相关产品的库存
@@ -691,7 +703,7 @@ app.put('/api/tasks/:id', requireRole(['admin', 'warehouse']), async (req, res) 
     const updates = req.body;
     
     // 如果有图片，上传到 R2
-    const imageFields = ['body_code_image', 'barcode_image', 'warning_code_image', 'label_image'];
+    const imageFields = ['body_code_image', 'barcode_image', 'warning_code_image', 'label_image', 'manual_image', 'other_image'];
     for (const field of imageFields) {
       if (updates[field] && updates[field].startsWith('data:image')) {
         updates[field] = await uploadImageToR2(updates[field], `${id}_${field}.jpg`);
@@ -750,9 +762,9 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     
     // 将任务数据移动到历史表
     await db.query(
-      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "created_at", "completed_at") 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)`,
-      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.completed_at || new Date().toISOString()]
+      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "created_at", "completed_at") 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)`,
+      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除

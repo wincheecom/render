@@ -1559,6 +1559,11 @@
             font-style: italic;
         }
         
+        .task-back-actions {
+            width: 100%;
+            padding: 3px;
+            flex-shrink: 0;
+        }
         
         .back-action-buttons {
             display: flex;
@@ -1579,7 +1584,6 @@
             flex-shrink: 0;
             margin-top: 15px;
         }
-        .card {
             flex: 1;
             min-width: 280px;
             background-color: white;
@@ -1588,6 +1592,7 @@
             padding: 20px;
             transition: var(--transition);
         }
+        
 
         
         /* 任务卡片样式 */
