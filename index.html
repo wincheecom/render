@@ -682,12 +682,38 @@
         }
 
         /* ===== 销售运营模块任务上传区域样式 ===== */
+        .task-upload-section {
+            margin-top: 16px;
+            padding: 16px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        
+        .task-upload-section h5 {
+            margin: 0 0 16px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
         .task-upload-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin-top: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .upload-area-col {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .upload-area-col label {
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            color: #666;
+            font-weight: 500;
         }
         
         .task-upload-row .upload-area {
@@ -1197,7 +1223,7 @@
             -webkit-transform-origin: center;
         }
         
-        .task-front, .task-back {
+        .task-flip-container .task-front, .task-flip-container .task-back {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -1217,7 +1243,7 @@
             left: 0;
         }
         
-        .task-back {
+        .task-flip-container .task-back {
             transform: rotateY(180deg);
             overflow: hidden;
             display: flex;
@@ -1227,10 +1253,136 @@
             box-sizing: border-box;
             top: 0;
             left: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .task-flip-container .task-front,
+        .task-flip-container .task-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            min-height: 220px;
+        }
+        
+        /* 通用任务卡片正面样式 */
+        .task-flip-container .task-front {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+            padding: 10px;
+            box-sizing: border-box;
+            width: 302.66px;
+            max-width: 302.66px;
+        }
+        
+        /* 响应式调整：小屏幕上适当减小通用任务卡片高度 */
+        @media (max-width: 768px) {
+            .task-flip-container .task-front,
+            .task-flip-container .task-back {
+                min-height: 200px;
+                width: calc(100% - 20px);
+                max-width: 302.66px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .task-flip-container .task-front,
+            .task-flip-container .task-back {
+                min-height: 180px;
+                width: calc(100% - 12px);
+                max-width: 302.66px;
+            }
         }
         
         .task-flip-container.flipped {
             transform: rotateY(180deg);
+        }        
+        /* 确保仓库发货端的卡片也具有与已发布任务相同的外观 */
+        .task-flip-container .task-front {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        /* 确保仓库发货端的图片尺寸与已发布任务相同 */
+        .task-flip-container .task-gallery-img {
+            width: 262.66px;
+            height: 262.66px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-flip-container .task-gallery-img img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* 确保仓库发货端任务信息也使用相同布局 */
+        .task-flip-container .task-info-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .task-flip-container .task-info-container .task-gallery-name,
+        .task-flip-container .task-info-container .task-gallery-code,
+        .task-flip-container .task-info-container .task-gallery-qty {
+            flex: 1;
+            text-align: center;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+        
+        .task-flip-container .task-info-container .task-gallery-creator {
+            flex: 1;
+            text-align: center;
+            margin-bottom: 0;
+            font-size: 0.7rem;
+            color: #888;
+        }
+        
+        .task-card-container {
+            position: relative;
+        }
+        
+        .delete-task-btn {
+            width: auto;
+            min-width: 32px;
+            padding: 4px 8px !important;
+            font-size: 0.75rem;
+        }
+        
+        .task-flip-container .task-info-container .task-gallery-name {
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        
+        .task-flip-container .task-info-container .task-gallery-code {
+            color: #666;
+        }
+        
+        /* 仓库发货端任务操作按钮样式 */
+        .task-flip-container .task-gallery-actions {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        .task-flip-container .task-gallery-actions .btn {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 0.8rem;
         }
         
         .task-back-content {
@@ -1324,26 +1476,47 @@
 
         
         /* 任务卡片样式 */
-        .task-front {
+        .warehouse-tasks-gallery .task-front {
             /* 应用统计卡样式 */
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
             box-shadow: var(--shadow);
-            padding: 20px;
+            padding: 15px;
             transition: var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
             overflow: auto;
             position: relative;
-            width: 100%;
-            height: 100%;
+            width: 302.66px;
+            height: auto;
             perspective: 1500px;
-            min-height: 200px;
+            min-height: 220px;
+            box-sizing: border-box;
+            max-width: 302.66px;
         }
         
-        .task-front:hover {
+        /* 响应式调整：小屏幕上适当减小仓库任务卡片高度 */
+        @media (max-width: 768px) {
+            .warehouse-tasks-gallery .task-front {
+                min-height: 200px;
+                padding: 12px;
+                width: calc(100% - 20px);
+                max-width: 302.66px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .warehouse-tasks-gallery .task-front {
+                min-height: 180px;
+                padding: 10px;
+                width: calc(100% - 12px);
+                max-width: 302.66px;
+            }
+        }
+        
+        .warehouse-tasks-gallery .task-front:hover {
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
@@ -1364,8 +1537,8 @@
         }
         
         .task-gallery-img {
-            width: 100%;
-            height: 120px;
+            width: 262.66px;
+            height: 262.66px;
             object-fit: cover;
             border-radius: 6px;
             margin-bottom: 8px;
@@ -1381,6 +1554,24 @@
             object-fit: contain;
         }
         
+        .published-tasks-gallery .task-gallery-img {
+            width: 262.66px;
+            height: 262.66px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .published-tasks-gallery .task-gallery-img img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
         .task-gallery-name {
             font-weight: 600;
             font-size: 0.9rem;
@@ -1388,12 +1579,46 @@
             word-break: break-word;
         }
         
-        /* 让货号和数量在同一行显示 */
-        .task-front {
+        /* 让货号和数量在同一行显示 - 仅限已发布任务 */
+        .published-tasks-gallery .task-front {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            justify-content: space-between;
+            padding: 10px;
+            box-sizing: border-box;
+            width: 302.66px;
+            max-width: 302.66px;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            background-color: white;
+            box-shadow: var(--shadow);
+            -webkit-backface-visibility: hidden;
+            top: 0;
+            left: 0;
+            min-height: 220px;
+        }
+        
+        /* 响应式调整：小屏幕上适当减小卡片高度 */
+        @media (max-width: 768px) {
+            .published-tasks-gallery .task-front {
+                min-height: 200px;
+                width: calc(100% - 20px);
+                max-width: 302.66px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .published-tasks-gallery .task-front {
+                min-height: 180px;
+                width: calc(100% - 12px);
+                max-width: 302.66px;
+            }
         }
         
         .task-gallery-name {
@@ -1403,21 +1628,7 @@
             word-break: break-word;
         }
         
-        .task-gallery-code, .task-gallery-qty {
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-        }
-        
-        .task-gallery-code {
-            color: #666;
-        }
-        
-        .task-gallery-qty {
-            font-weight: 600;
-            color: var(--warning);
-        }
-        
-        /* 使用flexbox使货号和数量在同一行显示 */
+        /* 使用flexbox使产品名称、货号和数量在同一行显示 */
         .task-info-container {
             display: flex;
             flex-direction: row;
@@ -1426,11 +1637,48 @@
             margin-bottom: 8px;
         }
         
+        .task-info-container .task-gallery-name,
         .task-info-container .task-gallery-code,
         .task-info-container .task-gallery-qty {
             flex: 1;
             text-align: center;
             margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+        
+        .task-info-container .task-gallery-name {
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        
+        .task-info-container .task-gallery-code {
+            color: #666;
+        }
+        
+        .published-tasks-gallery .task-info-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .published-tasks-gallery .task-info-container .task-gallery-name,
+        .published-tasks-gallery .task-info-container .task-gallery-code,
+        .published-tasks-gallery .task-info-container .task-gallery-qty {
+            flex: 1;
+            text-align: center;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+        
+        .published-tasks-gallery .task-info-container .task-gallery-name {
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        
+        .published-tasks-gallery .task-info-container .task-gallery-code {
+            color: #666;
         }
         
         .task-gallery-actions {
@@ -1545,6 +1793,103 @@
         .published-tasks-section {
             flex: 1;
             min-width: 280px;
+        }
+        
+        /* 特定任务卡片容器样式 - 用于将特定任务卡片显示在创建任务卡片的右边 */
+        #specific-task-card-container.right-side {
+            flex: 1;
+            min-width: 280px;
+            margin-top: 0;
+        }
+        
+        /* 当特定任务卡片被移到右边时，使用flex布局让它与创建任务部分并排 */
+        .sales-operations-container.with-specific-task {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+            flex-wrap: nowrap; /* 防止换行 */
+        }
+        
+        /* 确保创建任务部分和已发布任务部分都使用flex布局正确分配空间 */
+        .sales-operations-container.with-specific-task .create-task-section {
+            flex: 1;
+            min-width: 302.66px;
+        }
+        
+        .sales-operations-container.with-specific-task .published-tasks-section {
+            flex: 1;
+            min-width: 302.66px;
+        }
+        
+        /* 特定任务卡片容器在销售运营容器中的样式 */
+        .sales-operations-container #specific-task-card-container {
+            margin: 0;
+            flex: 1;
+            min-width: 302.66px;
+            order: 3; /* 确保它显示在最后面，即右侧 */
+            display: block;
+        }
+        
+        /* 特定任务卡片本身的样式 */
+        #specific-task-card-container .task-front {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        /* 已发布任务部分的顺序 */
+        .sales-operations-container .published-tasks-section {
+            order: 2; /* 确保它在中间 */
+        }
+        
+        /* 创建任务部分的顺序 */
+        .sales-operations-container .create-task-section {
+            order: 1; /* 确保它在最前面 */
+        }
+        
+        /* 特定任务卡片容器样式 */
+        #specific-task-card-container {
+            margin-top: 0;
+            display: none; /* 默认隐藏，只在需要时显示 */
+        }
+        
+        /* 当在销售运营容器中时的样式 */
+        .sales-operations-container #specific-task-card-container {
+            margin-top: 0;
+        }
+        
+        /* 特定任务卡片样式 */
+        #specific-task-card-container .task-front {
+            width: 302.66px;
+            max-width: 302.66px;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--card-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: var(--shadow);
+            -webkit-backface-visibility: hidden;
+            top: 0;
+            left: 0;
+            min-height: 220px;
+            margin-bottom: 25px;
+        }
+        
+        /* 调整销售运营容器结构以确保正确布局 */
+        .sales-operations-container {
+            position: relative;
+        }
+        
+        /* 确保当添加了特定任务卡片容器后，容器内的元素正确排列 */
+        .sales-operations-container.with-specific-task > * {
+            flex-shrink: 0;
         }
 
         /* ===== 响应式设计 ===== */
@@ -1884,7 +2229,7 @@
             padding: 8px;
             z-index: 1000;
             min-width: 200px;
-            max-width: 300px;
+            max-width: 302.66px;
             max-height: 300px;
             overflow-y: auto;
         }
@@ -2045,6 +2390,16 @@
             font-weight: 700;
             color: var(--dark);
             margin: 0;
+        }
+        
+        /* 特定任务卡片样式 - 确保图片居中 */
+        #task-1768315176672-front.task-front {
+            width: 302.66px; 
+            max-width: 302.66px; 
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -2334,7 +2689,7 @@
             <div class="module-content" id="sales-operations">
                 <!-- 已移除：<h1 class="page-title">销售运营</h1> -->
                 
-                <!-- 调整后的销售运营布局 -->
+                <!-- 重构后的销售运营布局 -->
                 <div class="sales-operations-container">
                     <!-- 左边：创建发货任务 -->
                     <div class="create-task-section">
@@ -2381,30 +2736,48 @@
                                     </div>
                                 </div>
                                 
-                                <!-- 新增：任务文件上传区域 -->
-                                <div class="task-upload-row">
-                                    <div class="upload-area" id="taskBodyCodeUpload">
-                                        <!-- 动态内容 -->
+                                <!-- 任务文件上传区域 - 重构为更清晰的布局 -->
+                                <div class="task-upload-section">
+                                    <h5>上传任务相关文件</h5>
+                                    <div class="task-upload-row">
+                                        <div class="upload-area-col">
+                                            <label>本体码</label>
+                                            <div class="upload-area" id="taskBodyCodeUpload">
+                                                <!-- 动态内容 -->
+                                            </div>
+                                        </div>
+                                        <div class="upload-area-col">
+                                            <label>条码</label>
+                                            <div class="upload-area" id="taskBarcodeUpload">
+                                                <!-- 动态内容 -->
+                                            </div>
+                                        </div>
+                                        <div class="upload-area-col">
+                                            <label>警示码</label>
+                                            <div class="upload-area" id="taskWarningCodeUpload">
+                                                <!-- 动态内容 -->
+                                            </div>
+                                        </div>
                                     </div>
-                                    
-                                    <div class="upload-area" id="taskBarcodeUpload">
-                                        <!-- 动态内容 -->
-                                    </div>
-                                    
-                                    <div class="upload-area" id="taskWarningCodeUpload">
-                                        <!-- 动态内容 -->
-                                    </div>
-                                    
-                                    <div class="upload-area" id="taskLabelUpload">
-                                        <!-- 动态内容 -->
-                                    </div>
-                                    
-                                    <div class="upload-area" id="taskManualUpload">
-                                        <!-- 动态内容 -->
-                                    </div>
-                                    
-                                    <div class="upload-area" id="taskOtherUpload">
-                                        <!-- 动态内容 -->
+                                    <div class="task-upload-row">
+                                        <div class="upload-area-col">
+                                            <label>箱唛</label>
+                                            <div class="upload-area" id="taskLabelUpload">
+                                                <!-- 动态内容 -->
+                                            </div>
+                                        </div>
+                                        <div class="upload-area-col">
+                                            <label>说明书</label>
+                                            <div class="upload-area" id="taskManualUpload">
+                                                <!-- 动态内容 -->
+                                            </div>
+                                        </div>
+                                        <div class="upload-area-col">
+                                            <label>其他</label>
+                                            <div class="upload-area" id="taskOtherUpload">
+                                                <!-- 动态内容 -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -2417,15 +2790,15 @@
                         </div>
                     </div>
                     
-                    <!-- 右边：已发布的任务 -->
+                    <!-- 右边：已创建的任务 -->
                     <div class="published-tasks-section">
                         <div class="card mb-25">
-                            <div class="card-title">已发布的任务</div>
+                            <div class="card-title">已创建的任务</div>
                         </div>
                         <div class="published-tasks-gallery" id="publishedTasksBody">
                             <div class="text-center text-muted py-5">
                                 <i class="fas fa-inbox fa-2x mb-3"></i>
-                                <p>暂无已发布任务</p>
+                                <p>暂无已创建任务</p>
                             </div>
                         </div>
                     </div>
@@ -3162,7 +3535,7 @@
                             barcode_image: task.barcodeImage || '',
                             warning_code_image: task.warningCodeImage || '',
                             label_image: task.labelImage || '',
-                            creator_name: user ? user.name : null,
+                            creator_name: task.creatorName || (user ? user.name : null),
                             creator_role: user ? user.role : null
                         })
                     });
@@ -3192,7 +3565,7 @@
                         labelImage: newTask.label_image || newTask.labelImage || '',
                         labelFileName: newTask.label_file_name || newTask.labelFileName || '',
                         labelType: newTask.label_type || newTask.labelType || null,
-                        creator_name: newTask.creator_name || newTask.creatorName || null,
+                        creator_name: newTask.creator_name || newTask.creatorName || DataManager.getCurrentUser()?.username || DataManager.getCurrentUser()?.name || null,
                         creator_role: newTask.creator_role || newTask.creatorRole || null,
                         createdAt: newTask.created_at || newTask.createdAt || '',
                         completedAt: newTask.completed_at || newTask.completedAt || ''
@@ -6359,23 +6732,31 @@ onerror="Utils.onImageError(this)">
                 // 计算任务总数量
                 const itemCount = task.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
                 
+                // 获取创建人ID
+                const creatorId = task.creatorName || task.creator_name || '未知';
+                
                 return `
-                    <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
-                        <div class="task-gallery-img">
-                            ${firstProductImage ? 
-                                `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
-                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
-                            }
-                        </div>
-                        <div class="task-gallery-code">货号: ${firstProductCode}</div>
-                        <div class="task-info-container">
-                            <div class="task-gallery-name">${firstProductName}</div>
-                            <div class="task-gallery-qty">数量: ${itemCount}</div>
-                        </div>
-                        <div class="task-gallery-actions d-flex align-items-center gap-2">
-                            <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
-                                ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
-                            </span>
+                    <div class="task-card-container" data-task-id="${task.id}">
+                        <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
+                            <div class="task-gallery-img">
+                                ${firstProductImage ? 
+                                    `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                    '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                                }
+                            </div>
+                            <div class="task-info-container">
+                                <div class="task-gallery-name">${firstProductName}</div>
+                                <div class="task-gallery-code">货号: ${firstProductCode}</div>
+                                <div class="task-gallery-qty">数量: ${itemCount} | ${creatorId}</div>
+                            </div>
+                            <div class="task-gallery-actions d-flex align-items-center gap-2">
+                                <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
+                                    ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
+                                </span>
+                                <button class="btn btn-sm btn-danger delete-task-btn" onclick="deleteTaskWithConfirmation('${task.id}', event)" title="删除任务">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -6595,7 +6976,9 @@ onerror="Utils.onImageError(this)">
                     manualType: taskManualType || null,
                     otherImage: taskOtherPreview || '',
                     otherFileName: taskOtherFileName || '',
-                    otherType: taskOtherType || null
+                    otherType: taskOtherType || null,
+                    creatorName: DataManager.getCurrentUser()?.username || DataManager.getCurrentUser()?.name || '系统管理员',
+                    status: 'pending'
                 };
                 
 
@@ -6656,7 +7039,53 @@ onerror="Utils.onImageError(this)">
                 submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
             }
         }
-
+        
+        // 带确认的删除任务函数
+        async function deleteTaskWithConfirmation(taskId, event) {
+            event.stopPropagation(); // 阻止事件冒泡
+            
+            if (!confirm('确定要删除这个任务吗？此操作不可撤销。')) {
+                return;
+            }
+            
+            try {
+                // 先尝试从服务器删除
+                const success = await DataManager.deleteTask(taskId);
+                if (success) {
+                    // 从UI上立即移除任务元素，提供即时反馈
+                    // 查找包含任务卡片的容器
+                    const taskContainer = document.querySelector(`#publishedTasksBody [data-task-id="${taskId}"]`).closest('.task-card-container');
+                    if (taskContainer) {
+                        // 添加过渡效果
+                        taskContainer.style.opacity = '0';
+                        taskContainer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        taskContainer.style.transform = 'scale(0.95)';
+                                
+                        setTimeout(() => {
+                            taskContainer.remove();
+                                    
+                            // 如果任务列表为空，显示相应提示
+                            const container = document.getElementById('publishedTasksBody');
+                            if (container && container.children.length === 0) {
+                                container.innerHTML = `
+                                    <div class="no-tasks-message text-center text-muted py-5">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <h5>暂无已创建任务</h5>
+                                        <p>暂无待处理的发货任务</p>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                }
+                        
+                Utils.showAlert('任务删除成功！', 'success');
+            } catch (error) {
+                console.error("删除任务失败:", error);
+                Utils.showAlert('删除任务失败，请稍后重试', 'error');
+            }
+        }
+        
         // ============================================
         // 仓库发货模块
         // ============================================
@@ -6682,10 +7111,11 @@ onerror="Utils.onImageError(this)">
                         
                 // 画廊视图
                 container.innerHTML = `
-                    <div class="task-gallery">
+                    <div class="task-gallery warehouse-tasks-gallery">
                         ${pendingTasks.map(task => {
                             const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
                             const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
+                            const creatorId = task.creatorName || task.creator_name || '未知';
                                             
                             return `
                                 <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
@@ -6697,10 +7127,10 @@ onerror="Utils.onImageError(this)">
                                                 '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
                                             }
                                         </div>
-                                        <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
                                         <div class="task-info-container">
                                             <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                            <div class="task-gallery-qty">数量: ${itemCount}</div>
+                                            <div class="task-gallery-code">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                            <div class="task-gallery-qty">数量: ${itemCount} | ${creatorId}</div>
                                         </div>
                                         <div class="task-gallery-actions">
                                             <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">
@@ -8044,6 +8474,139 @@ onerror="Utils.onImageError(this)">
         window.resetTaskBodyCodeUpload = resetTaskBodyCodeUpload;
         window.resetTaskWarningCodeUpload = resetTaskWarningCodeUpload;
         window.resetTaskLabelUpload = resetTaskLabelUpload;
+        
+        // 特定任务卡片移动功能
+        function moveSpecificTaskCard() {
+            // 获取特定任务卡片
+            const specificTaskCard = document.getElementById('task-1768315176672-front');
+            
+            // 检查是否已存在特定任务卡片容器
+            const container = document.getElementById('specific-task-card-container');
+            
+            if (specificTaskCard && container) {
+                // 检查任务卡片是否已经在容器中
+                if (specificTaskCard.parentNode && specificTaskCard.parentNode.id !== 'specific-task-card-container') {
+                    // 克隆元素并添加到新容器，保留原始事件处理
+                    const clonedCard = specificTaskCard.cloneNode(true);
+                    
+                    // 清空容器并添加克隆的卡片
+                    container.innerHTML = '';
+                    container.appendChild(clonedCard);
+                    
+                    // 隐藏原始卡片
+                    specificTaskCard.style.display = 'none';
+                    
+                    // 重新绑定可能丢失的事件
+                    rebindTaskCardEvents(clonedCard);
+                }
+                
+                // 显示特定任务卡片容器
+                container.style.display = 'block';
+                
+                // 将特定任务卡片容器添加到销售运营容器中，使用CSS order属性控制显示顺序
+                const salesOpsContainer = document.querySelector('.sales-operations-container');
+                
+                if (salesOpsContainer && container) {
+                    // 添加样式类以启用并排布局
+                    salesOpsContainer.classList.add('with-specific-task');
+                    
+                    // 确保特定任务卡片容器在销售运营容器内，以便order属性生效
+                    if (container.parentNode !== salesOpsContainer) {
+                        // 找到发布任务部分作为参考点，将特定任务卡片容器插入到其后面
+                        const publishedTasksSection = salesOpsContainer.querySelector('.published-tasks-section');
+                        if (publishedTasksSection) {
+                            publishedTasksSection.parentNode.insertBefore(container, publishedTasksSection.nextSibling);
+                        } else {
+                            // 如果找不到发布任务部分，则直接添加到容器末尾
+                            salesOpsContainer.appendChild(container);
+                        }
+                    }
+                }
+            }
+        }
+        
+
+        
+        // 删除特定任务卡片
+        function removeSpecificTaskCard() {
+            // 查找并删除特定的任务卡片
+            const taskCardToRemove = document.getElementById('task-1768315717638-front');
+            
+            if (taskCardToRemove) {
+                taskCardToRemove.remove();
+                console.log('已成功删除任务卡片: task-1768315717638-front');
+            } else {
+                // 如果通过ID找不到，尝试通过其他方式查找
+                const taskCardByDataId = document.querySelector('[data-task-id="1768315717638"]');
+                if (taskCardByDataId) {
+                    taskCardByDataId.remove();
+                    console.log('已成功删除任务卡片: data-task-id="1768315717638"');
+                } else {
+                    // 尝试通过内容查找
+                    const allTaskFrontElements = document.querySelectorAll('.task-front');
+                    for (let i = 0; i < allTaskFrontElements.length; i++) {
+                        const element = allTaskFrontElements[i];
+                        if (element.textContent && element.textContent.includes('以诚玩具') && 
+                            element.textContent.includes('小恐龙') && element.textContent.includes('数量: 1')) {
+                            // 检查是否是目标元素（不是我们要保留的那个）
+                            if (element.id !== 'task-1768315176672-front') {
+                                element.remove();
+                                console.log('已通过内容匹配删除任务卡片');
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 重新绑定任务卡片上的事件
+        function rebindTaskCardEvents(cardElement) {
+            // 为克隆的卡片重新绑定点击事件
+            const taskId = cardElement.dataset.taskId;
+            if (taskId) {
+                // 查找卡片上的操作按钮并重新绑定事件
+                const actionButtons = cardElement.querySelectorAll('button, .task-gallery-actions');
+                actionButtons.forEach(button => {
+                    // 重新绑定查看任务详情的事件
+                    if (button.classList.contains('view-task-btn') || button.onclick) {
+                        button.onclick = () => viewTaskDetail(taskId);
+                    }
+                });
+            }
+        }
+        
+        // 监听模块切换事件，在销售运营模块激活时移动任务卡片
+        document.addEventListener('DOMContentLoaded', function() {
+            // 等待销售运营模块激活后再移动元素
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && node.id === 'sales-operations' && node.classList.contains('active')) {
+                            // 延迟执行，确保DOM完全加载
+                            setTimeout(moveSpecificTaskCard, 100);
+                            setTimeout(moveTaskCardToPageRight, 150); // 添加对新函数的调用
+                        }
+                    });
+                });
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            
+            // 页面加载完成后也尝试一次
+            if (document.getElementById('sales-operations') && document.getElementById('sales-operations').classList.contains('active')) {
+                setTimeout(moveSpecificTaskCard, 100);
+                setTimeout(moveTaskCardToPageRight, 150); // 添加对新函数的调用
+            }
+            
+            // 删除特定任务卡片
+            setTimeout(removeSpecificTaskCard, 75);
+        });
+        
+        window.moveSpecificTaskCard = moveSpecificTaskCard;
     </script>
 </body>
 </html>
