@@ -1467,6 +1467,14 @@
             overflow: hidden;
         }
         
+        /* 针对翻转卡片的创建人隐藏标签样式 */
+        .task-flip-container .task-info-container .task-gallery-creator {
+            position: relative;
+            /* 隐藏原始标签 */
+            text-indent: -9999px;
+            overflow: hidden;
+        }
+        
         /* 使用伪元素显示实际内容 */
         .task-flip-container .task-info-container .task-gallery-code::before {
             content: attr(data-content);
@@ -1477,6 +1485,14 @@
         }
         
         .task-flip-container .task-info-container .task-gallery-qty::before {
+            content: attr(data-content);
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-indent: 0;
+        }
+        
+        .task-flip-container .task-info-container .task-gallery-creator::before {
             content: attr(data-content);
             position: absolute;
             left: 0;
@@ -1818,8 +1834,8 @@
             color: #666;
         }
         
-        /* 隐藏货号和数量标签，只显示实际内容 */
-        .task-gallery-code, .task-gallery-qty {
+        /* 隐藏货号、数量和创建人标签，只显示实际内容 */
+        .task-gallery-code, .task-gallery-qty, .task-gallery-creator {
             position: relative;
             /* 隐藏原始标签 */
             text-indent: -9999px;
@@ -1836,6 +1852,14 @@
         }
         
         .task-gallery-qty::before {
+            content: attr(data-content);
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-indent: 0;
+        }
+        
+        .task-gallery-creator::before {
             content: attr(data-content);
             position: absolute;
             left: 0;
@@ -1869,9 +1893,10 @@
             color: #666;
         }
         
-        /* 针对已发布任务的货号和数量隐藏标签样式 */
+        /* 针对已发布任务的货号、数量和创建人隐藏标签样式 */
         .published-tasks-gallery .task-info-container .task-gallery-code,
-        .published-tasks-gallery .task-info-container .task-gallery-qty {
+        .published-tasks-gallery .task-info-container .task-gallery-qty,
+        .published-tasks-gallery .task-info-container .task-gallery-creator {
             position: relative;
             /* 隐藏原始标签 */
             text-indent: -9999px;
@@ -1888,6 +1913,14 @@
         }
         
         .published-tasks-gallery .task-info-container .task-gallery-qty::before {
+            content: attr(data-content);
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-indent: 0;
+        }
+        
+        .published-tasks-gallery .task-info-container .task-gallery-creator::before {
             content: attr(data-content);
             position: absolute;
             left: 0;
@@ -6979,7 +7012,7 @@ onerror="Utils.onImageError(this)">
                                 <div class="task-gallery-name">${firstProductName}</div>
                                 <div class="task-gallery-code" data-content="${firstProductCode}">货号: ${firstProductCode}</div>
                                 <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
-                                <div class="task-gallery-creator" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
+                                <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
                             </div>
                             <div class="task-gallery-actions d-flex align-items-center gap-2">
                                 <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
@@ -7363,7 +7396,7 @@ onerror="Utils.onImageError(this)">
                                             <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
                                             <div class="task-gallery-code" data-content="${task.items.length > 0 ? task.items[0].productCode : '无'}">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
                                             <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
-                                            <div class="task-gallery-creator" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
+                                            <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
                                         </div>
                                         <div class="task-gallery-actions">
                                             <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">
