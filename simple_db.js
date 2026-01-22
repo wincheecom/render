@@ -195,6 +195,36 @@ class SimpleDB {
         rows: [newTask],
         rowCount: 1
       };
+    } else if (sql.includes('UPDATE tasks SET') && sql.includes('WHERE "id" = $')) {
+      // 解析更新字段和值
+      const values = [...params]; // 复制参数数组
+      const taskId = values.pop(); // 最后一个参数是ID
+      
+      // 查找任务
+      const taskIndex = this.data.tasks.findIndex(t => t.id == taskId);
+      if (taskIndex !== -1) {
+        // 获取要更新的字段（除了id之外的所有字段）
+        const updateFields = {};
+        const fieldNames = ['task_number', 'status', 'items', 'body_code_image', 'barcode_image', 'warning_code_image', 'label_image', 'manual_image', 'other_image', 'creator_name'];
+        
+        // 根据参数顺序分配字段值
+        for (let i = 0; i < Math.min(values.length, fieldNames.length); i++) {
+          if (values[i] !== undefined) {
+            updateFields[fieldNames[i]] = values[i];
+          }
+        }
+        
+        // 更新任务对象
+        this.data.tasks[taskIndex] = { ...this.data.tasks[taskIndex], ...updateFields };
+        await this.saveToFile();
+        
+        return {
+          rows: [this.data.tasks[taskIndex]],
+          rowCount: 1
+        };
+      } else {
+        return { rowCount: 0 };
+      }
     } else if (sql.includes('SELECT * FROM history')) {
       return {
         rows: this.data.history,
@@ -347,6 +377,15 @@ class SimpleDB {
         rows: user ? [user] : [],
         rowCount: user ? 1 : 0
       };
+    } else if (sql.toUpperCase().includes('BEGIN')) {
+      // 事务开始 - 在简化数据库中忽略
+      return { rows: [], rowCount: 0 };
+    } else if (sql.toUpperCase().includes('COMMIT')) {
+      // 事务提交 - 在简化数据库中忽略
+      return { rows: [], rowCount: 0 };
+    } else if (sql.toUpperCase().includes('ROLLBACK')) {
+      // 事务回滚 - 在简化数据库中忽略
+      return { rows: [], rowCount: 0 };
     }
 
     return { rows: [], rowCount: 0 };

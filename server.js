@@ -67,7 +67,7 @@ try {
 
 console.log('R2 客户端初始化完成:', !!r2Client);
 
-// 强制使用 PostgreSQL 数据库，不允许降级
+// 尝试使用 PostgreSQL 数据库，失败则降级到简化数据库
 const initDB = async () => {
   try {
     // 导入 PostgreSQL 数据库模块
@@ -78,13 +78,19 @@ const initDB = async () => {
     db = pgDb;
     console.log('使用 PostgreSQL 数据库');
   } catch (error) {
-    console.error('PostgreSQL 连接失败，不允许降级到简化数据库:', error.message);
-    throw error; // 重新抛出错误，不使用简化数据库
+    console.warn('PostgreSQL 连接失败，将使用简化数据库:', error.message);
+    
+    // 使用简化数据库
+    db = require('./simple_db');
+    console.log('已切换到简化数据库');
   }
 };
 
 // 初始化数据库连接
-initDB();
+initDB().catch(error => {
+  console.error('数据库初始化失败:', error);
+  process.exit(1); // 如果数据库初始化失败，退出应用
+});
 
 // 强制确保管理员账户存在（在应用启动后稍等片刻执行）
 setTimeout(async () => {
