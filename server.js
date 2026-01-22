@@ -746,6 +746,24 @@ app.put('/api/tasks/:id', requireRole(['admin', 'warehouse']), async (req, res) 
   }
 });
 
+// API route to get a single task by ID
+app.get('/api/tasks/:id', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await db.query('SELECT * FROM tasks WHERE "id" = $1', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '任务未找到' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
 app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const { id } = req.params;
