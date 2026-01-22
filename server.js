@@ -765,9 +765,8 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     
     // 将任务数据移动到历史表
     await db.query(
-      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11)`,
-      [task.task_number, task.status, JSON.stringify(task.items), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, task.completed_at || new Date().toISOString()]
+      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)` ,
+      [task.task_number, task.status, task.items ? JSON.stringify(task.items) : (task.items_str || '[]'), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, new Date(), task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
