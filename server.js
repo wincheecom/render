@@ -674,7 +674,7 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     
     const result = await db.query(
       'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-      [task_number, status, JSON.stringify(items), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name, new Date()]
+      [task_number, status, items ? JSON.stringify(items) : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name, new Date()]
     );
     
     // 更新相关产品的库存
