@@ -627,12 +627,12 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name } = req.body;
     
     // 如果有图片，上传到 R2
-    let bodyCodeImageUrl = body_code_image;
-    let barcodeImageUrl = barcode_image;
-    let warningCodeImageUrl = warning_code_image;
-    let labelImageUrl = label_image;
-    let manualImageUrl = manual_image;
-    let otherImageUrl = other_image;
+    let bodyCodeImageUrl = body_code_image || null;
+    let barcodeImageUrl = barcode_image || null;
+    let warningCodeImageUrl = warning_code_image || null;
+    let labelImageUrl = label_image || null;
+    let manualImageUrl = manual_image || null;
+    let otherImageUrl = other_image || null;
     
     if (body_code_image && body_code_image.startsWith('data:image')) {
       bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code.jpg`);
@@ -674,7 +674,7 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     
     const result = await db.query(
       'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-      [task_number, status, items ? JSON.stringify(items) : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name, new Date()]
+      [task_number, status, items ? JSON.stringify(items) : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name || null, new Date()]
     );
     
     // 更新相关产品的库存
