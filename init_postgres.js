@@ -9,9 +9,7 @@ const { Pool } = require('pg');
 // 创建数据库连接池
 const pool = new Pool({
   connectionString: `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}${process.env.DB_NAME ? '/' + process.env.DB_NAME : '/funseek'}`,
-  ssl: {
-    rejectUnauthorized: false
-  },
+  ssl: false, // 禁用 SSL 连接
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000
 });

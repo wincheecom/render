@@ -67,7 +67,7 @@ try {
 
 console.log('R2 客户端初始化完成:', !!r2Client);
 
-// 尝试使用 PostgreSQL 数据库，失败则降级到简化数据库
+// 尝试使用 PostgreSQL 数据库，失败则降级到简化数据库（为了开发便利性）
 const initDB = async () => {
   try {
     // 导入 PostgreSQL 数据库模块

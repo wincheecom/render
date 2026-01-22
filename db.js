@@ -4,9 +4,7 @@ const { Pool } = require('pg');
 const pool = new Pool({
   // 在 Render 环境中使用 DATABASE_URL，否则使用单独的连接参数
   connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'funseek'}`,
-  ssl: {
-    rejectUnauthorized: false
-  },
+  ssl: false, // 禁用 SSL 连接
   connectionTimeoutMillis: 10000, // 增加连接超时时间
   idleTimeoutMillis: 30000
 });
