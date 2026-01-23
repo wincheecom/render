@@ -1598,6 +1598,33 @@
             background-color: #fff;
         }
         
+        .pdf-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            padding: 2px;
+            background-color: #f8f9fa;
+            font-size: 24px;
+            color: #e74c3c;
+        }
+        
+        .pdf-preview i {
+            margin-bottom: 4px;
+        }
+        
+        .pdf-filename {
+            font-size: 0.6rem;
+            text-align: center;
+            max-width: 100%;
+            word-break: break-all;
+            color: #666;
+        }
+        
         .no-file {
             font-size: 0.65rem;
             color: #aaa;
@@ -4053,118 +4080,10 @@
             }
             
             static async addToHistory(task) {
-                // 在数据库中，任务完成后会从tasks表移动到history表
+                // 此方法已被弃用，使用新的完成任务API代替
+                console.warn('DataManager.addToHistory 方法已被弃用，请使用完成任务API');
                 try {
-                    // 确保任务数据经过字段错位修复
-                    let fixedTask = {
-                        id: task.id,
-                        taskNumber: task.task_number || task.taskNumber || '',
-                        status: task.status,
-                        items: task.items || [],
-                        bodyCodeImage: task.body_code_image || task.bodyCodeImage || '',
-                        bodyCodeFileName: task.body_code_file_name || task.bodyCodeFileName || '',
-                        bodyCodeType: task.body_code_type || task.bodyCodeType || null,
-                        barcodeImage: task.barcode_image || task.barcodeImage || '',
-                        barcodeFileName: task.barcode_file_name || task.barcodeFileName || '',
-                        barcodeType: task.barcode_type || task.barcodeType || null,
-                        warningCodeImage: task.warning_code_image || task.warningCodeImage || '',
-                        warningCodeFileName: task.warning_code_file_name || task.warningCodeFileName || '',
-                        warningCodeType: task.warning_code_type || task.warningCodeType || null,
-                        labelImage: task.label_image || task.labelImage || '',
-                        labelFileName: task.label_file_name || task.labelFileName || '',
-                        labelType: task.label_type || task.labelType || null,
-                        manualImage: task.manual_image || task.manualImage || '',
-                        manualFileName: task.manual_file_name || task.manualFileName || '',
-                        manualType: task.manual_type || task.manualType || null,
-                        otherImage: task.other_image || task.otherImage || '',
-                        otherFileName: task.other_file_name || task.otherFileName || '',
-                        otherType: task.other_type || task.otherType || null,
-                        createdAt: task.created_at || task.createdAt || '',
-                        completedAt: task.completed_at || task.completedAt || '',
-                        creator_name: task.creator_name || task.creatorName || ''
-                    };
-                    
-                    // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
-                    if (typeof fixedTask.taskNumber === 'string' && 
-                        (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed') &&
-                        typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{')) {
-                        // 发生了字段错位，交换这两个字段
-                        const originalTaskNumber = fixedTask.taskNumber;
-                        fixedTask.taskNumber = fixedTask.status;
-                        fixedTask.status = originalTaskNumber;
-                        
-                        // 同时尝试解析原来的status内容到items字段
-                        try {
-                            fixedTask.items = JSON.parse(fixedTask.taskNumber);
-                        } catch (e) {
-                            console.warn('无法解析错位的items数据:', fixedTask.taskNumber);
-                            fixedTask.items = [];
-                        }
-                    }
-                    
-                    // 也检查另一种可能的错位情况（status字段包含JSON字符串而taskNumber是状态字符串）
-                    else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
-                           typeof fixedTask.taskNumber === 'string' && 
-                           (fixedTask.taskNumber === 'pending' || fixedTask.taskNumber === 'processing' || fixedTask.taskNumber === 'completed')) {
-                        // 发生了字段错位，交换这两个字段
-                        const originalStatus = fixedTask.status;
-                        fixedTask.status = fixedTask.taskNumber;
-                        fixedTask.taskNumber = originalStatus;
-                        
-                        // 同时尝试解析原来的status内容到items字段
-                        try {
-                            fixedTask.items = JSON.parse(originalStatus);
-                        } catch (e) {
-                            console.warn('无法解析错位的items数据:', originalStatus);
-                            fixedTask.items = [];
-                        }
-                    }
-                    
-                    // 还需要处理一种情况：status是JSON字符串但应该是一个状态值
-                    else if (typeof fixedTask.status === 'string' && fixedTask.status.startsWith('[{') &&
-                           (typeof fixedTask.taskNumber !== 'string' || !['pending', 'processing', 'completed'].includes(fixedTask.taskNumber))) {
-                        // 这种情况下，status可能是错位的items数据，我们应该给它一个合理的状态值
-                        // 假设如果是items数据，则该任务应为pending状态
-                        const originalStatus = fixedTask.status;
-                        fixedTask.status = 'pending';
-                        
-                        // 尝试解析items数据
-                        try {
-                            fixedTask.items = JSON.parse(originalStatus);
-                        } catch (e) {
-                            console.warn('无法解析items数据:', originalStatus);
-                            fixedTask.items = [];
-                        }
-                    }
-                    
-                    // 额外检查：如果taskNumber字段包含JSON数组（以[{开头），则生成新的任务号
-                    if (typeof fixedTask.taskNumber === 'string' && fixedTask.taskNumber.startsWith('[{')) {
-                        console.warn('检测到taskNumber字段包含JSON数据，正在修复:', fixedTask.taskNumber);
-                        // 临时保存原始内容用于解析到items
-                        const originalTaskNumber = fixedTask.taskNumber;
-                        // 为这种错位的任务生成新的任务号
-                        fixedTask.taskNumber = Utils.generateTaskNumber();
-                        
-                        // 如果items为空且原taskNumber内容看起来像items数据，尝试解析它
-                        if (!fixedTask.items || fixedTask.items.length === 0) {
-                            try {
-                                fixedTask.items = JSON.parse(originalTaskNumber);
-                                console.log('已将错位的taskNumber数据解析到items字段');
-                            } catch (e) {
-                                console.warn('无法解析错位的items数据:', originalTaskNumber);
-                                fixedTask.items = [];
-                            }
-                        }
-                    }
-                    
-                    // 从tasks表删除已完成的任务
-                    const deleteSuccess = await this.deleteTask(task.id);
-                    if (!deleteSuccess) {
-                        console.error('从任务表删除已完成任务失败');
-                        throw new Error('删除原始任务失败');
-                    }
-                    
-                    // 添加到history表
+                    // 直接调用完成任务的API，这会将任务移动到历史表
                     const headers = {
                         'Content-Type': 'application/json',
                     };
@@ -4175,17 +4094,20 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const response = await fetch(`${this.API_BASE}/api/history`, {
+                    const response = await fetch(`${this.API_BASE}/api/tasks/${task.id}/complete`, {
                         method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify(fixedTask)
+                        headers: headers
                     });
                     
                     if (!response.ok) {
-                        console.error('添加到历史记录失败:', response.statusText);
+                        console.error('完成任务并移动到历史记录失败:', response.statusText);
+                        return false;
                     }
+                    
+                    return true;
                 } catch (error) {
-                    console.error('添加到历史记录失败:', error);
+                    console.error('完成任务并移动到历史记录失败:', error);
+                    return false;
                 }
             }
             
@@ -7046,27 +6968,69 @@
                                 <div class="task-files-container">
                                     <div class="task-file-item">
                                         <div class="file-label">本体码</div>
-                                        ${task.bodyCodeImage ? `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                        ${task.bodyCodeImage ? 
+                                            (task.bodyCodeType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'bodyCode')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'bodyCode')">`) : 
+                                            '<div class="no-file">未上传</div>'}
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">条码</div>
-                                        ${task.barcodeImage ? `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                        ${task.barcodeImage ? 
+                                            (task.barcodeType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'barcode')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'barcode')">`) : 
+                                            '<div class="no-file">未上传</div>'}
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">警示码</div>
-                                        ${task.warningCodeImage ? `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                        ${task.warningCodeImage ? 
+                                            (task.warningCodeType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'warningCode')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'warningCode')">`) : 
+                                            '<div class="no-file">未上传</div>'}
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">箱唛</div>
-                                        ${task.labelImage ? `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                        ${task.labelImage ? 
+                                            (task.labelType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'label')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'label')">`) : 
+                                            '<div class="no-file">未上传</div>'}
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">说明书</div>
-                                        ${task.manualImage ? `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                        ${task.manualImage ? 
+                                            (task.manualType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'manual')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'manual')">`) : 
+                                            '<div class="no-file">未上传</div>'}
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">其他</div>
-                                        ${task.otherImage ? `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                        ${task.otherImage ? 
+                                            (task.otherType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'other')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'other')">`) : 
+                                            '<div class="no-file">未上传</div>'}
                                     </div>
                                 </div>
                                 <div class="task-back-actions">
@@ -7496,33 +7460,75 @@
                                             <div class="task-files-container">
                                                 <div class="task-file-item">
                                                     <div class="file-label">本体码</div>
-                                                    ${task.bodyCodeImage ? `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                    ${task.bodyCodeImage ? 
+                                                        (task.bodyCodeType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                        '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">条码</div>
-                                                    ${task.barcodeImage ? `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                    ${task.barcodeImage ? 
+                                                        (task.barcodeType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                        '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">警示码</div>
-                                                    ${task.warningCodeImage ? `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                    ${task.warningCodeImage ? 
+                                                        (task.warningCodeType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                        '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">箱唛</div>
-                                                    ${task.labelImage ? `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                    ${task.labelImage ? 
+                                                        (task.labelType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                        '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">说明书</div>
-                                                    ${task.manualImage ? `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                    ${task.manualImage ? 
+                                                        (task.manualType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                        '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">其他</div>
-                                                    ${task.otherImage ? `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)">` : '<div class="no-file">未上传</div>'}
+                                                    ${task.otherImage ? 
+                                                        (task.otherType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                        '<div class="no-file">未上传</div>'}
                                                 </div>
                                             </div>
                                             <div class="task-back-actions">
                                                 <div class="back-action-buttons">
                                                     <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
-                                                    <button class="btn btn-sm btn-success" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => completeShipment('${task.id}'), 0);">确认发货</button>
+                                                    <button class="btn btn-sm btn-success" onclick="completeShipment('${task.id}'); event.stopPropagation();">确认发货</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -7991,12 +7997,16 @@
                     return;
                 }
                 
-                const success = await DataManager.updateTask(taskId, {
-                    status: 'completed',
-                    completedAt: new Date().toISOString()
+                // 直接调用完成任务的API，这会将任务移动到历史表
+                const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                    }
                 });
                 
-                if (success) {
+                if (response.ok) {
                     const products = await DataManager.getAllProducts();
                     const taskWithPrice = {
                         ...task,
@@ -8009,9 +8019,6 @@
                             };
                         })
                     };
-                    
-                    // addToHistory 方法会自动将任务从tasks表移到history表，无需再次删除
-                    await DataManager.addToHistory(taskWithPrice);
                     
                     // 从UI上立即移除任务元素，提供即时反馈
                     // 先尝试查找仓库任务元素（id为task-${taskId}）
@@ -8274,6 +8281,113 @@
                         <img src="${task.labelImage}" alt="任务箱唛" onerror="Utils.onImageError(this)">
                         <div class="image-info">
                             <h3>任务箱唛</h3>
+                            <p>任务号: ${task.taskNumber}</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+            }
+            printWindow.document.close();
+        }
+
+        // 通用任务文件预览函数
+        function previewTaskFile(taskId, fileType) {
+            const task = DataManager.getTaskById(taskId);
+            if (!task) return;
+            
+            let fileUrl, fileName, fileTitle, fileTypeValue;
+            
+            // 根据文件类型设置对应的属性
+            switch(fileType) {
+                case 'bodyCode':
+                    fileUrl = task.bodyCodeImage;
+                    fileName = task.bodyCodeFileName;
+                    fileTypeValue = task.bodyCodeType;
+                    fileTitle = '本体码';
+                    break;
+                case 'barcode':
+                    fileUrl = task.barcodeImage;
+                    fileName = task.barcodeFileName;
+                    fileTypeValue = task.barcodeType;
+                    fileTitle = '条码';
+                    break;
+                case 'warningCode':
+                    fileUrl = task.warningCodeImage;
+                    fileName = task.warningCodeFileName;
+                    fileTypeValue = task.warningCodeType;
+                    fileTitle = '警示码';
+                    break;
+                case 'label':
+                    fileUrl = task.labelImage;
+                    fileName = task.labelFileName;
+                    fileTypeValue = task.labelType;
+                    fileTitle = '箱唛';
+                    break;
+                case 'manual':
+                    fileUrl = task.manualImage;
+                    fileName = task.manualFileName;
+                    fileTypeValue = task.manualType;
+                    fileTitle = '说明书';
+                    break;
+                case 'other':
+                    fileUrl = task.otherImage;
+                    fileName = task.otherFileName;
+                    fileTypeValue = task.otherType;
+                    fileTitle = '其他';
+                    break;
+                default:
+                    console.error('未知的文件类型:', fileType);
+                    return;
+            }
+            
+            // 检查文件是否存在
+            if (!fileUrl) {
+                Utils.showAlert('该文件未上传', 'warning');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            
+            if (fileTypeValue === 'pdf') {
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="zh-CN">
+                    <head>
+                        <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
+                        <style>
+                            body { font-family: Arial; padding: 40px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+                            .pdf-container { width: 100%; height: 90vh; }
+                            iframe { width: 100%; height: 100%; border: none; }
+                            .pdf-info { margin-top: 20px; text-align: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="pdf-container">
+                            <iframe src="${fileUrl}"></iframe>
+                        </div>
+                        <div class="pdf-info">
+                            <h3>${fileName || fileTitle}</h3>
+                            <p>任务号: ${task.taskNumber}</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+            } else {
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="zh-CN">
+                    <head>
+                        <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
+                        <style>
+                            body { font-family: Arial; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+                            img { max-width: 100%; max-height: 90vh; }
+                            .image-info { margin-top: 20px; text-align: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)">
+                        <div class="image-info">
+                            <h3>任务${fileTitle}</h3>
                             <p>任务号: ${task.taskNumber}</p>
                         </div>
                     </body>
@@ -8829,6 +8943,7 @@
         window.previewTaskBarcode = previewTaskBarcode;
         window.previewTaskWarningCode = previewTaskWarningCode;
         window.previewTaskLabel = previewTaskLabel;
+        window.previewTaskFile = previewTaskFile;
         window.filterStatistics = filterStatistics;
         window.downloadSalesRanking = downloadSalesRanking;
         window.downloadProfitRanking = downloadProfitRanking;

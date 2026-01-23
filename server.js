@@ -867,6 +867,40 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     // 开始事务
     await db.query('BEGIN');
     
+    // 从任务表中直接删除
+    const result = await db.query('DELETE FROM tasks WHERE "id" = $1 RETURNING *', [id]);
+    
+    if (result.rowCount === 0) {
+      await db.query('ROLLBACK');
+      return res.status(404).json({ error: '任务未找到' });
+    }
+    
+    // 提交事务
+    await db.query('COMMIT');
+    
+    res.json({ message: '任务已删除' });
+  } catch (err) {
+    console.error(err);
+    
+    // 尝试回滚事务
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
+// 完成任务的API - 将任务从tasks表移动到history表
+app.post('/api/tasks/:id/complete', requireRole(['admin', 'warehouse']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 开始事务
+    await db.query('BEGIN');
+    
     // 获取任务数据
     const taskResult = await db.query('SELECT * FROM tasks WHERE "id" = $1', [id]);
     
@@ -879,8 +913,8 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     
     // 将任务数据移动到历史表
     await db.query(
-      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [task.task_number, task.status, (function() {
+      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+      , [task.task_number, task.status, (function() {
         try {
           // 优先使用 task.items，如果不存在则尝试使用 task.items_str，否则返回空数组
           const itemsData = task.items !== undefined && task.items !== null ? task.items : 
@@ -890,7 +924,7 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
           console.error('序列化任务items失败:', e.message);
           return '[]';
         }
-      })(), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, new Date(), task.completed_at || new Date().toISOString()]
+      })(), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, task.created_at, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
@@ -899,7 +933,7 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     // 提交事务
     await db.query('COMMIT');
     
-    res.json({ message: '任务已移动到历史记录' });
+    res.json({ message: '任务已完成并移动到历史记录' });
   } catch (err) {
     console.error(err);
     
