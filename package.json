@@ -9,7 +9,11 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "init-db": "node init_postgres.js",
-    "check-db": "node check_db_connection.js"
+    "check-db": "node check_db_connection.js",
+    "reset-system": "node reset_system.js",
+    "drop-tables": "node drop_tables.js",
+    "create-tables": "node create_tables.js",
+    "clear-r2": "node clear_r2_bucket.js"
   },
   "engines": {
     "node": ">=20.0.0 <21.0.0"
