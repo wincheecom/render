@@ -643,22 +643,58 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     let otherImageUrl = other_image || null;
     
     if (body_code_image && body_code_image.startsWith('data:image')) {
-      bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number || 'task'}_body_code.jpg`);
+      try {
+        bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number || 'task'}_body_code.jpg`);
+      } catch (e) {
+        console.error('上传本体码图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传本体码图片失败', message: e.message });
+      }
     }
     if (barcode_image && barcode_image.startsWith('data:image')) {
-      barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number || 'task'}_barcode.jpg`);
+      try {
+        barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number || 'task'}_barcode.jpg`);
+      } catch (e) {
+        console.error('上传条码图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传条码图片失败', message: e.message });
+      }
     }
     if (warning_code_image && warning_code_image.startsWith('data:image')) {
-      warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number || 'task'}_warning_code.jpg`);
+      try {
+        warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number || 'task'}_warning_code.jpg`);
+      } catch (e) {
+        console.error('上传警示码图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传警示码图片失败', message: e.message });
+      }
     }
     if (label_image && label_image.startsWith('data:image')) {
-      labelImageUrl = await uploadImageToR2(label_image, `${task_number || 'task'}_label.jpg`);
+      try {
+        labelImageUrl = await uploadImageToR2(label_image, `${task_number || 'task'}_label.jpg`);
+      } catch (e) {
+        console.error('上传箱唛图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传箱唛图片失败', message: e.message });
+      }
     }
     if (manual_image && manual_image.startsWith('data:image')) {
-      manualImageUrl = await uploadImageToR2(manual_image, `${task_number || 'task'}_manual.jpg`);
+      try {
+        manualImageUrl = await uploadImageToR2(manual_image, `${task_number || 'task'}_manual.jpg`);
+      } catch (e) {
+        console.error('上传说明书图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传说明书图片失败', message: e.message });
+      }
     }
     if (other_image && other_image.startsWith('data:image')) {
-      otherImageUrl = await uploadImageToR2(other_image, `${task_number || 'task'}_other.jpg`);
+      try {
+        otherImageUrl = await uploadImageToR2(other_image, `${task_number || 'task'}_other.jpg`);
+      } catch (e) {
+        console.error('上传其他图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传其他图片失败', message: e.message });
+      }
     }
     
     // 在事务中进行验证和创建任务，防止并发冲突
@@ -750,7 +786,13 @@ app.put('/api/tasks/:id', requireRole(['admin', 'warehouse']), async (req, res) 
     const imageFields = ['body_code_image', 'barcode_image', 'warning_code_image', 'label_image', 'manual_image', 'other_image'];
     for (const field of imageFields) {
       if (updates[field] && updates[field].startsWith('data:image')) {
-        updates[field] = await uploadImageToR2(updates[field], `${id}_${field}.jpg`);
+        try {
+          updates[field] = await uploadImageToR2(updates[field], `${id}_${field}.jpg`);
+        } catch (e) {
+          console.error(`上传${field}图片失败:`, e.message);
+          await db.query('ROLLBACK');
+          return res.status(500).json({ error: `上传${field}图片失败`, message: e.message });
+        }
       }
     }
     
@@ -896,10 +938,16 @@ app.put('/api/products/:id', requireRole(['admin']), async (req, res) => {
     
     // 如果有图片，上传到 R2
     if (updates.image && updates.image.startsWith('data:image')) {
-      // 获取当前产品信息以获取产品代码
-      const currentProduct = await db.query('SELECT product_code FROM products WHERE "id" = $1', [id]);
-      if (currentProduct.rows.length > 0) {
-        updates.image = await uploadImageToR2(updates.image, `${currentProduct.rows[0].product_code}_product.jpg`);
+      try {
+        // 获取当前产品信息以获取产品代码
+        const currentProduct = await db.query('SELECT product_code FROM products WHERE "id" = $1', [id]);
+        if (currentProduct.rows.length > 0) {
+          updates.image = await uploadImageToR2(updates.image, `${currentProduct.rows[0].product_code}_product.jpg`);
+        }
+      } catch (e) {
+        console.error('上传产品图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传产品图片失败', message: e.message });
       }
     }
     
@@ -996,22 +1044,58 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     let otherImageUrl = other_image;
     
     if (body_code_image && body_code_image.startsWith('data:image')) {
-      bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code_history.jpg`);
+      try {
+        bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code_history.jpg`);
+      } catch (e) {
+        console.error('上传本体码历史图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传本体码历史图片失败', message: e.message });
+      }
     }
     if (barcode_image && barcode_image.startsWith('data:image')) {
-      barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number}_barcode_history.jpg`);
+      try {
+        barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number}_barcode_history.jpg`);
+      } catch (e) {
+        console.error('上传条码历史图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传条码历史图片失败', message: e.message });
+      }
     }
     if (warning_code_image && warning_code_image.startsWith('data:image')) {
-      warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number}_warning_code_history.jpg`);
+      try {
+        warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number}_warning_code_history.jpg`);
+      } catch (e) {
+        console.error('上传警示码历史图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传警示码历史图片失败', message: e.message });
+      }
     }
     if (label_image && label_image.startsWith('data:image')) {
-      labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label_history.jpg`);
+      try {
+        labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label_history.jpg`);
+      } catch (e) {
+        console.error('上传箱唛历史图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传箱唛历史图片失败', message: e.message });
+      }
     }
     if (manual_image && manual_image.startsWith('data:image')) {
-      manualImageUrl = await uploadImageToR2(manual_image, `${task_number}_manual_history.jpg`);
+      try {
+        manualImageUrl = await uploadImageToR2(manual_image, `${task_number}_manual_history.jpg`);
+      } catch (e) {
+        console.error('上传说明书历史图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传说明书历史图片失败', message: e.message });
+      }
     }
     if (other_image && other_image.startsWith('data:image')) {
-      otherImageUrl = await uploadImageToR2(other_image, `${task_number}_other_history.jpg`);
+      try {
+        otherImageUrl = await uploadImageToR2(other_image, `${task_number}_other_history.jpg`);
+      } catch (e) {
+        console.error('上传其他历史图片失败:', e.message);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ error: '上传其他历史图片失败', message: e.message });
+      }
     }
     
     const result = await db.query(
