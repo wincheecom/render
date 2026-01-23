@@ -3676,7 +3676,8 @@
                             labelFileName: task.label_file_name || task.labelFileName || '',
                             labelType: task.label_type || task.labelType || null,
                             createdAt: task.created_at || task.createdAt || '',
-                            completedAt: task.completed_at || task.completedAt || ''
+                            completedAt: task.completed_at || task.completedAt || '',
+                            creator_name: task.creator_name || task.creatorName || ''
                         };
                         
                         // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
@@ -3954,7 +3955,8 @@
                         otherFileName: task.other_file_name || task.otherFileName || '',
                         otherType: task.other_type || task.otherType || null,
                         createdAt: task.created_at || task.createdAt || '',
-                        completedAt: task.completed_at || task.completedAt || ''
+                        completedAt: task.completed_at || task.completedAt || '',
+                        creator_name: task.creator_name || task.creatorName || ''
                     };
                     
                     // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
@@ -4075,7 +4077,8 @@
                         otherFileName: task.other_file_name || task.otherFileName || '',
                         otherType: task.other_type || task.otherType || null,
                         createdAt: task.created_at || task.createdAt || '',
-                        completedAt: task.completed_at || task.completedAt || ''
+                        completedAt: task.completed_at || task.completedAt || '',
+                        creator_name: task.creator_name || task.creatorName || ''
                     };
                     
                     // 检查是否发生了字段错位（taskNumber字段包含状态字符串而status字段包含JSON字符串）
@@ -4219,7 +4222,8 @@
                             labelFileName: record.label_file_name || record.labelFileName || '',
                             labelType: record.label_type || record.labelType || null,
                             createdAt: record.created_at || record.createdAt,
-                            completedAt: record.completed_at || record.completedAt
+                            completedAt: record.completed_at || record.completedAt,
+                            creator_name: record.creator_name || record.creatorName || ''
                         };
                         
                         // 检查并修复历史记录中的字段错位问题
