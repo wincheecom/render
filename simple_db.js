@@ -179,7 +179,14 @@ class SimpleDB {
         id: Date.now().toString(),
         task_number,
         status,
-        items: typeof items === 'string' && items ? JSON.parse(items) : items,
+        items: typeof items === 'string' && items ? (function() {
+          try {
+            return JSON.parse(items);
+          } catch (e) {
+            console.error('解析items JSON失败:', e.message);
+            return [];
+          }
+        })() : items,
         body_code_image,
         barcode_image,
         warning_code_image,
@@ -236,7 +243,14 @@ class SimpleDB {
         id: Date.now().toString(),
         task_number,
         status,
-        items: typeof items === 'string' && items ? JSON.parse(items) : items,
+        items: typeof items === 'string' && items ? (function() {
+          try {
+            return JSON.parse(items);
+          } catch (e) {
+            console.error('解析items JSON失败:', e.message);
+            return [];
+          }
+        })() : items,
         body_code_image,
         barcode_image,
         warning_code_image,
