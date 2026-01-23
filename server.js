@@ -586,6 +586,14 @@ app.get('/api/products', requireRole(['admin', 'sales']), async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
+    
+    // 尝试回滚事务（如果有）
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -635,22 +643,22 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     let otherImageUrl = other_image || null;
     
     if (body_code_image && body_code_image.startsWith('data:image')) {
-      bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number}_body_code.jpg`);
+      bodyCodeImageUrl = await uploadImageToR2(body_code_image, `${task_number || 'task'}_body_code.jpg`);
     }
     if (barcode_image && barcode_image.startsWith('data:image')) {
-      barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number}_barcode.jpg`);
+      barcodeImageUrl = await uploadImageToR2(barcode_image, `${task_number || 'task'}_barcode.jpg`);
     }
     if (warning_code_image && warning_code_image.startsWith('data:image')) {
-      warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number}_warning_code.jpg`);
+      warningCodeImageUrl = await uploadImageToR2(warning_code_image, `${task_number || 'task'}_warning_code.jpg`);
     }
     if (label_image && label_image.startsWith('data:image')) {
-      labelImageUrl = await uploadImageToR2(label_image, `${task_number}_label.jpg`);
+      labelImageUrl = await uploadImageToR2(label_image, `${task_number || 'task'}_label.jpg`);
     }
     if (manual_image && manual_image.startsWith('data:image')) {
-      manualImageUrl = await uploadImageToR2(manual_image, `${task_number}_manual.jpg`);
+      manualImageUrl = await uploadImageToR2(manual_image, `${task_number || 'task'}_manual.jpg`);
     }
     if (other_image && other_image.startsWith('data:image')) {
-      otherImageUrl = await uploadImageToR2(other_image, `${task_number}_other.jpg`);
+      otherImageUrl = await uploadImageToR2(other_image, `${task_number || 'task'}_other.jpg`);
     }
     
     // 在事务中进行验证和创建任务，防止并发冲突
@@ -663,6 +671,12 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     
     for (const item of items) {
+      // 验证商品项是否包含必要的属性
+      if (!item || !item.productId) {
+        await db.query('ROLLBACK');
+        return res.status(400).json({ error: '商品信息不完整，缺少必要字段' });
+      }
+      
       const productCheck = await db.query('SELECT * FROM products WHERE "id" = $1 FOR UPDATE', [item.productId]);
       if (productCheck.rows.length === 0) {
         await db.query('ROLLBACK');
@@ -671,9 +685,9 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
       
       // 检查库存是否足够
       const product = productCheck.rows[0];
-      if (product.quantity < item.quantity) {
+      if (product.quantity < (item.quantity || 0)) {
         await db.query('ROLLBACK');
-        return res.status(400).json({ error: `商品 ${product.product_name} 库存不足 (需要: ${item.quantity}, 库存: ${product.quantity})` });
+        return res.status(400).json({ error: `商品 ${product.product_name || '未知商品'} 库存不足 (需要: ${item.quantity || 0}, 库存: ${product.quantity})` });
       }
     }
     
@@ -692,6 +706,12 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     // 更新相关产品的库存
     if (Array.isArray(items)) {
       for (const item of items) {
+        // 验证商品项是否包含必要的属性
+        if (!item || !item.productId || typeof item.quantity !== 'number' || item.quantity <= 0) {
+          await db.query('ROLLBACK');
+          return res.status(400).json({ error: '商品信息不完整或数量无效' });
+        }
+        
         await db.query(
           'UPDATE products SET "quantity" = "quantity" - $1 WHERE "id" = $2',
           [item.quantity, item.productId]
@@ -705,11 +725,18 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   } catch (err) {
     console.error('创建任务错误:', err);
     
+    // 尝试回滚事务，但也要捕获回滚可能产生的错误
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     // 检查错误是否与商品不存在相关
     if (err.message && (err.message.includes('商品') || err.message.includes('product'))) {
-      res.status(400).json({ error: '商品不存在或库存不足，请刷新页面重试', message: err.message });
+      return res.status(400).json({ error: '商品不存在或库存不足，请刷新页面重试', message: err.message });
     } else {
-      res.status(500).json({ error: '服务器错误', message: err.message });
+      return res.status(500).json({ error: '服务器错误', message: err.message });
     }
   }
 });
@@ -761,6 +788,14 @@ app.put('/api/tasks/:id', requireRole(['admin', 'warehouse']), async (req, res) 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
+    
+    // 尝试回滚事务（如果有）
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -822,6 +857,14 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     res.json({ message: '任务已移动到历史记录' });
   } catch (err) {
     console.error(err);
+    
+    // 尝试回滚事务
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -925,6 +968,14 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
     res.json(result.rows);
   } catch (err) {
     console.error(err);
+    
+    // 尝试回滚事务（如果有）
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -974,6 +1025,14 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
+    
+    // 尝试回滚事务（如果有）
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
@@ -985,6 +1044,14 @@ app.get('/api/activities', requireRole(['admin', 'sales', 'warehouse']), async (
     res.json(result.rows);
   } catch (err) {
     console.error(err);
+    
+    // 尝试回滚事务（如果有）
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚错误:', rollbackErr);
+    }
+    
     res.status(500).json({ error: '服务器错误', message: err.message });
   }
 });
