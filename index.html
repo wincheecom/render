@@ -3795,8 +3795,13 @@
                     });
                     
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || '创建任务失败');
+                        let errorData = null;
+                        try {
+                            errorData = await response.json();
+                        } catch (e) {
+                            // 如果无法解析JSON响应，使用默认错误信息
+                        }
+                        throw new Error(errorData?.error || '创建任务失败');
                     }
                     
                     const newTask = await response.json();
@@ -3882,7 +3887,12 @@
                     });
                     
                     if (!response.ok) {
-                        console.error('删除任务失败:', response.statusText);
+                        try {
+                            const errorData = await response.json();
+                            console.error('删除任务失败:', errorData.error || response.statusText);
+                        } catch (e) {
+                            console.error('删除任务失败:', response.statusText);
+                        }
                         return false;
                     }
                     

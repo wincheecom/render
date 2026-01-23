@@ -700,7 +700,7 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
           console.error('序列化items失败:', e.message);
           return '[]';
         }
-      })() : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name || null, new Date()]
+      })() : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name || null, new Date().toISOString()]
     );
     
     // 更新相关产品的库存
@@ -838,14 +838,17 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
     // 将任务数据移动到历史表
     await db.query(
       `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [task.task_number, task.status, task.items ? (function() {
+      [task.task_number, task.status, (function() {
         try {
-          return JSON.stringify(task.items);
+          // 优先使用 task.items，如果不存在则尝试使用 task.items_str，否则返回空数组
+          const itemsData = task.items !== undefined && task.items !== null ? task.items : 
+                        (task.items_str !== undefined && task.items_str !== null ? task.items_str : []);
+          return JSON.stringify(itemsData);
         } catch (e) {
           console.error('序列化任务items失败:', e.message);
           return '[]';
         }
-      })() : (task.items_str || '[]'), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, new Date(), task.completed_at || new Date().toISOString()]
+      })(), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, new Date(), task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
