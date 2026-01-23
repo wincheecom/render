@@ -657,6 +657,11 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     await db.query('BEGIN');
     
     // 验证购物车中的所有商品是否真实存在并检查库存
+    if (!Array.isArray(items)) {
+      await db.query('ROLLBACK');
+      return res.status(400).json({ error: '任务商品列表格式错误，请重新添加商品' });
+    }
+    
     for (const item of items) {
       const productCheck = await db.query('SELECT * FROM products WHERE "id" = $1 FOR UPDATE', [item.productId]);
       if (productCheck.rows.length === 0) {
@@ -685,11 +690,13 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     );
     
     // 更新相关产品的库存
-    for (const item of items) {
-      await db.query(
-        'UPDATE products SET "quantity" = "quantity" - $1 WHERE "id" = $2',
-        [item.quantity, item.productId]
-      );
+    if (Array.isArray(items)) {
+      for (const item of items) {
+        await db.query(
+          'UPDATE products SET "quantity" = "quantity" - $1 WHERE "id" = $2',
+          [item.quantity, item.productId]
+        );
+      }
     }
     
     await db.query('COMMIT');
