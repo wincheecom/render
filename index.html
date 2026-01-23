@@ -7072,7 +7072,7 @@
                                 <div class="task-back-actions">
                                     <div class="back-action-buttons">
                                         <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
-                                        <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}'), 0);">删除</button>
+                                        <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
                                     </div>
                                 </div>
                             </div>
@@ -7372,25 +7372,56 @@
                 const success = await DataManager.deleteTask(taskId);
                 if (success) {
                     // 从UI上立即移除任务元素，提供即时反馈
-                    // 查找对应的任务卡片元素
-                    const taskElement = document.querySelector(`#publishedTasksBody [data-task-id="${taskId}"]`);
+                    // 根据上下文查找对应的任务卡片元素
+                    // 直接查找任务翻转容器，基于onclick属性
+                    let taskElement = document.querySelector(`.task-flip-container[onclick*="toggleTaskCardFlip('${taskId}')"]`);
+                    if (!taskElement) {
+                        // 尝试在已发布任务容器中查找
+                        taskElement = document.querySelector(`#publishedTasksBody [data-task-id="${taskId}"]`);
+                    }
+                    if (!taskElement) {
+                        // 尝试在通用任务容器中查找
+                        taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                    }
+                    // 如果还没找到，尝试通过任务ID在当前上下文中查找
+                    if (!taskElement) {
+                        // 搜索包含特定任务ID的元素
+                        const allTaskElements = document.querySelectorAll('.task-flip-container');
+                        for (let element of allTaskElements) {
+                            if (element.onclick && element.onclick.toString().includes(taskId)) {
+                                taskElement = element;
+                                break;
+                            }
+                        }
+                    }
                     if (taskElement) {
                         // 添加过渡效果
                         taskElement.style.opacity = '0';
                         taskElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                         taskElement.style.transform = 'scale(0.95)';
-                                
+                                                        
                         setTimeout(() => {
                             taskElement.remove();
-                                    
-                            // 如果任务列表为空，显示相应提示
-                            const container = document.getElementById('publishedTasksBody');
-                            if (container && container.children.length === 0) {
-                                container.innerHTML = `
+                                                        
+                            // 尝试更新不同可能的容器提示
+                            const publishedContainer = document.getElementById('publishedTasksBody');
+                            if (publishedContainer && publishedContainer.children.length === 0) {
+                                publishedContainer.innerHTML = `
                                     <div class="no-tasks-message text-center text-muted py-5">
                                         <i class="fas fa-inbox fa-3x mb-3"></i>
                                         <h5>暂无已创建任务</h5>
                                         <p>暂无待处理的发货任务</p>
+                                    </div>
+                                `;
+                            }
+                                            
+                            // 检查仓库任务容器
+                            const warehouseContainer = document.querySelector('.warehouse-tasks-gallery');
+                            if (warehouseContainer && warehouseContainer.children.length === 0) {
+                                warehouseContainer.innerHTML = `
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                        <p>暂无待发货任务</p>
                                     </div>
                                 `;
                             }
