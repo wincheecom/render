@@ -287,6 +287,95 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* ===== Alertify 弹窗自定义样式 ===== */
+        .alertify .ajs-dialog {
+            border-radius: var(--card-radius) !important;
+            box-shadow: var(--shadow) !important;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif !important;
+            border: none;
+        }
+        
+        .alertify .ajs-header {
+            background-color: white !important;
+            color: var(--dark) !important;
+            font-weight: 600 !important;
+            padding: 16px 24px !important;
+            border-bottom: 1px solid var(--gray-light) !important;
+            font-size: 1.1rem !important;
+        }
+        
+        .alertify .ajs-body {
+            background-color: white !important;
+        }
+        
+        .alertify .ajs-content {
+            color: var(--dark) !important;
+            padding: 24px !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+        }
+        
+        .alertify .ajs-footer {
+            background-color: white !important;
+            padding: 16px 24px !important;
+            border-top: 1px solid var(--gray-light) !important;
+        }
+        
+        .alertify .ajs-footer .ajs-buttons .ajs-button {
+            padding: 8px 16px !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: var(--transition) !important;
+            border: none !important;
+            font-size: 0.9rem !important;
+        }
+        
+        .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-ok {
+            background-color: var(--primary) !important;
+            color: white !important;
+        }
+        
+        .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-cancel {
+            background-color: var(--light) !important;
+            color: var(--dark) !important;
+        }
+        
+        .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-ok:hover {
+            background-color: var(--primary-dark) !important;
+        }
+        
+        .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-cancel:hover {
+            background-color: var(--gray) !important;
+            color: white !important;
+        }
+        
+        .alertify-notifier .ajs-message {
+            background-color: white !important;
+            color: var(--dark) !important;
+            border-left: 4px solid var(--primary) !important;
+            box-shadow: var(--shadow) !important;
+            border-radius: 6px !important;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif !important;
+            font-size: 0.9rem !important;
+        }
+        
+        .alertify-notifier .ajs-message.ajs-success {
+            border-left-color: var(--success) !important;
+        }
+        
+        .alertify-notifier .ajs-message.ajs-error {
+            border-left-color: var(--danger) !important;
+        }
+        
+        .alertify-notifier .ajs-message.ajs-warning {
+            border-left-color: var(--warning) !important;
+        }
+        
+        .alertify .ajs-dimmer {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+        }
 
         /* ===== 通用卡片样式 ===== */
         /*
@@ -1636,6 +1725,7 @@
             display: flex;
             gap: 5px;
             width: 100%;
+            margin-top: 20px;
         }
         
         .back-action-buttons .btn {
@@ -7581,7 +7671,18 @@
             
             // 查找包含该前端元素的翻转容器
             let flipContainer = frontElement.closest('.task-flip-container');
-            if (flipContainer) {
+            
+            // 如果通过 closest 没有找到，尝试直接查找父元素
+            if (!flipContainer) {
+                flipContainer = frontElement.parentElement;
+            }
+            
+            // 如果还是没有找到，尝试通过 data-task-id 属性直接查找
+            if (!flipContainer || !flipContainer.classList.contains('task-flip-container')) {
+                flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            }
+            
+            if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
                 flipContainer.classList.toggle('flipped');
             } else {
                 console.error(`未找到有效的翻转容器`);
