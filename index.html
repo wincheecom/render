@@ -4418,21 +4418,59 @@
                     const productStats = {};
                     
                     filteredHistory.forEach(task => {
-                        task.items.forEach(item => {
-                            totalShipments += item.quantity;
+                        // 处理任务中的items数据，检查是否存在字段错位
+                        let processedItems = task.items;
+                        
+                        // 如果items看起来像是错位的（例如包含了任务编号而不是产品项），尝试修复
+                        if (Array.isArray(processedItems) && processedItems.length > 0 && 
+                            typeof processedItems[0] === 'object' && processedItems[0].hasOwnProperty('taskNumber')) {
+                            // 这种情况表明items字段可能包含错误的数据
+                            console.warn('检测到可能错位的items数据:', processedItems);
+                            // 尝试从任务的其他字段恢复items数据
+                            if (task.correctedItems) {
+                                processedItems = task.correctedItems;
+                            } else {
+                                // 如果无法恢复，则跳过此任务的统计
+                                console.warn('无法恢复此任务的items数据，跳过统计:', task.id);
+                                return;
+                            }
+                        }
+                        
+                        processedItems.forEach(item => {
+                            // 确保item有正确的结构
+                            if (!item || typeof item !== 'object' || !item.quantity) {
+                                console.warn('发现无效的item数据:', item);
+                                return;
+                            }
                             
-                            const product = products.find(p => p.id === item.productId);
+                            // 确保数量是数值
+                            const quantity = parseInt(item.quantity) || 0;
+                            totalShipments += quantity;
+                            
+                            // 查找产品信息
+                            let product;
+                            if (item.productId) {
+                                product = products.find(p => p.id === item.productId);
+                            } else if (item.product_id) {  // 兼容不同字段名
+                                product = products.find(p => p.id === item.product_id);
+                            }
+                            
                             if (product) {
-                                const itemSales = product.salePrice * item.quantity;
-                                const itemCost = product.purchasePrice * item.quantity;
+                                // 确保价格是数值
+                                const salePrice = parseFloat(product.salePrice) || 0;
+                                const purchasePrice = parseFloat(product.purchasePrice) || 0;
+                                
+                                const itemSales = salePrice * quantity;
+                                const itemCost = purchasePrice * quantity;
                                 const itemProfit = itemSales - itemCost;
                                 
                                 totalSales += itemSales;
                                 totalCost += itemCost;
                                 totalProfit += itemProfit;
                                 
-                                if (!productStats[product.id]) {
-                                    productStats[product.id] = {
+                                const productId = product.id;
+                                if (!productStats[productId]) {
+                                    productStats[productId] = {
                                         name: product.name,
                                         code: product.code,
                                         quantity: 0,
@@ -4442,19 +4480,21 @@
                                     };
                                 }
                                 
-                                productStats[product.id].quantity += item.quantity;
-                                productStats[product.id].sales += itemSales;
-                                productStats[product.id].profit += itemProfit;
+                                productStats[productId].quantity += quantity;
+                                productStats[productId].sales += itemSales;
+                                productStats[productId].profit += itemProfit;
+                            } else {
+                                console.warn('在历史记录中找不到对应产品:', item.productId || item.product_id, '产品列表长度:', products.length);
                             }
                         });
                     });
                     
                     const salesRanking = Object.values(productStats)
-                        .sort((a, b) => b.quantity - a.quantity)
+                        .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
                         .slice(0, 10);
                     
                     const profitRanking = Object.values(productStats)
-                        .sort((a, b) => b.profit - a.profit)
+                        .sort((a, b) => (b.profit || 0) - (a.profit || 0))
                         .slice(0, 10);
                     
                     const monthlySales = await this.getMonthlySalesData();
@@ -4478,6 +4518,7 @@
                     };
                 } catch (error) {
                     console.error('获取统计数据失败:', error);
+                    console.error('错误堆栈:', error.stack);
                     return {
                         totalShipments: 0,
                         totalSales: 0,
@@ -4511,10 +4552,44 @@
                     const key = `${taskDate.getFullYear()}-${(taskDate.getMonth() + 1).toString().padStart(2, '0')}`;
                     
                     if (monthlyData.hasOwnProperty(key)) {
-                        task.items.forEach(item => {
-                            const product = products.find(p => p.id === item.productId);
+                        // 处理任务中的items数据，检查是否存在字段错位
+                        let processedItems = task.items;
+                        
+                        // 如果items看起来像是错位的（例如包含了任务编号而不是产品项），尝试修复
+                        if (Array.isArray(processedItems) && processedItems.length > 0 && 
+                            typeof processedItems[0] === 'object' && processedItems[0].hasOwnProperty('taskNumber')) {
+                            // 这种情况表明items字段可能包含错误的数据
+                            console.warn('月度销售数据检测到可能错位的items数据:', processedItems);
+                            // 尝试从任务的其他字段恢复items数据
+                            if (task.correctedItems) {
+                                processedItems = task.correctedItems;
+                            } else {
+                                // 如果无法恢复，则跳过此任务的统计
+                                console.warn('月度销售数据无法恢复此任务的items数据，跳过统计:', task.id);
+                                return;
+                            }
+                        }
+                        
+                        processedItems.forEach(item => {
+                            // 确保item有正确的结构
+                            if (!item || typeof item !== 'object' || !item.quantity) {
+                                console.warn('月度销售数据发现无效的item数据:', item);
+                                return;
+                            }
+                            
+                            // 查找产品信息
+                            let product;
+                            if (item.productId) {
+                                product = products.find(p => p.id === item.productId);
+                            } else if (item.product_id) {  // 兼容不同字段名
+                                product = products.find(p => p.id === item.product_id);
+                            }
+                            
                             if (product) {
-                                monthlyData[key] += product.salePrice * item.quantity;
+                                // 确保价格和数量是数值
+                                const quantity = parseInt(item.quantity) || 0;
+                                const salePrice = parseFloat(product.salePrice) || 0;
+                                monthlyData[key] += salePrice * quantity;
                             }
                         });
                     }
@@ -4539,8 +4614,34 @@
                     const key = `${taskDate.getFullYear()}-${(taskDate.getMonth() + 1).toString().padStart(2, '0')}`;
                     
                     if (monthlyData.hasOwnProperty(key)) {
-                        task.items.forEach(item => {
-                            monthlyData[key] += item.quantity;
+                        // 处理任务中的items数据，检查是否存在字段错位
+                        let processedItems = task.items;
+                        
+                        // 如果items看起来像是错位的（例如包含了任务编号而不是产品项），尝试修复
+                        if (Array.isArray(processedItems) && processedItems.length > 0 && 
+                            typeof processedItems[0] === 'object' && processedItems[0].hasOwnProperty('taskNumber')) {
+                            // 这种情况表明items字段可能包含错误的数据
+                            console.warn('月度发货数据检测到可能错位的items数据:', processedItems);
+                            // 尝试从任务的其他字段恢复items数据
+                            if (task.correctedItems) {
+                                processedItems = task.correctedItems;
+                            } else {
+                                // 如果无法恢复，则跳过此任务的统计
+                                console.warn('月度发货数据无法恢复此任务的items数据，跳过统计:', task.id);
+                                return;
+                            }
+                        }
+                        
+                        processedItems.forEach(item => {
+                            // 确保item有正确的结构
+                            if (!item || typeof item !== 'object' || !item.quantity) {
+                                console.warn('月度发货数据发现无效的item数据:', item);
+                                return;
+                            }
+                            
+                            // 确保数量是数值
+                            const quantity = parseInt(item.quantity) || 0;
+                            monthlyData[key] += quantity;
                         });
                     }
                 });
@@ -4565,10 +4666,45 @@
                     const key = `${taskDate.getFullYear()}-${(taskDate.getMonth() + 1).toString().padStart(2, '0')}`;
                     
                     if (monthlyData.hasOwnProperty(key)) {
-                        task.items.forEach(item => {
-                            const product = products.find(p => p.id === item.productId);
+                        // 处理任务中的items数据，检查是否存在字段错位
+                        let processedItems = task.items;
+                        
+                        // 如果items看起来像是错位的（例如包含了任务编号而不是产品项），尝试修复
+                        if (Array.isArray(processedItems) && processedItems.length > 0 && 
+                            typeof processedItems[0] === 'object' && processedItems[0].hasOwnProperty('taskNumber')) {
+                            // 这种情况表明items字段可能包含错误的数据
+                            console.warn('月度利润数据检测到可能错位的items数据:', processedItems);
+                            // 尝试从任务的其他字段恢复items数据
+                            if (task.correctedItems) {
+                                processedItems = task.correctedItems;
+                            } else {
+                                // 如果无法恢复，则跳过此任务的统计
+                                console.warn('月度利润数据无法恢复此任务的items数据，跳过统计:', task.id);
+                                return;
+                            }
+                        }
+                        
+                        processedItems.forEach(item => {
+                            // 确保item有正确的结构
+                            if (!item || typeof item !== 'object' || !item.quantity) {
+                                console.warn('月度利润数据发现无效的item数据:', item);
+                                return;
+                            }
+                            
+                            // 查找产品信息
+                            let product;
+                            if (item.productId) {
+                                product = products.find(p => p.id === item.productId);
+                            } else if (item.product_id) {  // 兼容不同字段名
+                                product = products.find(p => p.id === item.product_id);
+                            }
+                            
                             if (product) {
-                                const profit = (product.salePrice - product.purchasePrice) * item.quantity;
+                                // 确保价格和数量是数值
+                                const quantity = parseInt(item.quantity) || 0;
+                                const salePrice = parseFloat(product.salePrice) || 0;
+                                const purchasePrice = parseFloat(product.purchasePrice) || 0;
+                                const profit = (salePrice - purchasePrice) * quantity;
                                 monthlyData[key] += profit;
                             }
                         });
