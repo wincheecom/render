@@ -3538,7 +3538,14 @@
                         }
                         
                         // 解码payload部分（第二部分）
-                        const payload = JSON.parse(atob(tokenParts[1]));
+                        let payload;
+                        try {
+                            payload = JSON.parse(atob(tokenParts[1]));
+                        } catch (decodeError) {
+                            console.error('JWT payload解码失败:', decodeError);
+                            this.logout();
+                            return null;
+                        }
                         const currentTime = Math.floor(Date.now() / 1000);
                         
                         if (payload.exp < currentTime) {
