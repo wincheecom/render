@@ -3705,6 +3705,12 @@
                             labelImage: task.label_image || task.labelImage || '',
                             labelFileName: task.label_file_name || task.labelFileName || '',
                             labelType: task.label_type || task.labelType || null,
+                            manualImage: task.manual_image || task.manualImage || '',
+                            manualFileName: task.manual_file_name || task.manualFileName || '',
+                            manualType: task.manual_type || task.manualType || null,
+                            otherImage: task.other_image || task.otherImage || '',
+                            otherFileName: task.other_file_name || task.otherFileName || '',
+                            otherType: task.other_type || task.otherType || null,
                             createdAt: task.created_at || task.createdAt || '',
                             completedAt: task.completed_at || task.completedAt || '',
                             creator_name: task.creator_name || task.creatorName || ''
@@ -3855,6 +3861,12 @@
                         labelImage: newTask.label_image || newTask.labelImage || '',
                         labelFileName: newTask.label_file_name || newTask.labelFileName || '',
                         labelType: newTask.label_type || newTask.labelType || null,
+                        manualImage: newTask.manual_image || newTask.manualImage || '',
+                        manualFileName: newTask.manual_file_name || newTask.manualFileName || '',
+                        manualType: newTask.manual_type || newTask.manualType || null,
+                        otherImage: newTask.other_image || newTask.otherImage || '',
+                        otherFileName: newTask.other_file_name || newTask.otherFileName || '',
+                        otherType: newTask.other_type || newTask.otherType || null,
                         creator_name: newTask.creator_name || newTask.creatorName || DataManager.getCurrentUser()?.username || DataManager.getCurrentUser()?.name || null,
                         creator_role: newTask.creator_role || newTask.creatorRole || null,
                         createdAt: newTask.created_at || newTask.createdAt || '',
@@ -4910,6 +4922,11 @@
                     await initSalesOperations();
                     break;
                 case 'warehouse-operations':
+                    // 清除之前的事件监听器标记，确保事件能重新绑定
+                    const warehouseContainer = document.getElementById('warehouseTasks');
+                    if (warehouseContainer) {
+                        warehouseContainer.removeAttribute('data-has-listener');
+                    }
                     loadWarehouseTasksList();
                     break;
                 case 'statistics-analysis':
@@ -7432,7 +7449,7 @@
                             const creatorId = task.creatorName || task.creator_name || '未知';
                                             
                             return `
-                                <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
+                                <div class="task-flip-container" data-task-id="${task.id}">
                                     <!-- 卡片正面 -->
                                     <div class="task-front" id="task-${task.id}-front">
                                         <div class="task-gallery-img">
@@ -7448,7 +7465,7 @@
                                             <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
                                         </div>
                                         <div class="task-gallery-actions">
-                                            <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">
+                                            <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip">
                                                 处理发货
                                             </button>
                                         </div>
@@ -7527,8 +7544,8 @@
                                             </div>
                                             <div class="task-back-actions">
                                                 <div class="back-action-buttons">
-                                                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
-                                                    <button class="btn btn-sm btn-success" onclick="completeShipment('${task.id}'); event.stopPropagation();">确认发货</button>
+                                                    <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip">返回</button>
+                                                    <button class="btn btn-sm btn-success" data-task-id="${task.id}" data-action="complete-shipment">确认发货</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -7538,6 +7555,9 @@
                         }).join('')}
                     </div>
                 `;
+                
+                // 为新生成的内容绑定事件
+                bindWarehouseTaskEvents();
             } catch (error) {
                 console.error('加载仓库任务列表失败:', error);
                 Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
@@ -7565,6 +7585,51 @@
                 flipContainer.classList.toggle('flipped');
             } else {
                 console.error(`未找到有效的翻转容器`);
+            }
+        }
+        
+        function bindWarehouseTaskEvents() {
+            // 使用事件委托来处理仓库任务卡片的所有交互事件
+            const container = document.getElementById('warehouseTasks');
+            
+            // 移除之前可能存在的事件监听器
+            const existingListener = container.getAttribute('data-event-listener-bound');
+            if (existingListener) {
+                // 如果已经有监听器，先移除它
+                // 我们使用一种方式来重新绑定事件，即先移除再添加
+                container.removeEventListener('click', warehouseTaskEventHandler);
+            }
+            
+            // 绑定新的事件监听器
+            container.addEventListener('click', warehouseTaskEventHandler);
+            
+            // 标记已经绑定了事件监听器
+            container.setAttribute('data-event-listener-bound', 'true');
+        }
+        
+        // 定义事件处理函数
+        function warehouseTaskEventHandler(e) {
+            // 处理翻转卡片事件
+            if (e.target.closest('[data-action="flip"]')) {
+                e.stopPropagation();
+                const button = e.target.closest('[data-action="flip"]');
+                const taskId = button.getAttribute('data-task-id');
+                toggleTaskCardFlip(taskId);
+            }
+            // 处理确认发货事件
+            else if (e.target.closest('[data-action="complete-shipment"]')) {
+                e.stopPropagation();
+                const button = e.target.closest('[data-action="complete-shipment"]');
+                const taskId = button.getAttribute('data-task-id');
+                completeShipment(taskId);
+            }
+            // 处理整个翻转容器的点击事件（也可以翻转卡片）
+            else if (e.target.closest('.task-flip-container')) {
+                const container = e.target.closest('.task-flip-container');
+                const taskId = container.getAttribute('data-task-id');
+                if (taskId) {
+                    toggleTaskCardFlip(taskId);
+                }
             }
         }
         
@@ -7985,85 +8050,85 @@
         }
 
         async function completeShipment(taskId) {
-            if (!confirm('确定要标记此任务为"已发货"吗？')) {
-                return;
-            }
-            
-            try {
-                // 先获取任务详情，因为后续会更新和删除任务
-                const task = await DataManager.getTaskById(taskId);
-                if (!task) {
-                    Utils.showAlert('任务不存在！', 'error');
-                    return;
-                }
-                
-                // 直接调用完成任务的API，这会将任务移动到历史表
-                const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const products = await DataManager.getAllProducts();
-                    const taskWithPrice = {
-                        ...task,
-                        items: task.items.map(item => {
-                            const product = products.find(p => p.id === item.productId);
-                            return {
-                                ...item,
-                                purchasePrice: product ? product.purchasePrice : 0,
-                                salePrice: product ? product.salePrice : 0
-                            };
-                        })
-                    };
-                    
-                    // 更新销售运营端任务卡片上的状态标签，而不是移除元素
-                    // 先尝试查找仓库任务元素（id为task-${taskId}）
-                    let taskElement = document.getElementById(`task-${taskId}`);
-                    
-                    // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
-                    if (!taskElement) {
-                        taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-                    }
-                    
-                    if (taskElement) {
-                        // 查找并更新状态标签
-                        const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
-                        if (statusBadge) {
-                            statusBadge.textContent = '已发货';
-                            statusBadge.classList.remove('badge-warning');
-                            statusBadge.classList.add('badge-success');
+            alertify.confirm(
+                '确认发货', 
+                '确定要标记此任务为"已发货"吗？', 
+                async function() {  // 点击"确定"的回调
+                    try {
+                        // 先获取任务详情，因为后续会更新和删除任务
+                        const task = await DataManager.getTaskById(taskId);
+                        if (!task) {
+                            Utils.showAlert('任务不存在！', 'error');
+                            return;
                         }
-                    }
-                    
-                    Utils.showAlert('任务已完成发货！', 'success', async function() {
-                        expandedTaskId = null;
                         
-                        await updateDashboard();
+                        // 直接调用完成任务的API，这会将任务移动到历史表
+                        const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                            }
+                        });
                         
-                        // 确保数据完全同步后再重新加载任务列表
-                        // 延长等待时间以确保服务器完全处理完成操作
-                        await new Promise(resolve => setTimeout(resolve, 800));
-                        
-                        // 重新加载所有相关的任务列表
-                        loadWarehouseTasksList();
-                        await loadSalesPublishedTasks();
-                    });
-                } else {
-                    // 如果响应不是ok状态，显示错误信息
-                    const errorData = await response.text();
-                    console.error('完成发货任务失败:', response.status, errorData);
-                    Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
-                }
-            } catch (error) {
-                console.error('完成发货任务失败:', error);
-                Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
-            }
-        }
+                        if (response.ok) {
+                            const products = await DataManager.getAllProducts();
+                            const taskWithPrice = {
+                                ...task,
+                                items: task.items.map(item => {
+                                    const product = products.find(p => p.id === item.productId);
+                                    return {
+                                        ...item,
+                                        purchasePrice: product ? product.purchasePrice : 0,
+                                        salePrice: product ? product.salePrice : 0
+                                    };
+                                })
+                            };
+                            
+                            // 更新销售运营端任务卡片上的状态标签，而不是移除元素
+                            // 先尝试查找仓库任务元素（id为task-${taskId}）
+                            let taskElement = document.getElementById(`task-${taskId}`);
+                            
+                            // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
+                            if (!taskElement) {
+                                taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                            }
+                            
+                            if (taskElement) {
+                                // 查找并更新状态标签
+                                const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
+                                if (statusBadge) {
+                                    statusBadge.textContent = '已发货';
+                                    statusBadge.classList.remove('badge-warning');
+                                    statusBadge.classList.add('badge-success');
+                                }
+                            }
+                            
+                            Utils.showAlert('任务已完成发货！', 'success', function() {
+                                // 立即更新UI状态，提供即时反馈
+                                expandedTaskId = null;
 
+                                // 并行更新仪表板和任务列表，提高效率
+                                updateDashboard();
+                                loadWarehouseTasksList();
+                                loadSalesPublishedTasks();
+                            });
+                        } else {
+                            // 如果响应不是ok状态，显示错误信息
+                            const errorData = await response.text();
+                            console.error('完成发货任务失败:', response.status, errorData);
+                            Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
+                        }
+                    } catch (error) {
+                        console.error('完成发货任务失败:', error);
+                        Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
+                    }
+                },
+            function() {  // 点击"取消"的回调
+                // 用户取消操作，不做任何事情
+            }
+            );
+        }
         // 预览任务本体码
         function previewTaskBodyCode(taskId) {
             const task = DataManager.getTaskById(taskId);
@@ -9061,7 +9126,6 @@
                         if (node.nodeType === 1 && node.id === 'sales-operations' && node.classList.contains('active')) {
                             // 延迟执行，确保DOM完全加载
                             setTimeout(moveSpecificTaskCard, 100);
-                            setTimeout(moveTaskCardToPageRight, 150); // 添加对新函数的调用
                         }
                     });
                 });
@@ -9075,7 +9139,6 @@
             // 页面加载完成后也尝试一次
             if (document.getElementById('sales-operations') && document.getElementById('sales-operations').classList.contains('active')) {
                 setTimeout(moveSpecificTaskCard, 100);
-                setTimeout(moveTaskCardToPageRight, 150); // 添加对新函数的调用
             }
             
             // 删除特定任务卡片
