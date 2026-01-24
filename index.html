@@ -7559,9 +7559,9 @@
                 return;
             }
             
-            // 通过parentElement查找翻转容器
-            const flipContainer = frontElement.parentElement;
-            if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
+            // 查找包含该前端元素的翻转容器
+            let flipContainer = frontElement.closest('.task-flip-container');
+            if (flipContainer) {
                 flipContainer.classList.toggle('flipped');
             } else {
                 console.error(`未找到有效的翻转容器`);
@@ -7985,7 +7985,7 @@
         }
 
         async function completeShipment(taskId) {
-            if (!confirm('确定要标记此任务为"已完成"吗？')) {
+            if (!confirm('确定要标记此任务为"已发货"吗？')) {
                 return;
             }
             
@@ -8020,7 +8020,7 @@
                         })
                     };
                     
-                    // 从UI上立即移除任务元素，提供即时反馈
+                    // 更新销售运营端任务卡片上的状态标签，而不是移除元素
                     // 先尝试查找仓库任务元素（id为task-${taskId}）
                     let taskElement = document.getElementById(`task-${taskId}`);
                     
@@ -8030,24 +8030,13 @@
                     }
                     
                     if (taskElement) {
-                        taskElement.style.opacity = '0';
-                        taskElement.style.transform = 'translateX(-100%)';
-                        taskElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                        
-                        setTimeout(() => {
-                            taskElement.remove();
-                            
-                            // 如果是仓库任务列表且任务列表为空，显示相应提示
-                            const container = document.getElementById('warehouseTasks');
-                            if (container && container.children.length === 0) {
-                                container.innerHTML = `
-                                    <div class="text-center py-5 text-muted">
-                                        <i class="fas fa-check-circle fa-2x mb-3"></i>
-                                        <p>暂无待发货任务</p>
-                                    </div>
-                                `;
-                            }
-                        }, 300);
+                        // 查找并更新状态标签
+                        const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
+                        if (statusBadge) {
+                            statusBadge.textContent = '已发货';
+                            statusBadge.classList.remove('badge-warning');
+                            statusBadge.classList.add('badge-success');
+                        }
                     }
                     
                     Utils.showAlert('任务已完成发货！', 'success', async function() {
@@ -8063,6 +8052,11 @@
                         loadWarehouseTasksList();
                         await loadSalesPublishedTasks();
                     });
+                } else {
+                    // 如果响应不是ok状态，显示错误信息
+                    const errorData = await response.text();
+                    console.error('完成发货任务失败:', response.status, errorData);
+                    Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
                 }
             } catch (error) {
                 console.error('完成发货任务失败:', error);
