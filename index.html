@@ -4708,10 +4708,16 @@
         // ============================================
         // 初始化
         // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            initLogin();
-            initRegister();
-            checkLoginStatus();
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                initLogin();
+                initRegister();
+                await checkLoginStatus();
+            } catch (error) {
+                console.error('初始化过程中发生错误:', error);
+                // 确保错误处理不会导致消息通道问题
+                DataManager.logout();
+            }
         });
 
         // ============================================
@@ -4768,6 +4774,9 @@
                     DataManager.logout();
                 }
             }
+            
+            // 确保函数总是返回一个resolved的Promise
+            return Promise.resolve();
         }
 
         async function authenticateUser(email, password) {
