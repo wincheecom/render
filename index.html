@@ -3521,8 +3521,24 @@
                 if (userStr && token) {
                     try {
                         const user = JSON.parse(userStr);
+                        
+                        // 验证token是否为有效的JWT格式
+                        if (typeof token !== 'string' || !token.includes('.')) {
+                            console.error('Token格式无效:', token);
+                            this.logout();
+                            return null;
+                        }
+                        
                         // 解析JWT token以检查是否过期
-                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        const tokenParts = token.split('.');
+                        if (tokenParts.length !== 3) {
+                            console.error('JWT格式无效，缺少必需部分:', token);
+                            this.logout();
+                            return null;
+                        }
+                        
+                        // 解码payload部分（第二部分）
+                        const payload = JSON.parse(atob(tokenParts[1]));
                         const currentTime = Math.floor(Date.now() / 1000);
                         
                         if (payload.exp < currentTime) {
@@ -3534,6 +3550,8 @@
                         return user;
                     } catch (e) {
                         console.error('解析用户信息失败:', e);
+                        // 发生错误时清理存储，防止无限错误循环
+                        this.logout();
                         return null;
                     }
                 }
