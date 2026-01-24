@@ -1266,7 +1266,12 @@
         
         .published-tasks-gallery .task-back-actions {
             width: 100%;
-            padding: 5px;
+            padding: 0;
+            flex-shrink: 0;
+            margin-top: auto;
+            margin-bottom: 0;
+            align-self: flex-end;
+            flex: 0 0 auto;
         }
         
         .task-gallery-item.flipped .task-flip-container {
@@ -1407,7 +1412,7 @@
             flex-shrink: 0;
             align-self: flex-start;
             /* 固定宽度以防止布局错位 */
-            flex: 0 0 auto;
+            flex: 1 1 auto;
             /* 确保翻转后的背面宽度与容器一致 */
             align-self: stretch;
         }
@@ -1627,34 +1632,29 @@
             align-items: stretch;
             gap: 6px;
             justify-content: flex-start;
-            flex: 1;
+            flex: 1 1 auto;
             min-height: 0;
             padding: 6px;
             overflow: hidden;
             box-sizing: border-box;
-            max-height: calc(100% - 15px);
+            max-height: calc(100% - 40px);
             flex-grow: 1;
-            /* 确保内容不会撑开卡片宽度 */
             align-self: stretch;
-            /* 固定宽度以保持布局稳定 */
-            flex: 0 0 auto;
         }
         
         .task-files-container {
             width: 100%;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 10px;
+            margin-bottom: 10px;
             overflow-y: auto;
             max-height: 200px;
-            padding: 2px;
+            padding: 6px;
             box-sizing: border-box;
             flex-shrink: 0;
-            /* 确保容器不会影响卡片宽度 */
             max-width: 100%;
             overflow-x: hidden;
-            /* 防止容器拉伸影响整体宽度 */
             align-self: stretch;
         }
         
@@ -1662,12 +1662,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 3px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            min-height: 50px;
+            padding: 8px 6px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            min-height: 70px;
             justify-content: center;
-            background-color: #fafafa;
+            background-color: #f8f9fa;
+            min-width: 90px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        
+        .task-file-item:hover {
+            border-color: var(--primary);
+            background-color: #eef2ff;
         }
         
         .file-label {
@@ -1678,8 +1686,8 @@
         }
         
         .file-preview {
-            max-width: 80px;
-            max-height: 80px;
+            max-width: 100%;
+            max-height: 70px;
             object-fit: contain;
             border-radius: 4px;
             border: 1px solid #ddd;
@@ -1692,12 +1700,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 80px;
-            height: 80px;
-            border-radius: 4px;
+            width: 60px;
+            height: 70px;
+            object-fit: cover;
             border: 1px solid #ddd;
-            padding: 2px;
             background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 4px;
             font-size: 24px;
             color: #e74c3c;
         }
@@ -1723,23 +1732,30 @@
         
         .back-action-buttons {
             display: flex;
-            gap: 5px;
+            gap: 8px;
             width: 100%;
-            margin-top: 20px;
+            margin-top: auto;
+            margin-bottom: 0;
+            padding: 8px 8px 0 8px;
         }
         
         .back-action-buttons .btn {
             flex: 1;
-            padding: 5px;
-            font-size: 0.75rem;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
         }
         
         /* 调整背面操作按钮的垂直位置 */
         .task-back-actions {
             width: 100%;
-            padding: 3px;
+            padding: 0;
             flex-shrink: 0;
-            margin-top: 15px;
+            margin-top: auto;
+            margin-bottom: 0;
+            align-self: flex-end;
+            flex: 0 0 auto;
         }
         .card {
             flex: 1;
@@ -2810,15 +2826,15 @@
                 <form id="registerForm">
                     <div class="mb-3">
                         <label for="registerName" class="form-label">姓名</label>
-                        <input type="text" class="form-control" id="registerName" required>
+                        <input type="text" class="form-control" id="registerName" placeholder="填写公司简称" required>
                     </div>
                     <div class="mb-3">
                         <label for="registerEmail" class="form-label">邮箱</label>
-                        <input type="email" class="form-control" id="registerEmail" required>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="填写邮箱地址" required>
                     </div>
                     <div class="mb-3">
                         <label for="registerPassword" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="registerPassword" required>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码，至少6位" required>
                     </div>
                     <div class="mb-3">
                         <label for="registerRole" class="form-label">角色</label>
@@ -3297,7 +3313,7 @@
                 </div>
                 
                 <!-- 按销售运营账户统计 -->
-                <div class="card mt-25">
+                <div class="card mt-25" id="creatorStatisticsCard">
                     <div class="card-title">销售运营账户统计</div>
                     <div class="table-responsive">
                         <table class="table">
@@ -4849,6 +4865,20 @@
             // 设置用户信息
             document.getElementById('currentUser').textContent = user.name;
             document.getElementById('currentRole').textContent = user.role;
+            
+            // 根据用户角色控制销售运营账户统计卡片的可见性
+            const creatorStatisticsCard = document.getElementById('creatorStatisticsCard');
+            if (user.role !== 'admin') {
+                // 隐藏销售运营账户统计卡片，只有管理员可见
+                if (creatorStatisticsCard) {
+                    creatorStatisticsCard.style.display = 'none';
+                }
+            } else {
+                // 管理员可见销售运营账户统计卡片
+                if (creatorStatisticsCard) {
+                    creatorStatisticsCard.style.display = 'block';
+                }
+            }
             
             // 生成侧边栏菜单
             generateSidebarMenu();
