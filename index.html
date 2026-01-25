@@ -8660,115 +8660,145 @@
         }
 
         // 通用任务文件预览函数
-        function previewTaskFile(taskId, fileType) {
-            const task = DataManager.getTaskById(taskId);
-            if (!task) {
-                Utils.showAlert('任务不存在', 'error');
-                return;
-            }
-            
-            let fileUrl, fileName, fileTitle, fileTypeValue;
-            
-            // 根据文件类型设置对应的属性，同时处理可能的字段错位问题
-            switch(fileType) {
-                case 'bodyCode':
-                    // 尝试多种可能的字段名以应对字段错位问题
-                    fileUrl = task.bodyCodeImage || task.body_code_image || '';
-                    fileName = task.bodyCodeFileName || task.body_code_file_name || task.bodyCode_file_name || '';
-                    fileTypeValue = task.bodyCodeType || task.body_code_type || null;
-                    fileTitle = '本体码';
-                    break;
-                case 'barcode':
-                    fileUrl = task.barcodeImage || task.barcode_image || '';
-                    fileName = task.barcodeFileName || task.barcode_file_name || task.barcode_file_name || '';
-                    fileTypeValue = task.barcodeType || task.barcode_type || null;
-                    fileTitle = '条码';
-                    break;
-                case 'warningCode':
-                    fileUrl = task.warningCodeImage || task.warning_code_image || '';
-                    fileName = task.warningCodeFileName || task.warning_code_file_name || task.warningCode_file_name || '';
-                    fileTypeValue = task.warningCodeType || task.warning_code_type || null;
-                    fileTitle = '警示码';
-                    break;
-                case 'label':
-                    fileUrl = task.labelImage || task.label_image || '';
-                    fileName = task.labelFileName || task.label_file_name || task.label_file_name || '';
-                    fileTypeValue = task.labelType || task.label_type || null;
-                    fileTitle = '箱唛';
-                    break;
-                case 'manual':
-                    fileUrl = task.manualImage || task.manual_image || '';
-                    fileName = task.manualFileName || task.manual_file_name || task.manual_file_name || '';
-                    fileTypeValue = task.manualType || task.manual_type || null;
-                    fileTitle = '说明书';
-                    break;
-                case 'other':
-                    fileUrl = task.otherImage || task.other_image || '';
-                    fileName = task.otherFileName || task.other_file_name || task.other_file_name || '';
-                    fileTypeValue = task.otherType || task.other_type || null;
-                    fileTitle = '其他';
-                    break;
-                default:
-                    console.error('未知的文件类型:', fileType);
-                    Utils.showAlert('未知的文件类型', 'error');
+        async function previewTaskFile(taskId, fileType) {
+            try {
+                const task = await DataManager.getTaskById(taskId);
+                if (!task) {
+                    Utils.showAlert('任务不存在', 'error');
                     return;
+                }
+                
+                let fileUrl, fileName, fileTitle, fileTypeValue;
+                
+                // 根据文件类型设置对应的属性，同时处理可能的字段错位问题
+                switch(fileType) {
+                    case 'bodyCode':
+                        // 尝试多种可能的字段名以应对字段错位问题
+                        fileUrl = task.bodyCodeImage || task.body_code_image || '';
+                        fileName = task.bodyCodeFileName || task.body_code_file_name || task.bodyCode_file_name || '';
+                        fileTypeValue = task.bodyCodeType || task.body_code_type || null;
+                        fileTitle = '本体码';
+                        break;
+                    case 'barcode':
+                        fileUrl = task.barcodeImage || task.barcode_image || '';
+                        fileName = task.barcodeFileName || task.barcode_file_name || task.barcode_file_name || '';
+                        fileTypeValue = task.barcodeType || task.barcode_type || null;
+                        fileTitle = '条码';
+                        break;
+                    case 'warningCode':
+                        fileUrl = task.warningCodeImage || task.warning_code_image || '';
+                        fileName = task.warningCodeFileName || task.warning_code_file_name || task.warningCode_file_name || '';
+                        fileTypeValue = task.warningCodeType || task.warning_code_type || null;
+                        fileTitle = '警示码';
+                        break;
+                    case 'label':
+                        fileUrl = task.labelImage || task.label_image || '';
+                        fileName = task.labelFileName || task.label_file_name || task.label_file_name || '';
+                        fileTypeValue = task.labelType || task.label_type || null;
+                        fileTitle = '箱唛';
+                        break;
+                    case 'manual':
+                        fileUrl = task.manualImage || task.manual_image || '';
+                        fileName = task.manualFileName || task.manual_file_name || task.manual_file_name || '';
+                        fileTypeValue = task.manualType || task.manual_type || null;
+                        fileTitle = '说明书';
+                        break;
+                    case 'other':
+                        fileUrl = task.otherImage || task.other_image || '';
+                        fileName = task.otherFileName || task.other_file_name || task.other_file_name || '';
+                        fileTypeValue = task.otherType || task.other_type || null;
+                        fileTitle = '其他';
+                        break;
+                    default:
+                        console.error('未知的文件类型:', fileType);
+                        Utils.showAlert('未知的文件类型', 'error');
+                        return;
+                }
+                
+                // 检查文件是否存在 - 增强检查逻辑，考虑空字符串、null、undefined等情况
+                if (!fileUrl || fileUrl.trim() === '' || fileUrl === 'null' || fileUrl === 'undefined' || fileUrl === 'data:') {
+                    Utils.showAlert('该文件未上传', 'warning');
+                    return;
+                }
+                
+                // 对于base64图像，验证其格式是否正确
+                if (fileUrl.startsWith('data:')) {
+                    try {
+                        // 检查base64数据是否完整
+                        const matches = fileUrl.match(/^data:(.+);base64,/);
+                        if (!matches) {
+                            console.warn('文件数据格式异常:', fileUrl.substring(0, 50) + '...');
+                            Utils.showAlert('文件数据格式异常，请重新上传', 'warning');
+                            return;
+                        }
+                        
+                        // 验证base64部分是否有效
+                        const base64Data = fileUrl.split(',')[1];
+                        if (!base64Data || base64Data.length === 0) {
+                            console.warn('文件数据为空:', fileType);
+                            Utils.showAlert('文件数据为空，请重新上传', 'warning');
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('验证文件数据时出错:', e);
+                        Utils.showAlert('文件数据验证失败，请重新上传', 'warning');
+                        return;
+                    }
+                }
+                
+                const printWindow = window.open('', '_blank');
+                
+                if (fileTypeValue === 'pdf') {
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html lang="zh-CN">
+                        <head>
+                            <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
+                            <style>
+                                body { font-family: Arial; padding: 40px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+                                .pdf-container { width: 100%; height: 90vh; }
+                                iframe { width: 100%; height: 100%; border: none; }
+                                .pdf-info { margin-top: 20px; text-align: center; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="pdf-container">
+                                <iframe src="${fileUrl}"></iframe>
+                            </div>
+                            <div class="pdf-info">
+                                <h3>${fileName || fileTitle}</h3>
+                                <p>任务号: ${task.taskNumber}</p>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                } else {
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html lang="zh-CN">
+                        <head>
+                            <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
+                            <style>
+                                body { font-family: Arial; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+                                img { max-width: 100%; max-height: 90vh; }
+                                .image-info { margin-top: 20px; text-align: center; }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)">
+                            <div class="image-info">
+                                <h3>任务${fileTitle}</h3>
+                                <p>任务号: ${task.taskNumber}</p>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                }
+                printWindow.document.close();
+            } catch (error) {
+                console.error('获取任务数据失败:', error);
+                Utils.showAlert('获取任务数据失败，请刷新页面重试', 'error');
             }
-            
-            // 检查文件是否存在 - 增强检查逻辑，考虑空字符串、null、undefined等情况
-            if (!fileUrl || fileUrl.trim() === '' || fileUrl === 'null' || fileUrl === 'undefined' || fileUrl === 'data:') {
-                Utils.showAlert('该文件未上传', 'warning');
-                return;
-            }
-            
-            const printWindow = window.open('', '_blank');
-            
-            if (fileTypeValue === 'pdf') {
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="zh-CN">
-                    <head>
-                        <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
-                        <style>
-                            body { font-family: Arial; padding: 40px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
-                            .pdf-container { width: 100%; height: 90vh; }
-                            iframe { width: 100%; height: 100%; border: none; }
-                            .pdf-info { margin-top: 20px; text-align: center; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="pdf-container">
-                            <iframe src="${fileUrl}"></iframe>
-                        </div>
-                        <div class="pdf-info">
-                            <h3>${fileName || fileTitle}</h3>
-                            <p>任务号: ${task.taskNumber}</p>
-                        </div>
-                    </body>
-                    </html>
-                `);
-            } else {
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="zh-CN">
-                    <head>
-                        <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
-                        <style>
-                            body { font-family: Arial; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
-                            img { max-width: 100%; max-height: 90vh; }
-                            .image-info { margin-top: 20px; text-align: center; }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)">
-                        <div class="image-info">
-                            <h3>任务${fileTitle}</h3>
-                            <p>任务号: ${task.taskNumber}</p>
-                        </div>
-                    </body>
-                    </html>
-                `);
-            }
-            printWindow.document.close();
         }
 
         // ============================================

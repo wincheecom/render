@@ -1314,6 +1314,70 @@ app.get('/api/r2-test', async (req, res) => {
   }
 });
 
+// 任务文件预览 API - 用于预览任务相关的文件（图片/PDF等）
+app.get('/api/task/:taskId/file/:fileType', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
+  try {
+    const { taskId, fileType } = req.params;
+    
+    // 验证文件类型
+    const validFileTypes = ['bodyCode', 'barcode', 'warningCode', 'label', 'manual', 'other'];
+    if (!validFileTypes.includes(fileType)) {
+      return res.status(400).json({ error: '无效的文件类型' });
+    }
+    
+    // 映射前端文件类型到数据库字段
+    const dbFieldMap = {
+      'bodyCode': 'body_code_image',
+      'barcode': 'barcode_image',
+      'warningCode': 'warning_code_image',
+      'label': 'label_image',
+      'manual': 'manual_image',
+      'other': 'other_image'
+    };
+    
+    const dbField = dbFieldMap[fileType];
+    
+    // 查询任务数据
+    const result = await db.query(`SELECT \"${dbField}\" FROM tasks WHERE \"id\" = $1`, [taskId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '任务未找到' });
+    }
+    
+    const fileData = result.rows[0][dbField];
+    
+    if (!fileData) {
+      return res.status(404).json({ error: '文件未找到' });
+    }
+    
+    // 检查文件数据是否为 base64 格式
+    if (fileData.startsWith('data:')) {
+      // 如果是 base64 数据，将其转换为二进制并发送
+      const matches = fileData.match(/^data:(.+);base64,(.+)$/);
+      if (matches) {
+        const mimeType = matches[1];
+        const imageData = Buffer.from(matches[2], 'base64');
+        
+        res.set('Content-Type', mimeType);
+        res.set('Content-Disposition', `inline; filename=\"task_${taskId}_${fileType}.${mimeType.split('/')[1]?.split(';')[0] || 'dat'}\"`);
+        return res.send(imageData);
+      }
+    } else if (fileData.startsWith('http')) {
+      // 如果是 URL，重定向到该 URL（适用于 R2 存储的文件）
+      return res.redirect(fileData);
+    } else {
+      // 其他情况返回错误
+      return res.status(404).json({ error: '文件格式不支持' });
+    }
+    
+    // 如果以上都不匹配，返回错误
+    return res.status(404).json({ error: '文件未找到或格式不支持' });
+  } catch (err) {
+    console.error('获取任务文件失败:', err);
+    res.status(500).json({ error: '服务器错误', message: err.message });
+  }
+});
+
 // API endpoint to clear demo data (only for development)
 app.post('/api/clear-demo-data', async (req, res) => {
   if (process.env.NODE_ENV !== 'development' && !process.env.CLEAR_DATA_ENABLED) {
