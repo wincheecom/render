@@ -4092,15 +4092,20 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const response = await fetch(`${this.API_BASE}/api/tasks`, {
+                    const response = await fetch(`${this.API_BASE}/api/tasks/${taskId}`, {
                         headers: headers
                     });
-                    if (!response.ok) throw new Error('获取任务详情失败');
-                    const tasks = await response.json();
                     
-                    // 找到指定ID的任务
-                    const task = tasks.find(t => t.id == taskId);
-                    if (!task) return null;
+                    if (!response.ok) {
+                        // 如果返回404，说明任务不存在
+                        if (response.status === 404) {
+                            console.warn(`任务ID ${taskId} 不存在`);
+                            return null;
+                        }
+                        throw new Error(`获取任务详情失败: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const task = await response.json();
                     
                     // 将数据库字段映射到前端期望的字段名
                     // 并修复可能存在的字段错位问题（复用getAllTasks中的逻辑）
@@ -4208,6 +4213,10 @@
                     return fixedTask;
                 } catch (error) {
                     console.error('获取任务详情失败:', error);
+                    // 如果是网络错误，也返回null
+                    if (error instanceof TypeError && error.message.includes('fetch')) {
+                        console.error('网络请求失败，请检查网络连接:', error);
+                    }
                     return null;
                 }
             }
