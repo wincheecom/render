@@ -7778,66 +7778,66 @@
                                                     <div class="file-label">本体码</div>
                                                     ${task.bodyCodeImage ? 
                                                         (task.bodyCodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}">
+                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'bodyCode')">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'bodyCode')">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">条码</div>
                                                     ${task.barcodeImage ? 
                                                         (task.barcodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}">
+                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'barcode')">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'barcode')">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">警示码</div>
                                                     ${task.warningCodeImage ? 
                                                         (task.warningCodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}">
+                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'warningCode')">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'warningCode')">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">箱唛</div>
                                                     ${task.labelImage ? 
                                                         (task.labelType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}">
+                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'label')">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'label')">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">说明书</div>
                                                     ${task.manualImage ? 
                                                         (task.manualType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}">
+                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'manual')">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'manual')">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">其他</div>
                                                     ${task.otherImage ? 
                                                         (task.otherType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}">
+                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'other')">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)">`) : 
+                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'other')">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                             </div>
