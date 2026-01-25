@@ -4081,6 +4081,36 @@
                 // 当使用数据库时，不需要清理本地存储
             }
             
+            // 辅助函数：从数据URL推断文件类型
+            static inferFileTypeFromData(dataUrl) {
+                if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+                    return null;
+                }
+                
+                // 提取MIME类型部分
+                const mimeMatch = dataUrl.match(/^data:([^;,]+)/);
+                if (mimeMatch && mimeMatch[1]) {
+                    const mimeType = mimeMatch[1].toLowerCase();
+                    
+                    // 根据MIME类型推断文件类型
+                    if (mimeType.includes('pdf')) {
+                        return 'pdf';
+                    } else if (mimeType.includes('image')) {
+                        return 'image';
+                    } else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) {
+                        return 'image';
+                    } else if (mimeType.includes('png')) {
+                        return 'image';
+                    } else if (mimeType.includes('gif')) {
+                        return 'image';
+                    } else if (mimeType.includes('webp')) {
+                        return 'image';
+                    }
+                }
+                
+                return null; // 无法推断类型
+            }
+            
             static async getTaskById(taskId) {
                 try {
                     // 直接获取指定ID的任务，而不是获取所有任务
@@ -4116,22 +4146,22 @@
                         items: task.items || [],
                         bodyCodeImage: task.body_code_image || task.bodyCodeImage || '',
                         bodyCodeFileName: task.body_code_file_name || task.bodyCodeFileName || '',
-                        bodyCodeType: task.body_code_type || task.bodyCodeType || null,
+                        bodyCodeType: task.body_code_type || task.bodyCodeType || DataManager.inferFileTypeFromData(task.body_code_image || task.bodyCodeImage || ''),
                         barcodeImage: task.barcode_image || task.barcodeImage || '',
                         barcodeFileName: task.barcode_file_name || task.barcodeFileName || '',
-                        barcodeType: task.barcode_type || task.barcodeType || null,
+                        barcodeType: task.barcode_type || task.barcodeType || DataManager.inferFileTypeFromData(task.barcode_image || task.barcodeImage || ''),
                         warningCodeImage: task.warning_code_image || task.warningCodeImage || '',
                         warningCodeFileName: task.warning_code_file_name || task.warningCodeFileName || '',
-                        warningCodeType: task.warning_code_type || task.warningCodeType || null,
+                        warningCodeType: task.warning_code_type || task.warningCodeType || DataManager.inferFileTypeFromData(task.warning_code_image || task.warningCodeImage || ''),
                         labelImage: task.label_image || task.labelImage || '',
                         labelFileName: task.label_file_name || task.labelFileName || '',
-                        labelType: task.label_type || task.labelType || null,
+                        labelType: task.label_type || task.labelType || DataManager.inferFileTypeFromData(task.label_image || task.labelImage || ''),
                         manualImage: task.manual_image || task.manualImage || '',
                         manualFileName: task.manual_file_name || task.manualFileName || '',
-                        manualType: task.manual_type || task.manualType || null,
+                        manualType: task.manual_type || task.manualType || DataManager.inferFileTypeFromData(task.manual_image || task.manualImage || ''),
                         otherImage: task.other_image || task.otherImage || '',
                         otherFileName: task.other_file_name || task.otherFileName || '',
-                        otherType: task.other_type || task.otherType || null,
+                        otherType: task.other_type || task.otherType || DataManager.inferFileTypeFromData(task.other_image || task.otherImage || ''),
                         createdAt: task.created_at || task.createdAt || '',
                         completedAt: task.completed_at || task.completedAt || '',
                         creator_name: task.creator_name || task.creatorName || ''
@@ -7253,7 +7283,7 @@
                 const creatorId = task.creatorName || task.creator_name || '未知';
                 
                 return `
-                    <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
+                    <div class="task-flip-container" data-task-id="${task.id}">
                         <!-- 卡片正面 -->
                         <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
                             <div class="task-gallery-img">
@@ -7272,8 +7302,8 @@
                                 <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
                                     ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
                                 </span>
-                                <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
-                                    <i class="fas fa-info-circle"></i> 详情
+                                <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" title="处理发货">
+                                    处理发货
                                 </button>
                             </div>
                         </div>
@@ -7351,8 +7381,8 @@
                                 </div>
                                 <div class="task-back-actions">
                                     <div class="back-action-buttons">
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
-                                        <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
+                                        <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip">返回</button>
+                                        <button class="btn btn-sm btn-danger" data-task-id="${task.id}" data-action="delete">删除</button>
                                     </div>
                                 </div>
                             </div>
@@ -7872,29 +7902,32 @@
         }
         
         function toggleTaskCardFlip(taskId) {
-            const frontElement = document.querySelector(`#task-${taskId}-front`);
-            if (!frontElement) {
-                console.error(`任务卡片前端元素 #task-${taskId}-front 不存在`);
-                return;
-            }
+            // 首先尝试通过任务ID查找翻转容器
+            let flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
             
-            // 查找包含该前端元素的翻转容器
-            let flipContainer = frontElement.closest('.task-flip-container');
-            
-            // 如果通过 closest 没有找到，尝试直接查找父元素
+            // 如果没找到，尝试通过onclick属性查找
             if (!flipContainer) {
-                flipContainer = frontElement.parentElement;
+                flipContainer = document.querySelector(`.task-flip-container[onclick*="toggleTaskCardFlip('${taskId}')"]`);
             }
             
-            // 如果还是没有找到，尝试通过 data-task-id 属性直接查找
-            if (!flipContainer || !flipContainer.classList.contains('task-flip-container')) {
-                flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            // 如果还没找到，尝试通过ID查找前端元素然后获取其容器
+            if (!flipContainer) {
+                const frontElement = document.querySelector(`#task-${taskId}-front`);
+                if (frontElement) {
+                    flipContainer = frontElement.closest('.task-flip-container');
+                }
             }
             
-            if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
+            if (flipContainer) {
+                // 切换翻转类，实现3D翻转效果
                 flipContainer.classList.toggle('flipped');
+                
+                // 如果点击事件存在，阻止冒泡，防止重复触发
+                if (event && event.stopPropagation) {
+                    event.stopPropagation();
+                }
             } else {
-                console.error(`未找到有效的翻转容器`);
+                console.error(`未找到任务 ${taskId} 的翻转容器`);
             }
         }
         
@@ -7925,6 +7958,13 @@
                 const button = e.target.closest('[data-action="flip"]');
                 const taskId = button.getAttribute('data-task-id');
                 toggleTaskCardFlip(taskId);
+            }
+            // 处理删除任务事件
+            else if (e.target.closest('[data-action="delete"]')) {
+                e.stopPropagation();
+                const button = e.target.closest('[data-action="delete"]');
+                const taskId = button.getAttribute('data-task-id');
+                deleteTaskWithConfirmation(taskId, e);
             }
             // 处理确认发货事件
             else if (e.target.closest('[data-action="complete-shipment"]')) {
@@ -8715,9 +8755,41 @@
                         return;
                 }
                 
+                // 添加调试日志
+                console.log('previewTaskFile - Task ID:', taskId);
+                console.log('previewTaskFile - File Type:', fileType);
+                console.log('previewTaskFile - Original task object:', task);
+                console.log('previewTaskFile - File URL:', fileUrl);
+                console.log('previewTaskFile - File URL length:', fileUrl ? fileUrl.length : 0);
+                console.log('previewTaskFile - File URL starts with data:', fileUrl && fileUrl.startsWith('data:'));
+                console.log('previewTaskFile - File Name:', fileName);
+                console.log('previewTaskFile - File Type Value:', fileTypeValue);
+                
                 // 检查文件是否存在 - 增强检查逻辑，考虑空字符串、null、undefined等情况
                 if (!fileUrl || fileUrl.trim() === '' || fileUrl === 'null' || fileUrl === 'undefined' || fileUrl === 'data:') {
-                    Utils.showAlert('该文件未上传', 'warning');
+                    console.warn('文件检查失败 - 以下情况会导致此警告:', {
+                        '!fileUrl': !fileUrl,
+                        'fileUrl.trim() === ""': fileUrl && fileUrl.trim() === '',
+                        'fileUrl === "null"': fileUrl === 'null',
+                        'fileUrl === "undefined"': fileUrl === 'undefined',
+                        'fileUrl === "data:"': fileUrl === 'data:',
+                        'fileUrl is': fileUrl
+                    });
+                    
+                    // 提供更具体的错误信息
+                    if (!fileUrl) {
+                        Utils.showAlert('未找到文件数据', 'warning');
+                    } else if (fileUrl.trim() === '') {
+                        Utils.showAlert('文件数据为空字符串', 'warning');
+                    } else if (fileUrl === 'null') {
+                        Utils.showAlert('文件数据为null字符串', 'warning');
+                    } else if (fileUrl === 'undefined') {
+                        Utils.showAlert('文件数据为undefined字符串', 'warning');
+                    } else if (fileUrl === 'data:') {
+                        Utils.showAlert('文件数据格式不完整', 'warning');
+                    } else {
+                        Utils.showAlert('该文件未上传', 'warning');
+                    }
                     return;
                 }
                 
