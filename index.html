@@ -8662,55 +8662,60 @@
         // 通用任务文件预览函数
         function previewTaskFile(taskId, fileType) {
             const task = DataManager.getTaskById(taskId);
-            if (!task) return;
+            if (!task) {
+                Utils.showAlert('任务不存在', 'error');
+                return;
+            }
             
             let fileUrl, fileName, fileTitle, fileTypeValue;
             
-            // 根据文件类型设置对应的属性
+            // 根据文件类型设置对应的属性，同时处理可能的字段错位问题
             switch(fileType) {
                 case 'bodyCode':
-                    fileUrl = task.bodyCodeImage;
-                    fileName = task.bodyCodeFileName;
-                    fileTypeValue = task.bodyCodeType;
+                    // 尝试多种可能的字段名以应对字段错位问题
+                    fileUrl = task.bodyCodeImage || task.body_code_image || '';
+                    fileName = task.bodyCodeFileName || task.body_code_file_name || task.bodyCode_file_name || '';
+                    fileTypeValue = task.bodyCodeType || task.body_code_type || null;
                     fileTitle = '本体码';
                     break;
                 case 'barcode':
-                    fileUrl = task.barcodeImage;
-                    fileName = task.barcodeFileName;
-                    fileTypeValue = task.barcodeType;
+                    fileUrl = task.barcodeImage || task.barcode_image || '';
+                    fileName = task.barcodeFileName || task.barcode_file_name || task.barcode_file_name || '';
+                    fileTypeValue = task.barcodeType || task.barcode_type || null;
                     fileTitle = '条码';
                     break;
                 case 'warningCode':
-                    fileUrl = task.warningCodeImage;
-                    fileName = task.warningCodeFileName;
-                    fileTypeValue = task.warningCodeType;
+                    fileUrl = task.warningCodeImage || task.warning_code_image || '';
+                    fileName = task.warningCodeFileName || task.warning_code_file_name || task.warningCode_file_name || '';
+                    fileTypeValue = task.warningCodeType || task.warning_code_type || null;
                     fileTitle = '警示码';
                     break;
                 case 'label':
-                    fileUrl = task.labelImage;
-                    fileName = task.labelFileName;
-                    fileTypeValue = task.labelType;
+                    fileUrl = task.labelImage || task.label_image || '';
+                    fileName = task.labelFileName || task.label_file_name || task.label_file_name || '';
+                    fileTypeValue = task.labelType || task.label_type || null;
                     fileTitle = '箱唛';
                     break;
                 case 'manual':
-                    fileUrl = task.manualImage;
-                    fileName = task.manualFileName;
-                    fileTypeValue = task.manualType;
+                    fileUrl = task.manualImage || task.manual_image || '';
+                    fileName = task.manualFileName || task.manual_file_name || task.manual_file_name || '';
+                    fileTypeValue = task.manualType || task.manual_type || null;
                     fileTitle = '说明书';
                     break;
                 case 'other':
-                    fileUrl = task.otherImage;
-                    fileName = task.otherFileName;
-                    fileTypeValue = task.otherType;
+                    fileUrl = task.otherImage || task.other_image || '';
+                    fileName = task.otherFileName || task.other_file_name || task.other_file_name || '';
+                    fileTypeValue = task.otherType || task.other_type || null;
                     fileTitle = '其他';
                     break;
                 default:
                     console.error('未知的文件类型:', fileType);
+                    Utils.showAlert('未知的文件类型', 'error');
                     return;
             }
             
-            // 检查文件是否存在
-            if (!fileUrl) {
+            // 检查文件是否存在 - 增强检查逻辑，考虑空字符串、null、undefined等情况
+            if (!fileUrl || fileUrl.trim() === '' || fileUrl === 'null' || fileUrl === 'undefined' || fileUrl === 'data:') {
                 Utils.showAlert('该文件未上传', 'warning');
                 return;
             }

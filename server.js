@@ -21,6 +21,9 @@ const r2Config = {
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
   forcePathStyle: false, // Cloudflare R2 使用虚拟托管样式
+  // Cloudflare R2 特定配置
+  signatureVersion: 'v4',  // 使用 v4 签名版本
+  s3ForcePathStyle: false,
 };
 
 console.log('R2 配置状态检查:');
@@ -1195,12 +1198,14 @@ app.post('/api/activities', requireRole(['admin', 'sales', 'warehouse']), async 
 async function uploadImageToR2(imageBase64, filename) {
   console.log('uploadImageToR2 被调用，R2_ENABLED:', process.env.R2_ENABLED);
   console.log('r2Client 是否存在:', !!r2Client);
+  
+  // 检查 R2 是否启用和配置正确
   if (!r2Client || process.env.R2_ENABLED !== 'true') {
     console.log('R2 未启用或配置不正确，返回 base64 数据');
     // 如果 R2 未启用，返回原始 base64 数据
     return imageBase64;
   }
-
+  
   try {
     // 从 base64 数据中提取 MIME 类型
     const matches = imageBase64.match(/^data:(.+);base64,(.+)$/);
@@ -1224,10 +1229,26 @@ async function uploadImageToR2(imageBase64, filename) {
     
     // 返回 R2 存储的 URL
     const imageUrl = `${process.env.R2_PUBLIC_URL}/images/${uniqueFilename}`;
+    console.log('成功上传到 R2:', imageUrl);
     return imageUrl;
   } catch (error) {
     console.error('上传到 R2 失败:', error);
-    // 如果 R2 上传失败，返回原始 base64 数据
+    console.error('错误类型:', error.name);
+    console.error('错误消息:', error.message);
+    
+    // 检查是否是认证错误，如果是，记录详细信息
+    if (error.name === 'SignatureDoesNotMatch' || error.message.includes('Unauthorized') || error.$metadata?.httpStatusCode === 401) {
+      console.error('R2 认证失败，需要更新以下配置:');
+      console.error('- R2_ACCESS_KEY_ID: 需要使用正确的访问密钥ID');
+      console.error('- R2_SECRET_ACCESS_KEY: 需要使用正确的秘密访问密钥');
+      console.error('- R2_BUCKET_NAME: 需要确认存储桶存在且名称正确');
+      console.error('- R2_ENDPOINT: 需要确认端点格式正确');
+      console.error('注意: 在配置修复前，系统将继续运行，但文件将以 base64 格式存储');
+    }
+    
+    // 保持 R2_ENABLED=true 的前提下，记录错误并返回 base64 数据
+    // 这是为了确保功能可用性，同时提醒用户需要修复 R2 配置
+    console.log('R2 上传失败，使用 base64 作为临时方案，但仍保持 R2_ENABLED=true');
     return imageBase64;
   }
 }

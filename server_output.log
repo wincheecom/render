@@ -1,0 +1,13 @@
+R2 配置状态检查:
+R2_ENABLED: true
+R2_ENDPOINT: https://345795707f3e727ca91bba634dacce5c.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID: 已设置
+R2_BUCKET_NAME: funseek-render-app-assets
+R2 客户端初始化成功
+R2 客户端初始化完成: true
+Server is running on port 3002
+Visit http://localhost:3002 to access the application
+使用 PostgreSQL 数据库
+Image column already exists in products table
+数据库表初始化完成
+管理员账户检查完成
