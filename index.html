@@ -144,7 +144,6 @@
 
         .btn-primary:hover {
             background-color: var(--primary-dark);
-            transform: translateY(-2px);
         }
 
         /* ===== 主系统样式 ===== */
@@ -277,10 +276,13 @@
         .module-content {
             display: none;
             animation: fadeIn 0.5s ease;
+            height: 100%;
         }
 
         .module-content.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         @keyframes fadeIn {
@@ -450,6 +452,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 20px;
+            min-height: 60px;
+            gap: 12px;
         }
         
         /* 产品画廊视图的表头不需要底部边框 */
@@ -576,10 +580,14 @@
             background-color: transparent;
             border: 2px solid var(--gray-light);
             color: var(--dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-outline:hover {
             background-color: var(--gray-light);
+            transform: none;
         }
 
         /* ===== 产品添加模块样式 ===== */
@@ -955,34 +963,71 @@
             color: white;
             border-color: var(--primary);
         }
-
-        .chart-container {
-            height: 280px;
-            margin-bottom: 25px;
-        }
-
-        .summary-card {
-            padding: 16px;
-            border-radius: var(--card-radius);
-            color: white;
-            height: 130px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        
+        .stat-card {
             text-align: center;
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
         }
-
-        .summary-card h4 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin: 0;
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
         }
-
-        .summary-card p {
+        
+        .stat-label {
+            color: var(--gray);
             font-size: 0.85rem;
-            opacity: 0.9;
-            margin: 4px 0 0;
+        }
+        
+        .user-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-btn {
+            padding: 8px 16px;
+            background-color: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .user-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .stat-card {
+            text-align: center;
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
         }
 
         /* ===== 最近添加的产品布局 ===== */
@@ -2527,6 +2572,13 @@
             margin-bottom: 25px;
         }
         
+        #salesperson-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        
         .stats-card {
             background: white;
             border-radius: var(--card-radius);
@@ -2536,6 +2588,197 @@
         
         .stats-card-wide {
             grid-column: span 2;
+        }
+        
+        /* 销售运营统计卡片特定样式 */
+        .salesperson-stat-card {
+            background: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        /* 独立统计卡片样式 */
+        .individual-stat-card {
+            background: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+            margin-bottom: 16px;
+            min-width: 280px;
+        }
+        
+        .individual-stat-card .stats-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .individual-stat-card .stats-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .individual-stat-card .stat-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .individual-stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        
+        .individual-stat-card .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .stat-card-full-width {
+            width: 100%;
+        }
+        
+        /* 销售人员分组容器 */
+        .salesperson-group {
+            background: #f8f9fa;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .salesperson-group .group-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        
+        .salesperson-group .group-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .salesperson-group .group-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .salesperson-group .group-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .salesperson-stat-card .stats-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .salesperson-stat-card .stats-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .salesperson-stats-grid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .salesperson-stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-lightest);
+            align-items: center;
+        }
+        
+        /* 水平排列的统计项 - 用于左右标签值布局 */
+        .stat-item-horizontal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+        
+        /* 全宽度统计项 - 用于较长内容，如商品明细 */
+        .stat-item-full-width {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px 0;
+            gap: 6px;
+        }
+        
+        .stat-item-full-width .stat-label {
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .stat-item-full-width .stat-value {
+            display: block;
+            width: 100%;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 100px;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--dark);
+            text-align: right;
+            max-width: 70%;
+        }
+        
+        /* 强调关键指标 */
+        .stat-emphasized {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .stat-highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            #salesperson-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #salesperson-stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .stats-header {
@@ -2780,6 +3023,30 @@
             margin: 0;
         }
         
+        /* 用户管理模块模态框宽度调整 */
+        #userModal .modal-dialog {
+            max-width: 500px;
+            margin: 1.75rem auto;
+        }
+        
+        /* 确保表单项有足够的宽度 */
+        #userModal .form-control,
+        #userModal .form-select {
+            min-width: 0;
+            flex: 1;
+        }
+        
+        /* 针对邮箱输入框的特殊处理 */
+        #userModal #userEmail {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* 确保模态框在页面加载时不显示 */
+        #userModal:not(.show) .modal-content {
+            display: none;
+        }
+        
         /* 特定任务卡片样式 - 确保图片居中 */
         #task-1768315176672-front.task-front {
             width: 302.66px; 
@@ -2908,6 +3175,11 @@
                     <div class="card stat-card">
                         <div class="stat-number" id="completedTasks">0</div>
                         <div class="stat-label">已完成</div>
+                    </div>
+                    
+                    <div class="card stat-card">
+                        <div class="stat-number" id="shippingTaskCount">0</div>
+                        <div class="stat-label">发货数量</div>
                     </div>
                 </div>
                 
@@ -3223,10 +3495,8 @@
             </div>
             
             <!-- 统计分析模块 -->
-            <div class="module-content" id="statistics-analysis">
-                <!-- 已移除：<h1 class="page-title">统计分析</h1> -->
-                
-                <div class="time-filter">
+            <div class="module-content" id="statistics-dashboard">
+                <div class="time-filter mb-25">
                     <button class="time-btn active" onclick="filterStatistics('day', this)">今日</button>
                     <button class="time-btn" onclick="filterStatistics('week', this)">本周</button>
                     <button class="time-btn" onclick="filterStatistics('month', this)">本月</button>
@@ -3234,131 +3504,451 @@
                     <button class="time-btn" onclick="filterStatistics('all', this)">全部</button>
                 </div>
                 
-                <!-- 重新排版统计分析内容 -->
-                <div class="stats-grid">
-                    <!-- 发货数据统计 -->
-                    <div class="stats-card">
-                        <div class="stats-header">
-                            <div class="stats-title">发货数据统计</div>
-                        </div>
-                        <div class="stats-value" id="dayShipments">0</div>
-                        <div class="stats-subtitle">今日发货量</div>
-                        <div class="stats-chart-container">
-                            <canvas id="shipmentChart"></canvas>
-                        </div>
+                <div class="user-filter mb-25">
+                    <button class="user-btn active" data-user-id="all" onclick="filterByUser('all', this)">全部</button>
+                </div>
+                
+                <div class="card-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="shipmentTaskCount">0</div>
+                        <div class="stat-label">发货任务</div>
                     </div>
-                    
-                    <!-- 销售额统计 -->
-                    <div class="stats-card">
-                        <div class="stats-header">
-                            <div class="stats-title">销售额统计</div>
-                        </div>
-                        <div class="stats-value" id="daySales">¥0</div>
-                        <div class="stats-subtitle">今日销售额</div>
-                        <div class="stats-chart-container">
-                            <canvas id="salesChart"></canvas>
-                        </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="dayShipments">0</div>
+                        <div class="stat-label">发货数量</div>
                     </div>
-                    
-                    <!-- 利润统计 -->
-                    <div class="stats-card stats-card-wide">
-                        <div class="stats-header">
-                            <div class="stats-title">利润统计</div>
-                        </div>
-                        <div class="d-flex gap-25">
-                            <div class="flex-1">
-                                <div class="stats-value" style="color: var(--success);" id="dayProfit">¥0</div>
-                                <div class="stats-subtitle">今日利润</div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="stats-value" style="color: var(--warning);" id="avgProfitMargin">0%</div>
-                                <div class="stats-subtitle">平均利润率</div>
-                            </div>
-                        </div>
-                        <div class="stats-chart-container">
-                            <canvas id="profitChart"></canvas>
-                        </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="daySales">0</div>
+                        <div class="stat-label">销售额</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="dayProfit">0</div>
+                        <div class="stat-label">销售利润</div>
                     </div>
                 </div>
                 
-                <!-- 销量排行和利润排行 -->
-                <div class="stats-grid mb-25">
-                    <div class="stats-card">
-                        <div class="stats-header">
-                            <div class="stats-title">销量排行</div>
-                            <button class="btn btn-sm btn-outline" onclick="downloadSalesRanking()">
-                                <i class="fas fa-download"></i> 下载
-                            </button>
-                        </div>
-                        <div style="height: 280px; overflow-y: auto;">
-                            <div id="salesRanking">
-                                <p class="text-muted text-center my-5">暂无销量数据</p>
-                            </div>
-                        </div>
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">商品明细</div>
                     </div>
-                    
-                    <div class="stats-card">
-                        <div class="stats-header">
-                            <div class="stats-title">利润最高产品排行</div>
-                            <button class="btn btn-sm btn-outline" onclick="downloadProfitRanking()">
-                                <i class="fas fa-download"></i> 下载
-                            </button>
-                        </div>
-                        <div style="height: 280px; overflow-y: auto;">
-                            <div id="profitRanking">
-                                <p class="text-muted text-center my-5">暂无利润数据</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 按销售运营账户统计 -->
-                <div class="card mt-25" id="creatorStatisticsCard">
-                    <div class="card-title">销售运营账户统计</div>
                     <div class="table-responsive">
-                        <table class="table">
+                        <table>
                             <thead>
                                 <tr>
-                                    <th>销售运营</th>
-                                    <th>发货任务数</th>
-                                    <th>发货总量</th>
+                                    <th>名称</th>
+                                    <th>供应商</th>
+                                    <th>数量</th>
                                     <th>销售额</th>
-                                    <th>利润</th>
                                 </tr>
                             </thead>
-                            <tbody id="creatorStatistics">
+                            <tbody id="productDetailList">
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-3">正在加载数据...</td>
+                                    <td colspan="4" class="text-center text-muted py-4">暂无商品数据</td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-                
-                <!-- 数据清单下载 -->
-                <div class="card">
-                    <div class="card-title">数据清单下载</div>
-                    <div class="card-body">
-                        <div class="d-flex gap-8 flex-wrap">
-                            <button class="btn btn-outline" onclick="downloadShipmentList()">
-                                <i class="fas fa-file-export"></i> 发货清单
-                            </button>
-                            <button class="btn btn-outline" onclick="downloadSalesReport()">
-                                <i class="fas fa-chart-line"></i> 销售报表
-                            </button>
-                            <button class="btn btn-outline" onclick="downloadProfitReport()">
-                                <i class="fas fa-money-bill-wave"></i> 利润报表
-                            </button>
-                            <button class="btn btn-outline" onclick="downloadAllData()">
-                                <i class="fas fa-database"></i> 完整数据
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 账户管理模块 -->
+    <div class="module-content" id="user-management">
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">账户管理</div>
+                <div class="d-flex align-center gap-12">
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <i class="fas fa-plus"></i> 添加用户
+                    </button>
+                    <button class="btn btn-outline" onclick="refreshUserList()">
+                        <i class="fas fa-sync"></i> 刷新
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="equal-width-columns">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>邮箱</th>
+                            <th>角色</th>
+                            <th>注册时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">正在加载用户列表...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 添加/编辑用户模态框 -->
+        <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="userModalLabel">添加用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="userForm">
+                            <input type="hidden" id="userId">
+                            <div class="form-group mb-3">
+                                <label for="userName" class="form-label">姓名</label>
+                                <input type="text" class="form-control" id="userName" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="userEmail" class="form-label">邮箱</label>
+                                <input type="email" class="form-control" id="userEmail" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="userRole" class="form-label">角色</label>
+                                <select class="form-select" id="userRole" required>
+                                    <option value="">请选择角色</option>
+                                    <option value="admin">管理员</option>
+                                    <option value="sales">销售运营</option>
+                                    <option value="warehouse">仓库</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="userPassword" class="form-label">密码</label>
+                                <input type="password" class="form-control" id="userPassword" placeholder="留空则不修改密码">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveUser()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="salesperson_stats.js"></script>
+
+    <style>
+        /* 统计分析页面样式优化 */
+        #statistics-analysis .time-filter {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+                
+        #statistics-analysis .time-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--gray-light);
+            background-color: white;
+            color: var(--dark);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+                
+        #statistics-analysis .time-btn:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+                
+        #statistics-analysis .time-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+                
+        #statistics-analysis .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+                
+        #statistics-analysis .stats-card {
+            border-radius: 10px;
+            border: 1px solid var(--gray-light);
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+                
+        #statistics-analysis .stats-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+                
+        #statistics-analysis .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            background-color: var(--light);
+        }
+                
+        #statistics-analysis .stats-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--dark);
+        }
+                
+        #statistics-analysis .stats-card .card-body {
+            padding: 20px;
+        }
+                
+        #statistics-analysis .stats-card .card-body > div {
+            height: 280px;
+            overflow-y: auto;
+        }
+                
+        #statistics-analysis .card {
+            border-radius: 10px;
+            border: 1px solid var(--gray-light);
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+                
+        #statistics-analysis .card-title {
+            padding: 16px 20px;
+            background-color: var(--light);
+            border-bottom: 1px solid var(--gray-light);
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--dark);
+        }
+                
+        #statistics-analysis .card-body {
+            padding: 20px;
+        }
+                
+        /* 统计分析样式 */
+        #statistics-dashboard .time-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #statistics-dashboard .time-btn {
+            padding: 8px 16px;
+            background-color: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        #statistics-dashboard .time-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        #statistics-dashboard .user-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #statistics-dashboard .user-btn {
+            padding: 8px 16px;
+            background-color: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        #statistics-dashboard .user-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        #statistics-dashboard .stat-card {
+            text-align: center;
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        #statistics-dashboard .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        
+        #statistics-dashboard .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        /* 账户管理模块样式 */
+        #user-management .table-responsive {
+            overflow-x: auto;
+        }
+        
+        #user-management table.equal-width-columns {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        #user-management table.equal-width-columns th,
+        #user-management table.equal-width-columns td {
+            width: calc(100% / 5); /* 5列平均分配 */
+            text-align: center;
+            padding: 12px 16px;
+        }
+        
+        #user-management table.equal-width-columns th {
+            font-weight: 700;
+            color: var(--dark);
+            background-color: rgba(67, 97, 238, 0.05);
+            font-size: 0.9rem;
+        }
+        
+        #user-management table.equal-width-columns td {
+            font-size: 0.9rem;
+        }
+        
+        #user-management tr:hover {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+        
+        #user-management .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        #user-management .badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        #user-management .badge-primary {
+            background-color: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+        
+        #user-management .badge-success {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: #4cc9f0;
+        }
+        
+        #user-management .badge-warning {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: #f72585;
+        }
+        
+        #user-management .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            gap: 12px;
+            min-height: 60px;
+        }
+        
+        #user-management .table-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        /* 与现有表格样式保持一致 */
+        #user-management .table-container {
+            background-color: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 25px;
+            flex: 1 1 auto;
+        }
+        
+        /* 调整用户管理模块以与菜单栏左对齐 */
+        #user-management {
+            display: block;
+            padding: 20px;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        /* 确保表格容器居中显示 */
+        #user-management .table-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 确保按钮组在小屏幕上也能正常显示 */
+        #user-management .btn-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        #user-management .btn {
+            min-width: auto;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #user-management .btn i {
+            margin-right: 4px;
+        }
+                
+
+                
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            /* 小屏幕上的统计项调整 */
+            .stat-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+                    
+            .stat-item-horizontal {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+                    
+            .stat-label {
+                min-width: auto;
+            }
+                    
+            .stat-value {
+                text-align: left;
+                max-width: 100%;
+            }
+        }
+    </style>
     <script>
         // ============================================
         // 数据存储键名
@@ -3393,14 +3983,30 @@
             showAlert(message, type = 'success', callback = null) {
                 alertify.set('notifier', 'position', 'top-right');
                 
+                // 对消息内容进行HTML转义，防止XSS攻击
+                const sanitizeMessage = function(str) {
+                    if (typeof str !== 'string') {
+                        str = String(str);
+                    }
+                    return str
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#x27;')
+                        .replace(/`/g, '&#x60;');
+                };
+                
+                const sanitizedMessage = sanitizeMessage(message);
+                
                 if (type === 'success') {
-                    alertify.success(message);
+                    alertify.success(sanitizedMessage);
                 } else if (type === 'warning') {
-                    alertify.warning(message);
+                    alertify.warning(sanitizedMessage);
                 } else if (type === 'danger' || type === 'error') {
-                    alertify.error(message);
+                    alertify.error(sanitizedMessage);
                 } else {
-                    alertify.message(message);
+                    alertify.message(sanitizedMessage);
                 }
                 
                 if (callback && typeof callback === 'function') {
@@ -3802,11 +4408,14 @@
             
             static async getAllTasks() {
                 try {
-                    const user = this.getCurrentUser();
-                    const headers = {};
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
                     
-                    if (user && user.role) {
-                        headers['x-user-role'] = user.role;
+                    // 使用JWT令牌进行身份验证
+                    const token = localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN);
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
                     }
                     
                     const response = await fetch(`${this.API_BASE}/api/tasks`, {
@@ -3935,13 +4544,14 @@
             
             static async addTask(task) {
                 try {
-                    const user = this.getCurrentUser();
                     const headers = {
                         'Content-Type': 'application/json',
                     };
                     
-                    if (user && user.role) {
-                        headers['x-user-role'] = user.role;
+                    // 使用JWT令牌进行身份验证
+                    const token = localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN);
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
                     }
                     
                     const response = await fetch(`${this.API_BASE}/api/tasks`, {
@@ -3957,8 +4567,8 @@
                             label_image: task.labelImage || '',
                             manual_image: task.manualImage || '',
                             other_image: task.otherImage || '',
-                            creator_name: task.creatorName || (user ? user.name : null),
-                            creator_role: user ? user.role : null
+                            creator_name: task.creatorName || DataManager.getCurrentUser()?.name || DataManager.getCurrentUser()?.username || null,
+                            creator_role: DataManager.getCurrentUser()?.role || null
                         })
                     });
                     
@@ -4309,8 +4919,14 @@
                     if (!response.ok) throw new Error('获取历史记录失败');
                     const history = await response.json();
                     
-                    // 将数据库字段映射到前端期望的字段名
-                    return history.map(record => {
+                    // 首先获取所有产品信息用于补充供应商数据
+                    const products = await this.getAllProducts();
+                    
+                    // 创建结果数组
+                    const result = [];
+                    
+                    // 循环处理每条历史记录
+                    for (const record of history) {
                         let mappedRecord = {
                             id: record.id,
                             taskNumber: record.task_number || record.taskNumber,
@@ -4333,6 +4949,35 @@
                             creator_name: record.creator_name || record.creatorName || ''
                         };
                         
+                        // 增强items数据，确保每个item包含供应商信息
+                        if (mappedRecord.items && Array.isArray(mappedRecord.items)) {
+                            mappedRecord.items = mappedRecord.items.map(item => {
+                                // 如果item中没有供应商信息，尝试从关联的产品中获取
+                                let enhancedItem = { ...item };
+                                
+                                if (!enhancedItem.supplier && !enhancedItem.productSupplier && enhancedItem.productId) {
+                                    const product = products.find(p => p.id === enhancedItem.productId);
+                                    if (product) {
+                                        // 补充供应商信息
+                                        enhancedItem.supplier = product.supplier || product.product_supplier || '';
+                                        enhancedItem.productSupplier = product.supplier || product.product_supplier || '';
+                                        
+                                        // 同时补充产品信息到item中
+                                        enhancedItem.product = {
+                                            name: product.name,
+                                            code: product.code,
+                                            supplier: product.supplier || product.product_supplier || '',
+                                            purchasePrice: product.purchasePrice,
+                                            salePrice: product.salePrice,
+                                            profitMargin: product.profitMargin
+                                        };
+                                    }
+                                }
+                                
+                                return enhancedItem;
+                            });
+                        }
+                        
                         // 检查并修复历史记录中的字段错位问题
                         // 如果taskNumber字段包含JSON数组（以[{开头），则生成新的任务号
                         if (typeof mappedRecord.taskNumber === 'string' && mappedRecord.taskNumber.startsWith('[{')) {
@@ -4354,8 +4999,10 @@
                             }
                         }
                         
-                        return mappedRecord;
-                    });
+                        result.push(mappedRecord);
+                    }
+                    
+                    return result;
                 } catch (error) {
                     console.error('获取历史记录失败:', error);
                     Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
@@ -4438,16 +5085,53 @@
                 }
             }
             
-            static async getStatisticsData(filter = 'day') {
+            static async getStatisticsData(filter = 'day', userId = null) {
                 try {
                     const history = await this.getHistory();
                     const products = await this.getAllProducts();
                     const { startDate, endDate } = Utils.getDateRange(filter);
                     
+                    // 获取当前用户信息
+                    const currentUser = this.getCurrentUser();
+                    
+                    // 首先获取所有用户信息用于后续的ID和名称匹配
+                    const allUsers = await this.getAllUsers();
+                    
                     const filteredHistory = history.filter(task => {
                         const taskDate = new Date(task.completedAt || task.createdAt);
-                        return taskDate >= startDate && taskDate < endDate;
+                        
+                        // 检查日期范围
+                        const dateInRange = taskDate >= startDate && taskDate < endDate;
+                        if (!dateInRange) return false;
+                        
+                        // 如果指定了特定用户ID，则只显示该用户的数据
+                        if (userId && userId !== 'all') {
+                            const taskCreator = task.creator_name || task.creatorName || task.creator;
+                            
+                            // 查找指定用户ID对应的用户信息
+                            const targetUser = allUsers.find(u => u.id === userId);
+                            if (targetUser) {
+                                // 比较任务创建者与目标用户的名称或ID
+                                return taskCreator === targetUser.name || 
+                                       taskCreator === targetUser.username ||
+                                       taskCreator === targetUser.email;
+                            } else {
+                                // 如果没找到目标用户，尝试直接比较userId与任务创建者名称
+                                // 这是为了处理可能传入用户名而非用户ID的情况
+                                return taskCreator === userId;
+                            }
+                        }
+                        
+                        // 对于非管理员用户，只处理他们自己创建的任务
+                        if (currentUser && currentUser.role !== 'admin') {
+                            const taskCreator = task.creator_name || task.creatorName || task.creator;
+                            return taskCreator === currentUser.name || taskCreator === currentUser.username;
+                        } else {
+                            return true; // 管理员可以看到所有数据
+                        }
                     });
+                    
+
                     
                     let totalShipments = 0;
                     let totalSales = 0;
@@ -4486,9 +5170,12 @@
                             const quantity = parseInt(item.quantity) || 0;
                             totalShipments += quantity;
                             
-                            // 查找产品信息
+                            // 优先使用item中已增强的产品信息（包含供应商信息），否则查找产品信息
                             let product;
-                            if (item.productId) {
+                            if (item.product) {
+                                // 使用增强的item.product信息，其中已包含供应商信息
+                                product = item.product;
+                            } else if (item.productId) {
                                 product = products.find(p => p.id === item.productId);
                             } else if (item.product_id) {  // 兼容不同字段名
                                 product = products.find(p => p.id === item.product_id);
@@ -4496,7 +5183,7 @@
                             
                             if (product) {
                                 // 确保价格是数值
-                                const salePrice = parseFloat(product.salePrice) || 0;
+                                const salePrice = parseFloat(item.salePrice || product.salePrice) || 0;
                                 const purchasePrice = parseFloat(product.purchasePrice) || 0;
                                 
                                 const itemSales = salePrice * quantity;
@@ -4507,11 +5194,12 @@
                                 totalCost += itemCost;
                                 totalProfit += itemProfit;
                                 
-                                const productId = product.id;
+                                const productId = product.id || item.productId;
                                 if (!productStats[productId]) {
                                     productStats[productId] = {
-                                        name: product.name,
+                                        name: item.productName || product.name,
                                         code: product.code,
+                                        supplier: product.supplier,  // 添加供应商信息
                                         quantity: 0,
                                         sales: 0,
                                         profit: 0,
@@ -4580,6 +5268,9 @@
                 const now = new Date();
                 const monthlyData = {};
                 
+                // 获取当前用户信息
+                const currentUser = this.getCurrentUser();
+                
                 for (let i = 11; i >= 0; i--) {
                     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
                     const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -4587,10 +5278,17 @@
                 }
                 
                 history.forEach(task => {
-                    const taskDate = new Date(task.completedAt || task.createdAt);
+                    const taskDate = new Date(task.completed_at || task.created_at || task.completedAt || task.createdAt);
                     const key = `${taskDate.getFullYear()}-${(taskDate.getMonth() + 1).toString().padStart(2, '0')}`;
                     
-                    if (monthlyData.hasOwnProperty(key)) {
+                    // 对于非管理员用户，只处理他们自己创建的任务
+                    const taskCreator = task.creator_name || task.creatorName || task.creator;
+                    const isCurrentUserTask = currentUser && 
+                        (currentUser.role === 'admin' || 
+                         taskCreator === currentUser.name || 
+                         taskCreator === currentUser.username);
+                    
+                    if (isCurrentUserTask && monthlyData.hasOwnProperty(key)) {
                         // 处理任务中的items数据，检查是否存在字段错位
                         let processedItems = task.items;
                         
@@ -4627,7 +5325,7 @@
                             if (product) {
                                 // 确保价格和数量是数值
                                 const quantity = parseInt(item.quantity) || 0;
-                                const salePrice = parseFloat(product.salePrice) || 0;
+                                const salePrice = parseFloat(product.sale_price || product.salePrice) || 0;
                                 monthlyData[key] += salePrice * quantity;
                             }
                         });
@@ -4642,6 +5340,9 @@
                 const now = new Date();
                 const monthlyData = {};
                 
+                // 获取当前用户信息
+                const currentUser = this.getCurrentUser();
+                
                 for (let i = 11; i >= 0; i--) {
                     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
                     const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -4649,10 +5350,17 @@
                 }
                 
                 history.forEach(task => {
-                    const taskDate = new Date(task.completedAt || task.createdAt);
+                    const taskDate = new Date(task.completed_at || task.created_at || task.completedAt || task.createdAt);
                     const key = `${taskDate.getFullYear()}-${(taskDate.getMonth() + 1).toString().padStart(2, '0')}`;
                     
-                    if (monthlyData.hasOwnProperty(key)) {
+                    // 对于非管理员用户，只处理他们自己创建的任务
+                    const taskCreator = task.creator_name || task.creatorName || task.creator;
+                    const isCurrentUserTask = currentUser && 
+                        (currentUser.role === 'admin' || 
+                         taskCreator === currentUser.name || 
+                         taskCreator === currentUser.username);
+                    
+                    if (isCurrentUserTask && monthlyData.hasOwnProperty(key)) {
                         // 处理任务中的items数据，检查是否存在字段错位
                         let processedItems = task.items;
                         
@@ -4694,6 +5402,9 @@
                 const now = new Date();
                 const monthlyData = {};
                 
+                // 获取当前用户信息
+                const currentUser = this.getCurrentUser();
+                
                 for (let i = 11; i >= 0; i--) {
                     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
                     const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -4701,10 +5412,17 @@
                 }
                 
                 history.forEach(task => {
-                    const taskDate = new Date(task.completedAt || task.createdAt);
+                    const taskDate = new Date(task.completed_at || task.created_at || task.completedAt || task.createdAt);
                     const key = `${taskDate.getFullYear()}-${(taskDate.getMonth() + 1).toString().padStart(2, '0')}`;
                     
-                    if (monthlyData.hasOwnProperty(key)) {
+                    // 对于非管理员用户，只处理他们自己创建的任务
+                    const taskCreator = task.creator_name || task.creatorName || task.creator;
+                    const isCurrentUserTask = currentUser && 
+                        (currentUser.role === 'admin' || 
+                         taskCreator === currentUser.name || 
+                         taskCreator === currentUser.username);
+                    
+                    if (isCurrentUserTask && monthlyData.hasOwnProperty(key)) {
                         // 处理任务中的items数据，检查是否存在字段错位
                         let processedItems = task.items;
                         
@@ -4741,8 +5459,8 @@
                             if (product) {
                                 // 确保价格和数量是数值
                                 const quantity = parseInt(item.quantity) || 0;
-                                const salePrice = parseFloat(product.salePrice) || 0;
-                                const purchasePrice = parseFloat(product.purchasePrice) || 0;
+                                const salePrice = parseFloat(product.sale_price || product.salePrice) || 0;
+                                const purchasePrice = parseFloat(product.purchase_price || product.purchasePrice) || 0;
                                 const profit = (salePrice - purchasePrice) * quantity;
                                 monthlyData[key] += profit;
                             }
@@ -4753,21 +5471,80 @@
                 return monthlyData;
             }
             
+            static async getAllUsers() {
+                try {
+                    const headers = {};
+
+                    // 使用JWT令牌进行身份验证
+                    const token = localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN);
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+
+                    const response = await fetch(`${this.API_BASE}/api/users/all`, {
+                        headers: headers
+                    });
+
+                    if (!response.ok) {
+                        console.error('获取用户列表失败:', response.statusText);
+                        return [];
+                    }
+
+                    const users = await response.json();
+
+                    // 将数据库返回的数据映射到前端期望的格式
+                    return users.map(user => ({
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        role: user.role,
+                        companyName: user.company_name || user.companyName || '',
+                        isActive: user.is_active || user.isActive,
+                        createdAt: user.created_at || user.createdAt,
+                        updatedAt: user.updated_at || user.updatedAt
+                    }));
+                } catch (error) {
+                    console.error('获取用户列表失败:', error);
+                    Utils.showAlert('无法连接到数据库，请稍后重试', 'error');
+                    return [];
+                }
+            }
+            
             static async getCreatorStatistics(filter = 'day') {
                 try {
                     const history = await this.getHistory();
                     const products = await this.getAllProducts();
                     const { startDate, endDate } = Utils.getDateRange(filter);
                     
+                    // 获取当前用户信息
+                    const currentUser = this.getCurrentUser();
+                    
+                    // 修改过滤逻辑：允许销售运营角色查看所有数据
                     const filteredHistory = history.filter(task => {
-                        const taskDate = new Date(task.completedAt || task.createdAt);
-                        return taskDate >= startDate && taskDate < endDate;
+                        // 确保task对象存在
+                        if (!task) return false;
+                        const taskDate = new Date(task.completed_at || task.created_at || task.completedAt || task.createdAt);
+                        // 检查日期是否有效
+                        if (isNaN(taskDate.getTime())) return false;
+                        
+                        // 对于管理员和销售运营用户，显示所有任务
+                        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'sales')) {
+                            return taskDate >= startDate && taskDate < endDate;
+                        } else {
+                            // 对于其他角色，只显示他们自己创建的任务
+                            const taskCreator = task.creator_name || task.creatorName || task.creator;
+                            return taskDate >= startDate && taskDate < endDate && 
+                                   (taskCreator === currentUser.name || taskCreator === currentUser.username);
+                        }
                     });
                     
                     const creatorStats = {};
                     
                     filteredHistory.forEach(task => {
-                        const creatorName = task.creatorName || task.creator_name || 'Unknown';
+                        // 确保task对象存在
+                        if (!task) return;
+                        
+                        const creatorName = task.creator_name || task.creatorName || task.creator || 'Unknown';
                         
                         if (!creatorStats[creatorName]) {
                             creatorStats[creatorName] = {
@@ -4776,31 +5553,101 @@
                                 totalSales: 0,
                                 totalProfit: 0,
                                 totalTasks: 0,
-                                tasks: []
+                                tasks: [],
+                                productCount: 0,
+                                topProducts: []
                             };
                         }
                         
                         creatorStats[creatorName].totalTasks++;
                         creatorStats[creatorName].tasks.push(task);
                         
-                        task.items.forEach(item => {
-                            creatorStats[creatorName].totalShipments += item.quantity;
-                            
-                            const product = products.find(p => p.id === item.productId);
-                            if (product) {
-                                const itemSales = product.salePrice * item.quantity;
-                                const itemCost = product.purchasePrice * item.quantity;
-                                const itemProfit = itemSales - itemCost;
-                                
-                                creatorStats[creatorName].totalSales += itemSales;
-                                creatorStats[creatorName].totalProfit += itemProfit;
-                            }
-                        });
+                        // 确保items存在且为数组
+                        if (task.items && Array.isArray(task.items)) {
+                            task.items.forEach(item => {
+                                // 确保item和quantity存在
+                                if (item && item.quantity) {
+                                    creatorStats[creatorName].totalShipments += item.quantity;
+                                    
+                                    // 确保productId存在
+                                    if (item.productId) {
+                                        const product = products.find(p => p.id === item.productId);
+                                        if (product) {
+                                            const itemSales = (product.sale_price || product.salePrice || 0) * (item.quantity || 0);
+                                            const itemCost = (product.purchase_price || product.purchasePrice || 0) * (item.quantity || 0);
+                                            const itemProfit = itemSales - itemCost;
+                                            
+                                            creatorStats[creatorName].totalSales += itemSales;
+                                            creatorStats[creatorName].totalProfit += itemProfit;
+                                        }
+                                    }
+                                }
+                            });
+                        }
                     });
                     
-                    return Object.values(creatorStats).sort((a, b) => b.totalSales - a.totalSales);
+                    // 计算每个销售员的商品种类数和畅销商品排行
+                    Object.keys(creatorStats).forEach(creatorName => {
+                        const stats = creatorStats[creatorName];
+                        
+                        // 计算商品种类数
+                        const productIds = new Set();
+                        if (stats.tasks && Array.isArray(stats.tasks)) {
+                            stats.tasks.forEach(task => {
+                                if (task.items && Array.isArray(task.items)) {
+                                    task.items.forEach(item => {
+                                        if (item && item.productId) {
+                                            productIds.add(item.productId);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        stats.productCount = productIds.size;
+                        
+                        // 计算畅销商品排行
+                        const productSales = {};
+                        if (stats.tasks && Array.isArray(stats.tasks)) {
+                            stats.tasks.forEach(task => {
+                                if (task.items && Array.isArray(task.items)) {
+                                    task.items.forEach(item => {
+                                        if (item && item.productId) {
+                                            const product = products.find(p => p.id === item.productId);
+                                            if (product) {
+                                                if (!productSales[product.id]) {
+                                                    productSales[product.id] = {
+                                                        id: product.id,
+                                                        name: product.name,
+                                                        code: product.code,
+                                                        quantity: 0
+                                                    };
+                                                }
+                                                productSales[product.id].quantity += item.quantity || 0;
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        
+                        // 按销量排序并获取前5名
+                        stats.topProducts = Object.values(productSales)
+                            .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
+                            .slice(0, 5);
+                    });
+
+                    // 对于管理员和销售运营用户，返回所有统计数据
+                    if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'sales')) {
+                        // 返回按销售额排序的创作者统计信息
+                        return Object.values(creatorStats).sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0));
+                    } else {
+                        // 对于其他角色，只返回自己的统计数据
+                        const userStats = creatorStats[currentUser.name] || creatorStats[currentUser.username] || null;
+                        return userStats ? [userStats] : [];
+                    }
                 } catch (error) {
                     console.error('获取创建者统计数据失败:', error);
+                    console.error('错误堆栈:', error.stack);
                     return [];
                 }
             }
@@ -4833,7 +5680,7 @@
         let selectedProducts = new Set();
         let expandedTaskId = null;
         let currentProductView = 'list';
-        let currentStatisticsFilter = 'day';
+        window.currentStatisticsFilter = 'week';
         let salesChart = null;
         let shipmentChart = null;
         let profitChart = null;
@@ -4857,12 +5704,12 @@
             admin: {
                 name: '管理员',
                 role: 'admin',
-                modules: ['dashboard', 'product-add', 'sales-operations', 'warehouse-operations', 'statistics-analysis']
+                modules: ['dashboard', 'product-add', 'sales-operations', 'warehouse-operations', 'statistics-dashboard']
             },
             sales: {
                 name: '销售运营',
                 role: 'sales',
-                modules: ['dashboard', 'sales-operations', 'statistics-analysis']
+                modules: ['dashboard', 'product-add', 'sales-operations']
             },
             warehouse: {
                 name: '仓库管理',
@@ -4877,7 +5724,8 @@
             'product-add': { name: '产品管理', icon: 'fas fa-box-open' },
             'sales-operations': { name: '销售运营', icon: 'fas fa-shopping-cart' },
             'warehouse-operations': { name: '仓库发货', icon: 'fas fa-truck' },
-            'statistics-analysis': { name: '统计分析', icon: 'fas fa-chart-line' }
+            'statistics-dashboard': { name: '统计分析', icon: 'fas fa-chart-pie' },
+            'user-management': { name: '账户管理', icon: 'fas fa-users' }
         };
 
         // ============================================
@@ -5069,23 +5917,62 @@
         // 主系统
         // ============================================
         function initMainSystem() {
+            // 添加全局错误处理
+            window.addEventListener('error', function(event) {
+                console.error('全局错误捕获:', event.error);
+                if (event.error.message && event.error.message.includes('fetch')) {
+                    Utils.showAlert('网络请求失败，请检查连接', 'error');
+                } else {
+                    Utils.showAlert('发生未预期的错误，请联系管理员', 'error');
+                }
+            });
+            
+            window.addEventListener('unhandledrejection', function(event) {
+                console.error('未处理的Promise拒绝:', event.reason);
+                Utils.showAlert('操作失败，请重试', 'error');
+                event.preventDefault();
+            });
             const user = DataManager.getCurrentUser();
             
             // 设置用户信息
             document.getElementById('currentUser').textContent = user.name;
             document.getElementById('currentRole').textContent = user.role;
             
-            // 根据用户角色控制销售运营账户统计卡片的可见性
-            const creatorStatisticsCard = document.getElementById('creatorStatisticsCard');
-            if (user.role !== 'admin') {
-                // 隐藏销售运营账户统计卡片，只有管理员可见
-                if (creatorStatisticsCard) {
-                    creatorStatisticsCard.style.display = 'none';
-                }
-            } else {
-                // 管理员可见销售运营账户统计卡片
-                if (creatorStatisticsCard) {
-                    creatorStatisticsCard.style.display = 'block';
+            // 根据用户角色预设统计分析模块的可见性（仅设置内容可见性，不直接显示模块）
+            const statisticsAnalysisModule = document.getElementById('statistics-analysis');
+            if (statisticsAnalysisModule) {
+                // 管理员可以看到完整统计分析页面
+                if (user.role === 'admin') {
+                    
+                    // 确保管理员能看到所有统计部分
+                    const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
+                        '#salesRanking, #profitRanking, .time-filter'
+                    );
+                    advancedStatsElements.forEach(el => {
+                        if (el) el.style.display = 'block';
+                    });
+                } else {
+                    // 非管理员用户（如销售运营）只能看到自己的统计信息
+                                    
+                    // 隐藏高级统计部分，但保留时间筛选器
+                    const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
+                        '#salesRanking, #profitRanking'
+                    );
+                    advancedStatsElements.forEach(el => {
+                        if (el) el.style.display = 'none';
+                    });
+                                    
+                    // 确保时间筛选器对所有用户都可见
+                    const timeFilterElements = statisticsAnalysisModule.querySelectorAll('.time-filter');
+                    timeFilterElements.forEach(el => {
+                        if (el) el.style.display = 'flex';
+                    });
+                    
+                    // 确保销售运营统计网格是可见的
+                    const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
+                    if (salespersonStatsGrid) {
+                        salespersonStatsGrid.style.display = 'grid';
+                    }
                 }
             }
             
@@ -5102,6 +5989,9 @@
             
             // 初始化各模块
             initDashboard();
+            
+            // 默认显示总览页面
+            switchModule('dashboard');
             
             // 响应式菜单切换 - 支持移动端滑出和桌面端折叠
             document.getElementById('menuToggle').addEventListener('click', function() {
@@ -5158,10 +6048,10 @@
             let userModules;
             switch(user.role) {
                 case 'admin':
-                    userModules = ['dashboard', 'product-add', 'sales-operations', 'warehouse-operations', 'statistics-analysis'];
+                    userModules = ['dashboard', 'product-add', 'sales-operations', 'warehouse-operations', 'statistics-dashboard', 'user-management'];
                     break;
                 case 'sales':
-                    userModules = ['dashboard', 'sales-operations', 'statistics-analysis'];
+                    userModules = ['dashboard', 'product-add', 'sales-operations', 'statistics-dashboard'];
                     break;
                 case 'warehouse':
                     userModules = ['dashboard', 'warehouse-operations'];
@@ -5178,7 +6068,8 @@
                 if (moduleId === 'product-add') icon = 'fa-box-open';
                 if (moduleId === 'sales-operations') icon = 'fa-cart-plus';
                 if (moduleId === 'warehouse-operations') icon = 'fa-warehouse';
-                if (moduleId === 'statistics-analysis') icon = 'fa-chart-bar';
+                if (moduleId === 'statistics-dashboard') icon = 'fa-chart-pie';
+                if (moduleId === 'user-management') icon = 'fa-users';
                 
                 const menuItem = document.createElement('li');
                 menuItem.className = 'menu-item';
@@ -5234,10 +6125,20 @@
         async function switchModule(moduleId) {
             // 隐藏所有模块
             const moduleContents = document.querySelectorAll('.module-content');
-            moduleContents.forEach(content => content.classList.remove('active'));
+            moduleContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+            
+            // 清理可能影响当前模块的全局状态
+            cleanupModuleStates(moduleId);
             
             // 显示目标模块
-            document.getElementById(moduleId).classList.add('active');
+            const targetModule = document.getElementById(moduleId);
+            if (targetModule) {
+                targetModule.style.display = 'block';
+                targetModule.classList.add('active');
+            }
             
             // 根据模块初始化
             switch(moduleId) {
@@ -5258,10 +6159,103 @@
                     }
                     loadWarehouseTasksList();
                     break;
-                case 'statistics-analysis':
-                    loadStatisticsData();
+                case 'statistics-dashboard':
+                    // 确保统计分析模块加载时有正确的时间筛选器状态
+                    if (!currentStatisticsFilter) {
+                        currentStatisticsFilter = 'day';
+                    }
+                    // 使用统一的数据加载函数，避免重复更新
+                    loadStatisticsDashboardData();
                     break;
+                case 'user-management':
+                    loadUserManagementData();
+                    break;
+                default:
+                    // 确保其他情况下不会意外显示用户管理模块
+                    const userManagementModule = document.getElementById('user-management');
+                    if (userManagementModule) {
+                        userManagementModule.classList.remove('active');
+                        userManagementModule.style.display = 'none';
+                    }
             }
+        }
+        
+        // 清理模块间可能的干扰状态
+        function cleanupModuleStates(currentModuleId) {
+            // 首先关闭任何打开的模态框
+            closeOpenModals();
+            
+            // 清理可能存在的全局过滤器状态
+            if (currentModuleId !== 'statistics-dashboard') {
+                // 如果不是统计分析模块，则清除统计相关的全局状态
+                // 注意：这里不需要重置currentStatisticsFilter变量，因为它是局部变量
+                // 只需确保下次进入统计分析模块时会重新初始化
+                
+                // 隐藏整个统计分析模块
+                const statisticsDashboardModule = document.getElementById('statistics-dashboard');
+                if (statisticsDashboardModule) {
+                    statisticsDashboardModule.classList.remove('active');
+                    statisticsDashboardModule.style.display = 'none';
+                }
+                
+                // 确保其他统计相关元素也被隐藏
+                const allStatsElements = document.querySelectorAll('#statistics-dashboard [style*="display: block"]');  // 选择所有显示状态的内部元素
+                allStatsElements.forEach(el => {
+                    if (el !== statisticsDashboardModule) {  // 避免重复设置父容器
+                        el.style.display = 'none';
+                    }
+                });
+                
+                // 隐藏统计分析相关的特定元素
+                const statsElements = document.querySelectorAll('#statistics-dashboard .stats-grid, #statistics-dashboard .stats-card, #statistics-dashboard .time-filter');
+                statsElements.forEach(el => {
+                    if (el.style) {
+                        el.style.display = 'none';
+                    }
+                });
+            } else {
+                // 如果是统计分析模块，确保统计元素可见
+                const statisticsDashboardModule = document.getElementById('statistics-dashboard');
+                if (statisticsDashboardModule) {
+                    statisticsDashboardModule.style.display = 'block';
+                    // 在显示统计分析时加载数据
+                    loadStatisticsDashboardData();
+                }
+                
+                const statsElements = document.querySelectorAll('#statistics-dashboard .stats-grid, #statistics-dashboard .stats-card, #statistics-dashboard .time-filter');
+                statsElements.forEach(el => {
+                    if (el.style) {
+                        el.style.display = '';
+                    }
+                });
+            }
+            
+            // 确保账户管理模块在非激活状态下被隐藏
+            if (currentModuleId !== 'user-management') {
+                const userManagementModule = document.getElementById('user-management');
+                if (userManagementModule) {
+                    userManagementModule.classList.remove('active');
+                    userManagementModule.style.display = 'none';
+                }
+            } else {
+                // 如果是账户管理模块，确保其内容正确显示
+                const userManagementModule = document.getElementById('user-management');
+                if (userManagementModule) {
+                    userManagementModule.style.display = 'block';
+                }
+            }
+        }
+        
+        // 关闭任何打开的模态框
+        function closeOpenModals() {
+            // 检查是否有Bootstrap模态框实例打开，并关闭它们
+            const modals = document.querySelectorAll('.modal.show');
+            modals.forEach(modal => {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) {
+                    bsModal.hide();
+                }
+            });
         }
 
         // ============================================
@@ -5291,6 +6285,20 @@
                     return taskDate === today;
                 }).length;
                 document.getElementById('todayTasks').textContent = todayTasks;
+                
+                // 计算发货数量统计
+                let shippingCount = 0;
+                // 统计所有任务中的发货数量
+                [...tasks, ...history].forEach(task => {
+                    if (task.items && Array.isArray(task.items)) {
+                        task.items.forEach(item => {
+                            if (item.quantity) {
+                                shippingCount += parseInt(item.quantity) || 0;
+                            }
+                        });
+                    }
+                });
+                document.getElementById('shippingTaskCount').textContent = shippingCount;
                 
                 updateRecentActivities(activities);
                 await updateWarehouseStats();
@@ -5495,6 +6503,13 @@
         async function handleProductFormSubmit(e) {
             e.preventDefault();
             
+            // 检查用户权限
+            const currentUser = DataManager.getCurrentUser();
+            if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'warehouse' && currentUser.role !== 'sales')) {
+                Utils.showAlert('只有管理员、仓库管理和销售运营角色可以添加产品', 'error');
+                return;
+            }
+            
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             
@@ -5553,7 +6568,13 @@
                 });
             } catch (error) {
                 console.error('保存产品失败:', error);
-                Utils.showAlert('保存产品失败，请重试', 'error');
+                let errorMessage = '保存产品失败，请重试';
+                if (error.message && error.message.includes('权限不足')) {
+                    errorMessage = '权限不足，只有管理员、仓库管理和销售运营角色可以添加产品';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                Utils.showAlert(errorMessage, 'error');
                 // 确保即使在回调函数外也恢复按钮状态
                 setTimeout(() => {
                     if (submitBtn.disabled) {
@@ -7283,7 +8304,7 @@
                 const creatorId = task.creatorName || task.creator_name || '未知';
                 
                 return `
-                    <div class="task-flip-container" data-task-id="${task.id}">
+                    <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
                         <!-- 卡片正面 -->
                         <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
                             <div class="task-gallery-img">
@@ -7302,8 +8323,8 @@
                                 <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
                                     ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
                                 </span>
-                                <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" title="处理发货">
-                                    处理发货
+                                <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
+                                    <i class="fas fa-info-circle"></i> 详情
                                 </button>
                             </div>
                         </div>
@@ -7381,8 +8402,8 @@
                                 </div>
                                 <div class="task-back-actions">
                                     <div class="back-action-buttons">
-                                        <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip">返回</button>
-                                        <button class="btn btn-sm btn-danger" data-task-id="${task.id}" data-action="delete">删除</button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
+                                        <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
                                     </div>
                                 </div>
                             </div>
@@ -7902,32 +8923,29 @@
         }
         
         function toggleTaskCardFlip(taskId) {
-            // 首先尝试通过任务ID查找翻转容器
-            let flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
-            
-            // 如果没找到，尝试通过onclick属性查找
-            if (!flipContainer) {
-                flipContainer = document.querySelector(`.task-flip-container[onclick*="toggleTaskCardFlip('${taskId}')"]`);
+            const frontElement = document.querySelector(`#task-${taskId}-front`);
+            if (!frontElement) {
+                console.error(`任务卡片前端元素 #task-${taskId}-front 不存在`);
+                return;
             }
             
-            // 如果还没找到，尝试通过ID查找前端元素然后获取其容器
+            // 查找包含该前端元素的翻转容器
+            let flipContainer = frontElement.closest('.task-flip-container');
+            
+            // 如果通过 closest 没有找到，尝试直接查找父元素
             if (!flipContainer) {
-                const frontElement = document.querySelector(`#task-${taskId}-front`);
-                if (frontElement) {
-                    flipContainer = frontElement.closest('.task-flip-container');
-                }
+                flipContainer = frontElement.parentElement;
             }
             
-            if (flipContainer) {
-                // 切换翻转类，实现3D翻转效果
+            // 如果还是没有找到，尝试通过 data-task-id 属性直接查找
+            if (!flipContainer || !flipContainer.classList.contains('task-flip-container')) {
+                flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            }
+            
+            if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
                 flipContainer.classList.toggle('flipped');
-                
-                // 如果点击事件存在，阻止冒泡，防止重复触发
-                if (event && event.stopPropagation) {
-                    event.stopPropagation();
-                }
             } else {
-                console.error(`未找到任务 ${taskId} 的翻转容器`);
+                console.error(`未找到有效的翻转容器`);
             }
         }
         
@@ -7958,13 +8976,6 @@
                 const button = e.target.closest('[data-action="flip"]');
                 const taskId = button.getAttribute('data-task-id');
                 toggleTaskCardFlip(taskId);
-            }
-            // 处理删除任务事件
-            else if (e.target.closest('[data-action="delete"]')) {
-                e.stopPropagation();
-                const button = e.target.closest('[data-action="delete"]');
-                const taskId = button.getAttribute('data-task-id');
-                deleteTaskWithConfirmation(taskId, e);
             }
             // 处理确认发货事件
             else if (e.target.closest('[data-action="complete-shipment"]')) {
@@ -8400,7 +9411,30 @@
         }
 
         async function completeShipment(taskId) {
-            alertify.confirm(
+            // 防止重复点击，检查任务是否已经在处理中
+            const processShipmentBtn = document.querySelector(`[data-task-id="${taskId}"][data-action="flip"]`);
+            const confirmShipmentBtn = document.querySelector(`[data-task-id="${taskId}"][data-action="complete-shipment"]`);
+            
+            if ((processShipmentBtn && processShipmentBtn.disabled) || 
+                (confirmShipmentBtn && confirmShipmentBtn.disabled)) {
+                // 如果任一按钮已经被禁用，说明正在处理中，直接返回
+                return;
+            }
+            
+            // 在处理开始前，先禁用按钮以防止重复点击
+            if (processShipmentBtn) {
+                processShipmentBtn.disabled = true;
+                processShipmentBtn.style.opacity = "0.5";
+                processShipmentBtn.style.cursor = "not-allowed";
+                processShipmentBtn.textContent = "处理中...";
+            }
+            if (confirmShipmentBtn) {
+                confirmShipmentBtn.disabled = true;
+                confirmShipmentBtn.style.opacity = "0.5";
+                confirmShipmentBtn.style.cursor = "not-allowed";
+                confirmShipmentBtn.textContent = "处理中...";
+            }
+                        alertify.confirm(
                 '确认发货', 
                 '确定要标记此任务为"已发货"吗？', 
                 async function() {  // 点击"确定"的回调
@@ -8452,6 +9486,24 @@
                                     statusBadge.classList.remove('badge-warning');
                                     statusBadge.classList.add('badge-success');
                                 }
+                                
+                                // 禁用处理发货按钮
+                                const processShipmentBtn = taskElement.querySelector('button[data-action="flip"]');
+                                if (processShipmentBtn) {
+                                    processShipmentBtn.disabled = true;
+                                    processShipmentBtn.style.opacity = '0.5';
+                                    processShipmentBtn.style.cursor = 'not-allowed';
+                                    processShipmentBtn.textContent = '已发货';
+                                }
+                                
+                                // 禁用确认发货按钮（如果在背面）
+                                const confirmShipmentBtn = taskElement.querySelector('button[data-action="complete-shipment"]');
+                                if (confirmShipmentBtn) {
+                                    confirmShipmentBtn.disabled = true;
+                                    confirmShipmentBtn.style.opacity = '0.5';
+                                    confirmShipmentBtn.style.cursor = 'not-allowed';
+                                    confirmShipmentBtn.textContent = '已发货';
+                                }
                             }
                             
                             Utils.showAlert('任务已完成发货！', 'success', function() {
@@ -8460,7 +9512,10 @@
 
                                 // 并行更新仪表板和任务列表，提高效率
                                 updateDashboard();
-                                loadWarehouseTasksList();
+                                loadWarehouseTasksList().then(() => {
+                                    // 重新绑定仓库任务事件，确保新渲染的元素有正确的事件处理
+                                    bindWarehouseTaskEvents();
+                                });
                                 loadSalesPublishedTasks();
                             });
                         } else {
@@ -8472,10 +9527,36 @@
                     } catch (error) {
                         console.error('完成发货任务失败:', error);
                         Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
+                        
+                        // 恢复按钮状态
+                        if (processShipmentBtn) {
+                            processShipmentBtn.disabled = false;
+                            processShipmentBtn.style.opacity = "1";
+                            processShipmentBtn.style.cursor = "pointer";
+                            processShipmentBtn.textContent = "处理发货";
+                        }
+                        if (confirmShipmentBtn) {
+                            confirmShipmentBtn.disabled = false;
+                            confirmShipmentBtn.style.opacity = "1";
+                            confirmShipmentBtn.style.cursor = "pointer";
+                            confirmShipmentBtn.textContent = "确认发货";
+                        }
                     }
                 },
             function() {  // 点击"取消"的回调
-                // 用户取消操作，不做任何事情
+                // 用户取消操作，恢复按钮状态
+                if (processShipmentBtn) {
+                    processShipmentBtn.disabled = false;
+                    processShipmentBtn.style.opacity = "1";
+                    processShipmentBtn.style.cursor = "pointer";
+                    processShipmentBtn.textContent = "处理发货";
+                }
+                if (confirmShipmentBtn) {
+                    confirmShipmentBtn.disabled = false;
+                    confirmShipmentBtn.style.opacity = "1";
+                    confirmShipmentBtn.style.cursor = "pointer";
+                    confirmShipmentBtn.textContent = "确认发货";
+                }
             }
             );
         }
@@ -8875,32 +9956,7 @@
 
         // ============================================
         // 统计分析模块
-        // ============================================
-        async function loadStatisticsData() {
-            try {
-                const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
-                
-                const dayStats = await DataManager.getStatisticsData('day');
-                document.getElementById('dayShipments').textContent = dayStats.totalShipments;
-                document.getElementById('daySales').textContent = Utils.formatCurrency(dayStats.totalSales);
-                document.getElementById('dayProfit').textContent = Utils.formatCurrency(dayStats.totalProfit);
-                document.getElementById('avgProfitMargin').textContent = `${stats.avgProfitMargin}%`;
-                
-                updateSalesRanking(stats.salesRanking);
-                updateProfitRanking(stats.profitRanking);
-                
-                updateShipmentChart(stats.monthlyShipments);
-                updateSalesChart(stats.monthlySales);
-                updateProfitChart(stats.monthlyProfit);
-                
-                // 加载按销售运营账户的统计信息
-                const creatorStats = await DataManager.getCreatorStatistics(currentStatisticsFilter);
-                updateCreatorStatistics(creatorStats);
-            } catch (error) {
-                console.error('加载统计数据失败:', error);
-                Utils.showAlert('加载统计数据失败，请稍后重试', 'error');
-            }
-        }
+        
 
         function filterStatistics(filter, clickedButton) {
             currentStatisticsFilter = filter;
@@ -8913,7 +9969,7 @@
                 clickedButton.classList.add('active');
             }
             
-            loadStatisticsData();
+            loadStatisticsDashboardData();
         }
 
         function updateSalesRanking(ranking) {
@@ -9163,11 +10219,12 @@
 
         async function downloadShipmentList() {
             const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
-            let csvContent = "任务号,完成时间,商品种类,商品数量\n";
+            let csvContent = "任务号,完成时间,创建人,商品种类,总数量\n";
             
             stats.filteredHistory.forEach(task => {
                 const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
-                csvContent += `${task.taskNumber},${Utils.formatDate(task.completedAt || task.createdAt)},${task.items.length},${itemCount}\n`;
+                const creatorName = task.creatorName || task.creator_name || 'Unknown';
+                csvContent += `${task.taskNumber},${Utils.formatDate(task.completedAt || task.createdAt)},${creatorName},${task.items.length},${itemCount}\n`;
             });
             
             const date = new Date().toISOString().split('T')[0];
@@ -9177,15 +10234,17 @@
         async function downloadSalesReport() {
             const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
             const products = await DataManager.getAllProducts();
-            let csvContent = "产品名称,货号,销量,销售额\n";
+            let csvContent = "产品名称,货号,供应商,总销量,总销售额\n";
             
             const allStats = {};
             stats.filteredHistory.forEach(task => {
                 task.items.forEach(item => {
                     if (!allStats[item.productId]) {
+                        const product = products.find(p => p.id === item.productId);
                         allStats[item.productId] = {
-                            name: item.productName,
-                            code: item.productCode,
+                            name: product ? product.name : '未知产品',
+                            code: product ? product.code : 'N/A',
+                            supplier: product ? product.supplier : 'N/A',
                             quantity: 0,
                             sales: 0
                         };
@@ -9200,7 +10259,7 @@
             });
             
             Object.values(allStats).forEach(item => {
-                csvContent += `${item.name},${item.code},${item.quantity},${item.sales}\n`;
+                csvContent += `${item.name},${item.code},${item.supplier},${item.quantity},${item.sales.toFixed(2)}\n`;
             });
             
             const date = new Date().toISOString().split('T')[0];
@@ -9210,22 +10269,21 @@
         async function downloadProfitReport() {
             const stats = await DataManager.getStatisticsData(currentStatisticsFilter);
             const products = await DataManager.getAllProducts();
-            let csvContent = "产品名称,货号,销量,进货成本,销售额,利润,利润率\n";
+            let csvContent = "产品名称,货号,总利润,利润率\n";
             
             const allStats = {};
             stats.filteredHistory.forEach(task => {
                 task.items.forEach(item => {
                     if (!allStats[item.productId]) {
+                        const product = products.find(p => p.id === item.productId);
                         allStats[item.productId] = {
-                            name: item.productName,
-                            code: item.productCode,
-                            quantity: 0,
+                            name: product ? product.name : '未知产品',
+                            code: product ? product.code : 'N/A',
                             cost: 0,
                             sales: 0,
                             profit: 0
                         };
                     }
-                    allStats[item.productId].quantity += item.quantity;
                     
                     const product = products.find(p => p.id === item.productId);
                     if (product) {
@@ -9238,7 +10296,7 @@
             
             Object.values(allStats).forEach(item => {
                 const profitMargin = item.sales > 0 ? (item.profit / item.sales * 100) : 0;
-                csvContent += `${item.name},${item.code},${item.quantity},${item.cost.toFixed(2)},${item.sales.toFixed(2)},${item.profit.toFixed(2)},${profitMargin.toFixed(2)}%\n`;
+                csvContent += `${item.name},${item.code},${item.profit.toFixed(2)},${profitMargin.toFixed(2)}%\n`;
             });
             
             const date = new Date().toISOString().split('T')[0];
@@ -9251,23 +10309,25 @@
             const history = await DataManager.getHistory();
             
             let csvContent = "=== 产品数据 ===\n";
-            csvContent += "货号,产品名称,库存,进货价,销售价,利润率\n";
+            csvContent += "货号,产品名称,供应商,库存,进货价,销售价,利润率\n";
             products.forEach(product => {
-                csvContent += `${product.code},${product.name},${product.stock},${product.purchasePrice},${product.salePrice},${product.profitMargin}%\n`;
+                csvContent += `${product.code},${product.name},${product.supplier || ''},${product.stock},${product.purchasePrice},${product.salePrice},${product.profitMargin}%\n`;
             });
             
             csvContent += "\n=== 待发货任务 ===\n";
-            csvContent += "任务号,创建时间,状态,商品种类,商品数量\n";
+            csvContent += "任务号,创建时间,状态,创建人,商品种类,商品数量\n";
             tasks.forEach(task => {
                 const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
-                csvContent += `${task.taskNumber},${Utils.formatDate(task.createdAt)},${task.status},${task.items.length},${itemCount}\n`;
+                const creatorName = task.creatorName || task.creator_name || 'Unknown';
+                csvContent += `${task.taskNumber},${Utils.formatDate(task.createdAt)},${task.status},${creatorName},${task.items.length},${itemCount}\n`;
             });
             
             csvContent += "\n=== 历史发货记录 ===\n";
-            csvContent += "任务号,完成时间,商品种类,商品数量\n";
+            csvContent += "任务号,完成时间,创建人,商品种类,商品数量\n";
             history.forEach(task => {
                 const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
-                csvContent += `${task.taskNumber},${Utils.formatDate(task.completedAt || task.createdAt)},${task.items.length},${itemCount}\n`;
+                const creatorName = task.creatorName || task.creator_name || 'Unknown';
+                csvContent += `${task.taskNumber},${Utils.formatDate(task.completedAt || task.createdAt)},${creatorName},${task.items.length},${itemCount}\n`;
             });
             
             const date = new Date().toISOString().split('T')[0];
@@ -9433,6 +10493,9 @@
         window.resetTaskWarningCodeUpload = resetTaskWarningCodeUpload;
         window.resetTaskLabelUpload = resetTaskLabelUpload;
         
+        // 添加全局转义函数
+        window.escapeHtml = escapeHtml;
+        
         // 特定任务卡片移动功能
         function moveSpecificTaskCard() {
             // 获取特定任务卡片
@@ -9562,7 +10625,560 @@
             setTimeout(removeSpecificTaskCard, 75);
         });
         
+        // 账户管理功能
+        async function loadUserManagementData() {
+            try {
+                // 检查用户是否有管理员权限
+                const currentUser = DataManager.getCurrentUser();
+                if (!currentUser || currentUser.role !== 'admin') {
+                    // 非管理员用户只能看到权限提示
+                    document.getElementById('userList').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">您没有权限访问此模块</td>
+                        </tr>
+                    `;
+                    
+                    // 隐藏添加用户的按钮
+                    const addUserBtn = document.querySelector('#user-management .btn-primary');
+                    if (addUserBtn) {
+                        addUserBtn.style.display = 'none';
+                    }
+                    
+                    return;
+                }
+                
+                // 显示添加用户的按钮
+                const addUserBtn = document.querySelector('#user-management .btn-primary');
+                if (addUserBtn) {
+                    addUserBtn.style.display = 'inline-block';
+                }
+                
+                // 获取用户列表
+                const response = await fetch(`${DataManager.API_BASE}/api/users/all`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const users = await response.json();
+                renderUserList(users);
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+                document.getElementById('userList').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-danger py-4">加载用户列表失败: ${error.message}</td>
+                    </tr>
+                `;
+                
+                // 确保按钮可见性正确
+                const addUserBtn = document.querySelector('#user-management .btn-primary');
+                if (addUserBtn) {
+                    addUserBtn.style.display = 'inline-block';
+                }
+            }
+        }
+        
+        function renderUserList(users) {
+            const userListElement = document.getElementById('userList');
+                    
+            if (!users || users.length === 0) {
+                userListElement.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">暂无用户数据</td>
+                    </tr>
+                `;
+                return;
+            }
+                    
+            // 渲染用户列表
+            userListElement.innerHTML = users.map(user => {
+                const name = escapeHtml(user.name || user.username || 'N/A');
+                const email = escapeHtml(user.email || user.username || 'N/A');
+                const userId = escapeHtml(user.id || user._id || '');
+                const roleClass = user.role === 'admin' ? 'badge-primary' : user.role === 'sales' ? 'badge-success' : 'badge-warning';
+                const roleName = escapeHtml(getRoleDisplayName(user.role));
+                const createdAt = formatDate(user.createdAt || user.created_at || Date.now());
+                            
+                return `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${email}</td>
+                        <td>
+                            <span class="badge ${roleClass}">
+                                ${roleName}
+                            </span>
+                        </td>
+                        <td>${createdAt}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline" onclick="editUser('${userId}')" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="deleteUser('${userId}', '${email}')" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+                
+        function escapeHtml(text) {
+            if (typeof text !== 'string') {
+                return text;
+            }
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>'"]/g, m => map[m]);
+        }
+        
+        function getRoleDisplayName(role) {
+            const roleNames = {
+                'admin': '管理员',
+                'sales': '销售运营',
+                'warehouse': '仓库'
+            };
+            return roleNames[role] || role;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN') + ' ' + 
+                   date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function showAddUserModal(userId = null) {
+            const modalTitle = document.getElementById('userModalLabel');
+            const userIdField = document.getElementById('userId');
+            const userPasswordField = document.getElementById('userPassword');
+            
+            if (userId) {
+                modalTitle.textContent = '编辑用户';
+                // 加载用户数据到表单
+                loadUserDataForEdit(userId);
+            } else {
+                modalTitle.textContent = '添加用户';
+                // 清空表单
+                document.getElementById('userForm').reset();
+                userIdField.value = '';
+                userPasswordField.required = true;
+                userPasswordField.placeholder = '请输入密码';
+            }
+            
+            // 显示模态框
+            const modalElement = document.getElementById('userModal');
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+        
+        async function loadUserDataForEdit(userId) {
+            try {
+                const response = await fetch(`${DataManager.API_BASE}/api/users/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    // 根据HTTP状态码提供更具体的错误信息
+                    if (response.status === 403) {
+                        throw new Error('权限不足：您只能编辑自己的账户信息，如需编辑其他用户请联系管理员');
+                    } else if (response.status === 404) {
+                        throw new Error('用户不存在：找不到指定的用户');
+                    } else if (response.status === 401) {
+                        throw new Error('未授权：请重新登录后再试');
+                    } else {
+                        throw new Error(`获取用户数据失败 (${response.status})`);
+                    }
+                }
+                
+                const user = await response.json();
+                
+                document.getElementById('userId').value = user.id || user._id;
+                document.getElementById('userName').value = user.name || user.username || '';
+                document.getElementById('userEmail').value = user.email || user.username || '';
+                document.getElementById('userRole').value = user.role || '';
+                
+                // 编辑时密码不是必需的
+                document.getElementById('userPassword').required = false;
+                document.getElementById('userPassword').placeholder = '留空则不修改密码';
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+                Utils.showAlert(`加载用户数据失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function saveUser() {
+            const userId = document.getElementById('userId').value;
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const role = document.getElementById('userRole').value;
+            const password = document.getElementById('userPassword').value;
+            
+            if (!name || !email || !role) {
+                Utils.showAlert('请填写所有必填字段', 'warning');
+                return;
+            }
+            
+            try {
+                let url, method;
+                if (userId) {
+                    // 编辑用户
+                    url = `${DataManager.API_BASE}/api/users/${userId}`;
+                    method = 'PUT';
+                } else {
+                    // 添加用户
+                    url = `${DataManager.API_BASE}/api/users`;
+                    method = 'POST';
+                }
+                
+                const userData = { name, email, role };
+                if (password) {
+                    userData.password = password;
+                }
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || (userId ? '更新用户失败' : '添加用户失败'));
+                }
+                
+                const result = await response.json();
+                
+                Utils.showAlert(userId ? '用户更新成功' : '用户添加成功', 'success');
+                
+                // 关闭模态框
+                const modalElement = document.getElementById('userModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // 刷新用户列表
+                refreshUserList();
+            } catch (error) {
+                console.error(userId ? '更新用户失败:' : '添加用户失败:', error);
+                Utils.showAlert(`${userId ? '更新' : '添加'}用户失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function editUser(userId) {
+            showAddUserModal(userId);
+        }
+        
+        async function deleteUser(userId, userEmail) {
+            if (!confirm(`确定要删除用户 "${userEmail}" 吗？此操作不可撤销。`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${DataManager.API_BASE}/api/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('删除用户失败');
+                }
+                
+                Utils.showAlert('用户删除成功', 'success');
+                
+                // 刷新用户列表
+                refreshUserList();
+            } catch (error) {
+                console.error('删除用户失败:', error);
+                Utils.showAlert(`删除用户失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function refreshUserList() {
+            await loadUserManagementData();
+        }
+        
+        window.loadUserManagementData = loadUserManagementData;
+        window.showAddUserModal = showAddUserModal;
+        window.saveUser = saveUser;
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+        window.refreshUserList = refreshUserList;
+        
         window.moveSpecificTaskCard = moveSpecificTaskCard;
+        
+        // ============================================
+        // 统计分析功能
+        // ============================================
+        
+        // 当前统计筛选器状态
+        let currentStatisticsFilter = 'day';
+        let currentUserFilter = 'all';
+        
+        // 更新统计分析数据
+        async function loadStatisticsDashboardData() {
+            try {
+                // 获取用户数据以填充人员筛选栏
+                await updateUsersForFilter();
+                
+                // 获取统计数据，应用时间筛选和用户筛选
+                console.log('开始获取统计数据，筛选器:', currentStatisticsFilter, '用户:', currentUserFilter);
+                const stats = await DataManager.getStatisticsData(currentStatisticsFilter, currentUserFilter);
+                console.log('获取到的统计数据:', stats);
+                
+                // 更新数据指标卡片，包括发货任务数量和其他统计指标
+                updateStatCards(stats);
+                
+                // 确保发货任务数量显示正确（任务数量而非发货数量）
+                const shipmentTaskCountEl = document.getElementById('shipmentTaskCount');
+                console.log('准备更新发货任务数量，filteredHistory长度:', stats?.filteredHistory?.length, '元素存在:', !!shipmentTaskCountEl);
+                if (shipmentTaskCountEl) {
+                    let shipmentTaskCount = 0;
+                    if (stats?.filteredHistory && Array.isArray(stats.filteredHistory)) {
+                        shipmentTaskCount = stats.filteredHistory.length;
+                    }
+                    shipmentTaskCountEl.textContent = shipmentTaskCount;
+                    console.log('已更新发货任务数量元素，内容:', shipmentTaskCountEl.textContent);
+                }
+                
+                // 更新商品明细表格
+                updateProductDetailTable(stats);
+                
+            } catch (error) {
+                console.error('加载统计分析数据失败:', error);
+                Utils.showAlert('加载统计分析数据失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 更新人员筛选栏
+        async function updateUsersForFilter() {
+            try {
+                // 获取所有销售运营账户
+                const users = await DataManager.getAllUsers();
+                const salesUsers = users.filter(user => user.role === 'sales');
+                
+                const userFilterContainer = document.querySelector('#statistics-dashboard .user-filter');
+                if (!userFilterContainer) return;
+                
+                // 清空现有按钮（保留“全部”按钮）
+                const buttons = userFilterContainer.querySelectorAll('.user-btn:not(:first-child)');
+                buttons.forEach(button => button.remove());
+                
+                // 添加销售运营账户按钮
+                salesUsers.forEach((user, index) => {
+                    const userBtn = document.createElement('button');
+                    userBtn.className = 'user-btn';
+                    userBtn.textContent = user.name || user.email;
+                    userBtn.setAttribute('data-user-id', user.id || user._id);
+                    userBtn.onclick = () => filterByUser(user.id || user._id, userBtn);
+                    
+                    // 如果这是当前选中的用户，则添加active类
+                    if (currentUserFilter === (user.id || user._id)) {
+                        userBtn.classList.add('active');
+                    }
+                    
+                    userFilterContainer.appendChild(userBtn);
+                });
+                
+                // 确保当前选中的筛选器保持激活状态
+                updateUserFilterActiveState();
+                
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+            }
+        }
+        
+        // 确保用户筛选按钮的激活状态正确
+        function updateUserFilterActiveState() {
+            const userFilterContainer = document.querySelector('#statistics-dashboard .user-filter');
+            if (!userFilterContainer) return;
+            
+            // 移除所有按钮的active类
+            const allButtons = userFilterContainer.querySelectorAll('.user-btn');
+            allButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // 根据当前筛选器状态设置正确的按钮为激活状态
+            if (currentUserFilter === 'all') {
+                // 设置“全部”按钮为激活状态
+                const allButton = userFilterContainer.querySelector('.user-btn:first-child');
+                if (allButton) allButton.classList.add('active');
+            } else {
+                // 为了正确匹配用户ID和显示名称，我们需要使用用户列表
+                // 但由于这是UI更新函数，我们采用简化的匹配方式
+                // 通过按钮的data-user-id属性来匹配
+                const userButtons = userFilterContainer.querySelectorAll('.user-btn:not(:first-child)');
+                userButtons.forEach(btn => {
+                    const btnUserId = btn.getAttribute('data-user-id');
+                    if (btnUserId === currentUserFilter) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+        
+        // 根据用户ID获取显示名称
+        function getUserDisplayNameById(userId, usersList = null) {
+            // 如果提供了用户列表，则直接使用
+            if (usersList && Array.isArray(usersList)) {
+                const user = usersList.find(u => u.id === userId);
+                return user ? (user.name || user.email) : userId;
+            }
+            // 否则返回userId（通常在无法获取用户列表时使用）
+            return userId;
+        }
+        
+        // 更新数据指标卡片
+        function updateStatCards(stats) {
+            // 更新发货数量 - 第二个stat-card对应id为dayShipments
+            const dayShipmentsElement = document.getElementById('dayShipments');
+            if (dayShipmentsElement) {
+                // 发货数量应该是整数
+                dayShipmentsElement.textContent = Math.round(stats.totalShipments || 0);
+            }
+            
+            // 更新销售额 - 第三个stat-card对应id为daySales
+            const daySalesElement = document.getElementById('daySales');
+            if (daySalesElement) {
+                // 销售额使用货币格式
+                daySalesElement.textContent = Utils.formatCurrency(stats.totalSales || 0);
+            }
+            
+            // 更新销售利润 - 第四个stat-card对应id为dayProfit
+            const dayProfitElement = document.getElementById('dayProfit');
+            if (dayProfitElement) {
+                // 销售利润使用货币格式
+                dayProfitElement.textContent = Utils.formatCurrency(stats.totalProfit || 0);
+            }
+        }
+        
+        // 更新商品明细表格
+        function updateProductDetailTable(stats) {
+            const tableBody = document.getElementById('productDetailList');
+            if (!tableBody) return;
+            
+            // 清空现有数据
+            tableBody.innerHTML = '';
+            
+            if (!stats.filteredHistory || stats.filteredHistory.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = '<td colspan="4" class="text-center text-muted py-4">暂无商品数据</td>';
+                tableBody.appendChild(noDataRow);
+                return;
+            }
+            
+            // 处理商品数据
+            const productMap = {};
+            stats.filteredHistory.forEach(task => {
+                if (task.items && Array.isArray(task.items)) {
+                    task.items.forEach(item => {
+                        const product = item.product || {};
+                        const productId = item.productId || product.id;
+                        
+                        if (!productMap[productId]) {
+                            // 从多个可能的字段获取供应商信息
+                            let supplier = '未知供应商';
+                            if (item.productSupplier) {
+                                supplier = item.productSupplier;
+                            } else if (product.supplier) {
+                                supplier = product.supplier;
+                            } else if (item.supplier) {
+                                supplier = item.supplier;
+                            } else if (product.product_supplier) {  // 兼容不同字段名
+                                supplier = product.product_supplier;
+                            } else if (item.product_supplier) {
+                                supplier = item.product_supplier;
+                            } else if (item.product && item.product.supplier) {  // 尝试从item.product中获取
+                                supplier = item.product.supplier;
+                            } else if (item.product && item.product.product_supplier) {
+                                supplier = item.product.product_supplier;
+                            } else if (item.product && item.product.productSupplier) {
+                                supplier = item.product.productSupplier;
+                            } else if (product.supplier) {  // 从productStats中传递的供应商信息
+                                supplier = product.supplier;
+                            }
+                            
+                            productMap[productId] = {
+                                name: item.productName || product.name || '未知商品',
+                                supplier: supplier,
+                                quantity: 0,
+                                sales: 0
+                            };
+                        }
+                        
+                        productMap[productId].quantity += item.quantity || 0;
+                        productMap[productId].sales += (item.salePrice || product.salePrice || 0) * (item.quantity || 0);
+                    });
+                }
+            });
+            
+            // 生成表格行
+            const sortedProducts = Object.values(productMap).sort((a, b) => b.quantity - a.quantity);
+            
+            sortedProducts.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.supplier}</td>
+                    <td>${product.quantity}</td>
+                    <td>${Utils.formatCurrency(product.sales)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // 如果没有数据，显示提示
+            if (sortedProducts.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = '<td colspan="4" class="text-center text-muted py-4">暂无商品数据</td>';
+                tableBody.appendChild(noDataRow);
+            }
+        }
+        
+        // 时间筛选函数
+        function filterStatistics(filter, clickedButton) {
+            currentStatisticsFilter = filter;
+            
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            loadStatisticsDashboardData();
+        }
+        
+        // 人员筛选函数
+        function filterByUser(userId, clickedButton) {
+            currentUserFilter = userId;
+            
+            // 不再手动处理激活状态，而是通过updateUserFilterActiveState统一管理
+            
+            // 重新加载统计数据以应用用户筛选
+            loadStatisticsDashboardData();
+        }
+        
+        // 导出统计分析相关函数
+        window.loadStatisticsDashboardData = loadStatisticsDashboardData;
+        window.filterStatistics = filterStatistics;
+        window.filterByUser = filterByUser;
     </script>
 </body>
 </html>
