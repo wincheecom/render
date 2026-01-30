@@ -353,6 +353,20 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// 对错误消息进行HTML转义，防止XSS攻击
+const sanitizeErrorMessage = (str) => {
+  if (typeof str !== 'string') {
+    str = String(str);
+  }
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/`/g, '&#x60;');
+};
+
 // 用户认证相关 API
 app.post('/api/auth/login', async (req, res) => {
   try {
@@ -412,7 +426,10 @@ app.post('/api/auth/login', async (req, res) => {
     });
   } catch (err) {
     console.error('登录错误:', err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -482,7 +499,10 @@ app.post('/api/auth/register', async (req, res) => {
     });
   } catch (err) {
     console.error('注册错误:', err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -508,7 +528,10 @@ app.post('/api/auth/reset-admin-password', async (req, res) => {
     });
   } catch (err) {
     console.error('重置管理员密码错误:', err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -578,7 +601,196 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
     });
   } catch (err) {
     console.error('获取用户信息错误:', err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
+  }
+});
+
+// 获取所有用户信息（仅限管理员和销售运营）
+app.get('/api/users/all', authenticateToken, requireRole(['admin', 'sales']), async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT id, email, name, role, company_name, currency, language, settings, is_active, last_login, created_at, updated_at FROM users ORDER BY created_at DESC'
+    );
+    
+    res.json(result.rows);
+  } catch (err) {
+    console.error('获取用户列表错误:', err);
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
+  }
+});
+
+// 获取单个用户信息（仅限管理员和用户自己）
+app.get('/api/users/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 检查用户是否有权限访问此用户信息
+    if (req.user.id !== id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: '权限不足', message: '只有管理员或用户自己可以查看用户信息' });
+    }
+    
+    const result = await db.query(
+      'SELECT id, email, name, role, company_name, currency, language, settings, is_active, last_login, created_at, updated_at FROM users WHERE id = $1',
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '用户未找到' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('获取用户信息错误:', err);
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
+  }
+});
+
+// 创建新用户（仅限管理员）
+app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, res) => {
+  try {
+    const { email, name, role, password } = req.body;
+    
+    if (!email || !name || !role || !password) {
+      return res.status(400).json({ error: '缺少必需字段', message: '邮箱、姓名、角色和密码都是必需的' });
+    }
+    
+    // 检查邮箱是否已存在
+    const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ error: '邮箱已存在', message: '该邮箱已被注册' });
+    }
+    
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+    
+    const result = await db.query(
+      `INSERT INTO users (email, password_hash, name, role, company_name, currency, language, settings, is_active) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, email, name, role, company_name, currency, language, settings, is_active, created_at, updated_at`,
+      [email, passwordHash, name, role, '公司名称', 'USD', 'en', {}, true]
+    );
+    
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('创建用户错误:', err);
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
+  }
+});
+
+// 更新用户信息（仅限管理员和用户自己）
+app.put('/api/users/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, name, role, password } = req.body;
+    
+    // 检查用户是否有权限更新此用户信息
+    if (req.user.id !== id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: '权限不足', message: '只有管理员或用户自己可以更新用户信息' });
+    }
+    
+    // 非管理员不能更改角色
+    if (req.user.role !== 'admin' && role && role !== req.user.role) {
+      return res.status(403).json({ error: '权限不足', message: '您不能更改自己的角色' });
+    }
+    
+    // 构建更新查询
+    let updateFields = [];
+    let queryParams = [];
+    let paramCounter = 1;
+    
+    if (email) {
+      // 检查邮箱是否已被其他用户使用
+      const existingUser = await db.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, id]);
+      if (existingUser.rows.length > 0) {
+        return res.status(409).json({ error: '邮箱已存在', message: '该邮箱已被其他用户使用' });
+      }
+      
+      updateFields.push(`email = $${paramCounter}`);
+      queryParams.push(email);
+      paramCounter++;
+    }
+    
+    if (name) {
+      updateFields.push(`name = $${paramCounter}`);
+      queryParams.push(name);
+      paramCounter++;
+    }
+    
+    if (role && req.user.role === 'admin') {  // 只有管理员可以更改角色
+      updateFields.push(`role = $${paramCounter}`);
+      queryParams.push(role);
+      paramCounter++;
+    }
+    
+    if (password) {
+      const bcrypt = require('bcrypt');
+      const saltRounds = 10;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+      updateFields.push(`password_hash = $${paramCounter}`);
+      queryParams.push(passwordHash);
+      paramCounter++;
+    }
+    
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: '没有提供要更新的字段' });
+    }
+    
+    updateFields.push(`updated_at = NOW()`);
+    queryParams.push(id);  // 最后一个参数是id
+    
+    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCounter} RETURNING id, email, name, role, company_name, currency, language, settings, is_active, last_login, created_at, updated_at`;
+    
+    const result = await db.query(updateQuery, queryParams);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '用户未找到' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('更新用户错误:', err);
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
+  }
+});
+
+// 删除用户（仅限管理员）
+app.delete('/api/users/:id', authenticateToken, requireRole(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 不能删除自己
+    if (req.user.id === id) {
+      return res.status(400).json({ error: '不能删除自己' });
+    }
+    
+    const result = await db.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: '用户未找到' });
+    }
+    
+    res.json({ message: '用户删除成功' });
+  } catch (err) {
+    console.error('删除用户错误:', err);
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -597,7 +809,10 @@ app.get('/api/products', requireRole(['admin', 'sales']), async (req, res) => {
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -618,7 +833,10 @@ app.post('/api/products', requireRole(['admin']), async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -629,7 +847,10 @@ app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, 
     res.json(result.rows);
   } catch (err) { 
     console.error(err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -773,9 +994,9 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     
     // 检查错误是否与商品不存在相关
     if (err.message && (err.message.includes('商品') || err.message.includes('product'))) {
-      return res.status(400).json({ error: '商品不存在或库存不足，请刷新页面重试', message: err.message });
+      return res.status(400).json({ error: '商品不存在或库存不足，请刷新页面重试', message: sanitizeErrorMessage(err.message) });
     } else {
-      return res.status(500).json({ error: '服务器错误', message: err.message });
+      return res.status(500).json({ error: '服务器错误', message: sanitizeErrorMessage(err.message) });
     }
   }
 });
@@ -841,7 +1062,10 @@ app.put('/api/tasks/:id', requireRole(['admin', 'warehouse']), async (req, res) 
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -859,7 +1083,10 @@ app.get('/api/tasks/:id', requireRole(['admin', 'sales', 'warehouse']), async (r
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -892,7 +1119,10 @@ app.delete('/api/tasks/:id', requireRole(['admin', 'sales']), async (req, res) =
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -947,7 +1177,10 @@ app.post('/api/tasks/:id/complete', requireRole(['admin', 'warehouse']), async (
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -964,7 +1197,10 @@ app.get('/api/products/:id', requireRole(['admin', 'sales']), async (req, res) =
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1022,7 +1258,10 @@ app.put('/api/products/:id', requireRole(['admin']), async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1045,7 +1284,10 @@ app.delete('/api/products/:id', requireRole(['admin']), async (req, res) => {
     res.json({ message: '产品删除成功' });
   } catch (err) {
     console.error('删除产品时发生错误:', err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1053,7 +1295,57 @@ app.delete('/api/products/:id', requireRole(['admin']), async (req, res) => {
 app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM history ORDER BY "created_at" DESC');
-    res.json(result.rows);
+    
+    // 修复字段错位的历史记录数据
+    const fixedRows = result.rows.map(record => {
+      let fixedRecord = { ...record };
+      
+      // 检查字段错位问题
+      const isTaskNumberJson = typeof fixedRecord.task_number === 'string' && 
+                              fixedRecord.task_number.startsWith('[{');
+      const isStatusEmptyOrJson = fixedRecord.status === '""' || 
+                                 (typeof fixedRecord.status === 'string' && fixedRecord.status.startsWith('[{'));
+      
+      if (isTaskNumberJson && isStatusEmptyOrJson) {
+        // 发生了字段错位，交换这两个字段
+        console.log(`修复历史记录 ${fixedRecord.id}: 交换 task_number 和 status 字段`);
+        const originalTaskNumber = fixedRecord.task_number;
+        fixedRecord.task_number = fixedRecord.status;
+        fixedRecord.status = originalTaskNumber;
+        
+        // 如果items字段为空，尝试从原来的位置解析数据
+        if (!fixedRecord.items || fixedRecord.items === '' || fixedRecord.items === '[]') {
+          try {
+            fixedRecord.items = JSON.parse(originalTaskNumber);
+          } catch (e) {
+            console.warn(`无法解析items数据:`, originalTaskNumber);
+            fixedRecord.items = [];
+          }
+        }
+      }
+      
+      // 如果task_number是空字符串或JSON字符串，生成新的任务号
+      if (typeof fixedRecord.task_number === 'string' && 
+          (fixedRecord.task_number === '[]' || fixedRecord.task_number === '""' || fixedRecord.task_number.startsWith('[{'))) {
+        const newTaskNumber = `HIST${String(Date.now() + Math.floor(Math.random() * 1000)).slice(-8)}`;
+        console.log(`为历史记录 ${fixedRecord.id} 生成新任务号: ${newTaskNumber}`);
+        fixedRecord.task_number = newTaskNumber;
+      }
+      
+      // 确保items字段是有效的JSON数组
+      if (typeof fixedRecord.items === 'string') {
+        try {
+          fixedRecord.items = JSON.parse(fixedRecord.items);
+        } catch (e) {
+          console.warn(`解析items JSON失败，使用空数组:`, e.message);
+          fixedRecord.items = [];
+        }
+      }
+      
+      return fixedRecord;
+    });
+    
+    res.json(fixedRows);
   } catch (err) {
     console.error(err);
     
@@ -1064,7 +1356,10 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1157,7 +1452,10 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1176,7 +1474,10 @@ app.get('/api/activities', requireRole(['admin', 'sales', 'warehouse']), async (
       console.error('事务回滚错误:', rollbackErr);
     }
     
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1190,7 +1491,10 @@ app.post('/api/activities', requireRole(['admin', 'sales', 'warehouse']), async 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1310,7 +1614,10 @@ app.get('/api/r2-test', async (req, res) => {
     });
   } catch (error) {
     console.error('R2 测试失败:', error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      error: sanitizeErrorMessage(error.message) 
+    });
   }
 });
 
@@ -1374,7 +1681,10 @@ app.get('/api/task/:taskId/file/:fileType', requireRole(['admin', 'sales', 'ware
     return res.status(404).json({ error: '文件未找到或格式不支持' });
   } catch (err) {
     console.error('获取任务文件失败:', err);
-    res.status(500).json({ error: '服务器错误', message: err.message });
+    res.status(500).json({ 
+      error: '服务器错误', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 
@@ -1398,7 +1708,10 @@ app.post('/api/clear-demo-data', async (req, res) => {
     res.json({ message: '演示数据已清除' });
   } catch (err) {
     console.error('清除演示数据失败:', err);
-    res.status(500).json({ error: '清除演示数据失败' });
+    res.status(500).json({ 
+      error: '清除演示数据失败', 
+      message: sanitizeErrorMessage(err.message) 
+    });
   }
 });
 

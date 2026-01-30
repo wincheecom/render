@@ -7,380 +7,737 @@
       "product_supplier": 555,
       "quantity": 11,
       "purchase_price": 33,
-      "sale_price": null,
+      "sale_price": 49.5,
       "created_at": "2026-01-21T01:20:10.413Z"
     }
   ],
   "tasks": [
     {
       "id": "1768969777453",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
+      "task_number": "TK1769737883617",
+      "status": "pending",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-21T04:29:37.453Z"
+      "created_at": "2026-01-21T04:29:37.453Z",
+      "label_image": ""
     },
     {
       "id": "1768986332754",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
+      "task_number": "TK1769737883617",
+      "status": "pending",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-21T09:05:32.754Z"
+      "created_at": "2026-01-21T09:05:32.754Z",
+      "label_image": ""
     },
     {
       "id": "1768986337960",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
+      "task_number": "TK1769737883618",
+      "status": "pending",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-21T09:05:37.960Z"
+      "created_at": "2026-01-21T09:05:37.960Z",
+      "label_image": ""
     },
     {
       "id": "1768986343582",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
+      "task_number": "TK1769737883618",
+      "status": "pending",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-21T09:05:43.582Z"
+      "created_at": "2026-01-21T09:05:43.582Z",
+      "label_image": ""
     },
     {
       "id": "1768986347355",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
+      "task_number": "TK1769737883618",
+      "status": "pending",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-21T09:05:47.355Z"
+      "created_at": "2026-01-21T09:05:47.355Z",
+      "label_image": ""
     },
     {
       "id": "1768986368388",
-      "task_number": "pending",
-      "status": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "items": "",
+      "task_number": "TK1769737883618",
+      "status": "pending",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "warning_code_image": "",
-      "created_at": "2026-01-21T09:06:08.388Z"
+      "created_at": "2026-01-21T09:06:08.388Z",
+      "label_image": ""
     }
   ],
   "history": [
     {
       "id": "1768308078942",
-      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK942",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768286272455",
+          "productName": "完场前",
+          "productCode": "飞机到是",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-13T12:41:18.939Z",
       "created_at": "2026-01-13T12:41:18.942Z",
-      "completed_at": "2026-01-13T12:41:18.942Z"
+      "completed_at": "2026-01-13T12:41:18.942Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768313045148",
-      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK570",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768286272455",
+          "productName": "完场前",
+          "productCode": "飞机到是",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-13T14:04:05.148Z",
       "created_at": "2026-01-13T14:04:05.148Z",
-      "completed_at": "2026-01-13T14:04:05.148Z"
+      "completed_at": "2026-01-13T14:04:05.148Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768314953337",
-      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK346",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768286272455",
+          "productName": "完场前",
+          "productCode": "飞机到是",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-13T14:35:53.337Z",
       "created_at": "2026-01-13T14:35:53.337Z",
-      "completed_at": "2026-01-13T14:35:53.337Z"
+      "completed_at": "2026-01-13T14:35:53.337Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768314957993",
-      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK460",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768286272455",
+          "productName": "完场前",
+          "productCode": "飞机到是",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-13T14:35:57.993Z",
       "created_at": "2026-01-13T14:35:57.993Z",
-      "completed_at": "2026-01-13T14:35:57.993Z"
+      "completed_at": "2026-01-13T14:35:57.993Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768314961359",
-      "task_number": "[{\"productId\":\"1768286272455\",\"productName\":\"完场前\",\"productCode\":\"飞机到是\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK996",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768286272455",
+          "productName": "完场前",
+          "productCode": "飞机到是",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-13T14:36:01.359Z",
       "created_at": "2026-01-13T14:36:01.360Z",
-      "completed_at": "2026-01-13T14:36:01.360Z"
+      "completed_at": "2026-01-13T14:36:01.360Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768315111356",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK371",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-13T14:38:31.356Z",
       "created_at": "2026-01-13T14:38:31.356Z",
-      "completed_at": "2026-01-13T14:38:31.356Z"
+      "completed_at": "2026-01-13T14:38:31.356Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768417432696",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK601",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-14T19:03:52.696Z",
       "created_at": "2026-01-14T19:03:52.698Z",
-      "completed_at": "2026-01-14T19:03:52.698Z"
+      "completed_at": "2026-01-14T19:03:52.698Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957476355",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK268",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:04:36.352Z",
       "created_at": "2026-01-21T01:04:36.356Z",
-      "completed_at": "2026-01-21T01:04:36.356Z"
+      "completed_at": "2026-01-21T01:04:36.356Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957486337",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK327",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:04:46.337Z",
       "created_at": "2026-01-21T01:04:46.337Z",
-      "completed_at": "2026-01-21T01:04:46.337Z"
+      "completed_at": "2026-01-21T01:04:46.337Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957488753",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK442",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:04:48.753Z",
       "created_at": "2026-01-21T01:04:48.753Z",
-      "completed_at": "2026-01-21T01:04:48.753Z"
+      "completed_at": "2026-01-21T01:04:48.753Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957491421",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK407",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:04:51.421Z",
       "created_at": "2026-01-21T01:04:51.421Z",
-      "completed_at": "2026-01-21T01:04:51.421Z"
+      "completed_at": "2026-01-21T01:04:51.421Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957494528",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK565",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:04:54.528Z",
       "created_at": "2026-01-21T01:04:54.528Z",
-      "completed_at": "2026-01-21T01:04:54.528Z"
+      "completed_at": "2026-01-21T01:04:54.528Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957497324",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK963",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:04:57.324Z",
       "created_at": "2026-01-21T01:04:57.324Z",
-      "completed_at": "2026-01-21T01:04:57.324Z"
+      "completed_at": "2026-01-21T01:04:57.324Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957500221",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK439",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:05:00.221Z",
       "created_at": "2026-01-21T01:05:00.221Z",
-      "completed_at": "2026-01-21T01:05:00.221Z"
+      "completed_at": "2026-01-21T01:05:00.221Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957503391",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK718",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:05:03.391Z",
       "created_at": "2026-01-21T01:05:03.391Z",
-      "completed_at": "2026-01-21T01:05:03.391Z"
+      "completed_at": "2026-01-21T01:05:03.391Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957505845",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK117",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:05:05.845Z",
       "created_at": "2026-01-21T01:05:05.845Z",
-      "completed_at": "2026-01-21T01:05:05.845Z"
+      "completed_at": "2026-01-21T01:05:05.845Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957509092",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK537",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:05:09.092Z",
       "created_at": "2026-01-21T01:05:09.092Z",
-      "completed_at": "2026-01-21T01:05:09.092Z"
+      "completed_at": "2026-01-21T01:05:09.092Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957511529",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK257",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:05:11.529Z",
       "created_at": "2026-01-21T01:05:11.529Z",
-      "completed_at": "2026-01-21T01:05:11.529Z"
+      "completed_at": "2026-01-21T01:05:11.529Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957515499",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK847",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:05:15.499Z",
       "created_at": "2026-01-21T01:05:15.499Z",
-      "completed_at": "2026-01-21T01:05:15.499Z"
+      "completed_at": "2026-01-21T01:05:15.499Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957884426",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK850",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:11:24.426Z",
       "created_at": "2026-01-21T01:11:24.426Z",
-      "completed_at": "2026-01-21T01:11:24.426Z"
+      "completed_at": "2026-01-21T01:11:24.426Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957886335",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK189",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:11:26.335Z",
       "created_at": "2026-01-21T01:11:26.335Z",
-      "completed_at": "2026-01-21T01:11:26.335Z"
+      "completed_at": "2026-01-21T01:11:26.335Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957888152",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK855",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:11:28.152Z",
       "created_at": "2026-01-21T01:11:28.152Z",
-      "completed_at": "2026-01-21T01:11:28.152Z"
+      "completed_at": "2026-01-21T01:11:28.152Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768957908166",
-      "task_number": "[{\"productId\":\"1768312481040\",\"productName\":\"以诚玩具\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK250",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768312481040",
+          "productName": "以诚玩具",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T01:11:48.166Z",
       "created_at": "2026-01-21T01:11:48.166Z",
-      "completed_at": "2026-01-21T01:11:48.166Z"
+      "completed_at": "2026-01-21T01:11:48.166Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768961325298",
-      "task_number": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK382",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T02:08:45.298Z",
       "created_at": "2026-01-21T02:08:45.298Z",
-      "completed_at": "2026-01-21T02:08:45.298Z"
+      "completed_at": "2026-01-21T02:08:45.298Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768961434022",
-      "task_number": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK192",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T02:10:34.022Z",
       "created_at": "2026-01-21T02:10:34.022Z",
-      "completed_at": "2026-01-21T02:10:34.022Z"
+      "completed_at": "2026-01-21T02:10:34.022Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768968667118",
-      "task_number": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK693",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T04:11:07.116Z",
       "created_at": "2026-01-21T04:11:07.125Z",
-      "completed_at": "2026-01-21T04:11:07.125Z"
+      "completed_at": "2026-01-21T04:11:07.125Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768973379545",
-      "task_number": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK232",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T05:29:39.545Z",
       "created_at": "2026-01-21T05:29:39.545Z",
-      "completed_at": "2026-01-21T05:29:39.545Z"
+      "completed_at": "2026-01-21T05:29:39.545Z",
+      "creator_name": "管理员",
+      "original_items": ""
     },
     {
       "id": "1768973382362",
-      "task_number": "[{\"productId\":\"1768958410413\",\"productName\":\"泛趣\",\"productCode\":\"小恐龙\",\"productImage\":\"\",\"quantity\":1}]",
-      "status": "\"\"",
-      "items": "",
+      "task_number": "TASK881",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 1
+        }
+      ],
       "body_code_image": "",
       "barcode_image": "",
       "label_image": "2026-01-21T05:29:42.362Z",
       "created_at": "2026-01-21T05:29:42.362Z",
-      "completed_at": "2026-01-21T05:29:42.362Z"
+      "completed_at": "2026-01-21T05:29:42.362Z",
+      "creator_name": "管理员",
+      "original_items": ""
+    },
+    {
+      "id": "17691769600923039",
+      "task_number": "TASK001",
+      "status": "completed",
+      "items": [
+        {
+          "productId": "1768958410413",
+          "productName": "泛趣",
+          "productCode": "小恐龙",
+          "productImage": "",
+          "quantity": 5
+        }
+      ],
+      "body_code_image": "",
+      "barcode_image": "",
+      "warning_code_image": "",
+      "label_image": "",
+      "manual_image": "",
+      "other_image": "",
+      "creator_name": "销售运营",
+      "created_at": "2026-01-28T11:48:43.039Z",
+      "completed_at": "2026-01-28T11:48:43.039Z"
     }
   ],
   "activities": [
