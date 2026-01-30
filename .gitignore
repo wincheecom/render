@@ -7,4 +7,14 @@ yarn-error.log*
 coverage/
 dist/
 build/
-.nyc_output
+.nyc_output*.bak
+*.backup*
+*backup*
+test_*.js
+debug_*.js
+fix_*.js
+verify_*.js
+apply_*.js
+check_*.js
+salesperson_*.js
+simple_*.js
