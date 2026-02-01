@@ -679,7 +679,24 @@ app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, re
       [email, passwordHash, name, role, '公司名称', 'USD', 'en', {}, true]
     );
     
-    res.status(201).json(result.rows[0]);
+    const newUser = result.rows[0];
+    
+    // 生成 JWT Token（仅用于告知前端用户已成功创建）
+    const token = jwt.sign(
+      { 
+        id: newUser.id, 
+        email: newUser.email, 
+        name: newUser.name, 
+        role: newUser.role 
+      }, 
+      JWT_SECRET, 
+      { expiresIn: '24h' }
+    );
+    
+    res.status(201).json({
+      token,
+      user: newUser
+    });
   } catch (err) {
     console.error('创建用户错误:', err);
     res.status(500).json({ 
