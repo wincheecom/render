@@ -5889,6 +5889,16 @@
                         }
                     });
                     
+                    // 检查响应是否为JSON格式
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        console.error('服务器响应格式错误，清除本地存储');
+                        DataManager.logout();
+                        return;
+                    }
+                    
+                    const userData = await response.json();
+                    
                     if (response.ok) {
                         // 令牌有效，直接进入主系统
                         document.getElementById('loginPage').style.display = 'none';
@@ -5896,6 +5906,7 @@
                         initMainSystem();
                     } else {
                         // 令牌无效，清除本地存储
+                        console.error('令牌验证失败:', userData.error || '未知错误');
                         DataManager.logout();
                     }
                 } catch (error) {
@@ -6051,6 +6062,13 @@
                 event.preventDefault();
             });
             const user = DataManager.getCurrentUser();
+            
+            // 检查用户是否有效
+            if (!user) {
+                console.error('无效的用户信息，跳转到登录页面');
+                DataManager.logout();
+                return;
+            }
             
             // 设置用户信息
             document.getElementById('currentUser').textContent = user.name;
