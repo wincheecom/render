@@ -5918,6 +5918,12 @@
                     body: JSON.stringify({ email, password })
                 });
                 
+                // 检查响应是否为JSON格式
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('服务器响应格式错误');
+                }
+                
                 const data = await response.json();
                 
                 if (!response.ok) {
@@ -5978,6 +5984,12 @@
                         },
                         body: JSON.stringify({ name, email, password, role })
                     });
+                    
+                    // 检查响应是否为JSON格式
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('服务器响应格式错误');
+                    }
                     
                     const data = await response.json();
                     
