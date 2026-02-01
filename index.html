@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
     
+    <!-- Bootstrap CSS 和 JS 库 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <style>
         /* ===== 全局样式 ===== */
         * {
@@ -3607,11 +3611,11 @@
                             <input type="hidden" id="userId">
                             <div class="form-group mb-3">
                                 <label for="userName" class="form-label">姓名</label>
-                                <input type="text" class="form-control" id="userName" required>
+                                <input type="text" class="form-control" id="userName" placeholder="请输入用户姓名" required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="userEmail" class="form-label">邮箱</label>
-                                <input type="email" class="form-control" id="userEmail" required>
+                                <input type="email" class="form-control" id="userEmail" placeholder="请输入用户邮箱" required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="userRole" class="form-label">角色</label>
@@ -8435,7 +8439,7 @@
                                 <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
                                     ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
                                 </span>
-                                <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
+                                <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
                                     <i class="fas fa-info-circle"></i> 详情
                                 </button>
                             </div>
@@ -8514,7 +8518,7 @@
                                 </div>
                                 <div class="task-back-actions">
                                     <div class="back-action-buttons">
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
+                                        <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
                                         <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
                                     </div>
                                 </div>
@@ -9035,40 +9039,36 @@
         }
         
         function toggleTaskCardFlip(taskId) {
-            const frontElement = document.querySelector(`#task-${taskId}-front`);
-            if (!frontElement) {
-                console.error(`任务卡片前端元素 #task-${taskId}-front 不存在`);
+            // 直接通过 data-task-id 属性查找翻转容器
+            const flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            
+            if (!flipContainer) {
+                console.error(`未找到任务ID为 ${taskId} 的翻转容器`);
                 return;
             }
             
-            // 查找包含该前端元素的翻转容器
-            let flipContainer = frontElement.closest('.task-flip-container');
+            flipContainer.classList.toggle('flipped');
             
-            // 如果通过 closest 没有找到，尝试直接查找父元素
-            if (!flipContainer) {
-                flipContainer = frontElement.parentElement;
-            }
+            // 更新按钮文本以反映当前状态
+            // 遍历所有具有相同data-task-id和data-action="flip"属性的按钮
+            const flipButtons = document.querySelectorAll(`[data-task-id="${taskId}"][data-action="flip"]`);
             
-            // 如果还是没有找到，尝试通过 data-task-id 属性直接查找
-            if (!flipContainer || !flipContainer.classList.contains('task-flip-container')) {
-                flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
-            }
-            
-            if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
-                flipContainer.classList.toggle('flipped');
+            flipButtons.forEach(button => {
+                // 检查按钮当前状态，避免重复设置
+                const currentText = button.textContent.trim();
                 
-                // 更新按钮文本以反映当前状态
-                const flipButton = document.querySelector(`[data-task-id="${taskId}"][data-action="flip"]`);
-                if (flipButton) {
-                    if (flipContainer.classList.contains('flipped')) {
-                        flipButton.textContent = '返回';
-                    } else {
-                        flipButton.textContent = '处理发货';
+                if (flipContainer.classList.contains('flipped')) {
+                    // 如果卡片已翻转到背面，将按钮文本改为"返回"
+                    if (currentText.includes('处理发货') || currentText.includes('详情')) {
+                        button.innerHTML = '<i class="fas fa-arrow-left"></i> 返回';
+                    }
+                } else {
+                    // 如果卡片翻转到正面，将按钮文本改为"处理发货"
+                    if (currentText.includes('返回')) {
+                        button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
                     }
                 }
-            } else {
-                console.error(`未找到有效的翻转容器`);
-            }
+            });
         }
         
         function bindWarehouseTaskEvents() {
@@ -9094,10 +9094,14 @@
         function warehouseTaskEventHandler(e) {
             // 处理翻转卡片事件
             if (e.target.closest('[data-action="flip"]')) {
+                e.preventDefault();
                 e.stopPropagation();
                 const button = e.target.closest('[data-action="flip"]');
                 const taskId = button.getAttribute('data-task-id');
-                toggleTaskCardFlip(taskId);
+                // 防止重复触发，延迟一点时间再执行
+                setTimeout(() => {
+                    toggleTaskCardFlip(taskId);
+                }, 0);
             }
             // 处理确认发货事件
             else if (e.target.closest('[data-action="complete-shipment"]')) {
