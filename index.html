@@ -6071,45 +6071,64 @@
             }
             
             // 设置用户信息
-            document.getElementById('currentUser').textContent = user.name;
-            document.getElementById('currentRole').textContent = user.role;
+            try {
+                const currentUserEl = document.getElementById('currentUser');
+                if (currentUserEl) {
+                    currentUserEl.textContent = user.name;
+                }
+            } catch (error) {
+                console.error('设置当前用户名失败:', error);
+            }
+            
+            try {
+                const currentRoleEl = document.getElementById('currentRole');
+                if (currentRoleEl) {
+                    currentRoleEl.textContent = user.role;
+                }
+            } catch (error) {
+                console.error('设置当前用户角色失败:', error);
+            }
             
             // 根据用户角色预设统计分析模块的可见性（仅设置内容可见性，不直接显示模块）
-            const statisticsAnalysisModule = document.getElementById('statistics-analysis');
-            if (statisticsAnalysisModule) {
-                // 管理员可以看到完整统计分析页面
-                if (user.role === 'admin') {
-                    
-                    // 确保管理员能看到所有统计部分
-                    const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
-                        '#salesRanking, #profitRanking, .time-filter'
-                    );
-                    advancedStatsElements.forEach(el => {
-                        if (el) el.style.display = 'block';
-                    });
-                } else {
-                    // 非管理员用户（如销售运营）只能看到自己的统计信息
-                                    
-                    // 隐藏高级统计部分，但保留时间筛选器
-                    const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
-                        '#salesRanking, #profitRanking'
-                    );
-                    advancedStatsElements.forEach(el => {
-                        if (el) el.style.display = 'none';
-                    });
-                                    
-                    // 确保时间筛选器对所有用户都可见
-                    const timeFilterElements = statisticsAnalysisModule.querySelectorAll('.time-filter');
-                    timeFilterElements.forEach(el => {
-                        if (el) el.style.display = 'flex';
-                    });
-                    
-                    // 确保销售运营统计网格是可见的
-                    const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
-                    if (salespersonStatsGrid) {
-                        salespersonStatsGrid.style.display = 'grid';
+            try {
+                const statisticsAnalysisModule = document.getElementById('statistics-analysis');
+                if (statisticsAnalysisModule) {
+                    // 管理员可以看到完整统计分析页面
+                    if (user.role === 'admin') {
+                        
+                        // 确保管理员能看到所有统计部分
+                        const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
+                            '#salesRanking, #profitRanking, .time-filter'
+                        );
+                        advancedStatsElements.forEach(el => {
+                            if (el) el.style.display = 'block';
+                        });
+                    } else {
+                        // 非管理员用户（如销售运营）只能看到自己的统计信息
+                                        
+                        // 隐藏高级统计部分，但保留时间筛选器
+                        const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
+                            '#salesRanking, #profitRanking'
+                        );
+                        advancedStatsElements.forEach(el => {
+                            if (el) el.style.display = 'none';
+                        });
+                                        
+                        // 确保时间筛选器对所有用户都可见
+                        const timeFilterElements = statisticsAnalysisModule.querySelectorAll('.time-filter');
+                        timeFilterElements.forEach(el => {
+                            if (el) el.style.display = 'flex';
+                        });
+                        
+                        // 确保销售运营统计网格是可见的
+                        const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
+                        if (salespersonStatsGrid) {
+                            salespersonStatsGrid.style.display = 'grid';
+                        }
                     }
                 }
+            } catch (error) {
+                console.error('设置统计分析模块可见性失败:', error);
             }
             
             // 生成侧边栏菜单
