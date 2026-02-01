@@ -6121,9 +6121,13 @@
                         });
                         
                         // 确保销售运营统计网格是可见的
-                        const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
-                        if (salespersonStatsGrid) {
-                            salespersonStatsGrid.style.display = 'grid';
+                        try {
+                            const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
+                            if (salespersonStatsGrid) {
+                                salespersonStatsGrid.style.display = 'grid';
+                            }
+                        } catch (error) {
+                            console.error('设置销售员统计网格显示失败:', error);
                         }
                     }
                 }
