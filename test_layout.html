@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售统计卡片布局测试</title>
+    <style>
+        /* 模拟主要样式 */
+        :root {
+            --primary: #4361ee;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --gray-lightest: #f8f9fa;
+            --dark: #212529;
+            --card-radius: 10px;
+            --shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            padding: 20px;
+            background-color: #f5f7fb;
+        }
+
+        .salesperson-stat-card {
+            background: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .stats-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .stats-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        #statistics-analysis .salesperson-stats-grid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #statistics-analysis .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-lightest);
+        }
+
+        #statistics-analysis .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 500;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+
+        #statistics-analysis .stat-value {
+            font-weight: 600;
+            color: var(--dark);
+            text-align: right;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            flex: 1;
+            margin-left: 8px;
+        }
+
+        #statistics-analysis .stat-highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 突出显示关键指标 */
+        #statistics-analysis .stat-item:first-child,
+        #statistics-analysis .stat-item:nth-child(2),
+        #statistics-analysis .stat-item:nth-child(3) {
+            padding: 10px 0;
+            border-radius: 6px;
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        /* 销售商品明细特殊样式 */
+        #statistics-analysis .stat-item:nth-child(4) {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #statistics-analysis .stat-item:nth-child(4) .stat-value {
+            text-align: left;
+            margin-top: 4px;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="salesperson-stat-card">
+        <div class="stats-header">
+            <div class="stats-title">测试销售员 统计</div>
+        </div>
+        <div class="salesperson-stats-grid-item">
+            <div class="stat-item">
+                <span class="stat-label">发货数量统计</span>
+                <span class="stat-value stat-highlight">4</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">销售额统计</span>
+                <span class="stat-value stat-highlight">¥0.00</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">销售利润统计</span>
+                <span class="stat-value stat-highlight">¥0.00</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">销售商品明细</span>
+                <span class="stat-value">非常长的商品名称(数量) - 供应商名称，另一个非常长的商品名称(数量) - 供应商名称</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">总任务数</span>
+                <span class="stat-value">1 个</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

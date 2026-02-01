@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售商品明细显示测试</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --danger: #ef233c;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --gray-lightest: #f8f9fa;
+            --sidebar-width: 200px;
+            --header-height: 70px;
+            --card-radius: 10px;
+            --shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            padding: 20px;
+        }
+
+        /* 销售统计卡片样式 */
+        .salesperson-stat-card {
+            background: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .stats-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .stats-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .salesperson-stats-grid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-lightest);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--dark);
+            text-align: right;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            flex: 1;
+            margin-left: 8px;
+        }
+
+        .stat-highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 突出显示关键指标 */
+        .stat-item:first-child,
+        .stat-item:nth-child(2),
+        .stat-item:nth-child(3) {
+            padding: 10px 0;
+            border-radius: 6px;
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        /* 销售商品明细特殊样式 - 确保内容能正确换行且美观 */
+        .stat-item:nth-child(4) {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .stat-item:nth-child(4) .stat-value {
+            text-align: left;
+            margin-top: 4px;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+            line-height: 1.5;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+        /* 测试用的额外样式 */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .test-case {
+            background: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .test-description {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>销售商品明细显示测试</h1>
+        
+        <div class="test-case">
+            <h2 class="test-title">测试场景1：正常显示</h2>
+            <p class="test-description">显示销售运营账户在最近任务中的商品明细</p>
+            
+            <div class="salesperson-stat-card">
+                <div class="stats-header">
+                    <div class="stats-title">销售运营 统计</div>
+                </div>
+                
+                <div class="salesperson-stats-grid-item">
+                    <!-- 发货数量统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">发货数量统计</span>
+                        <span class="stat-value stat-highlight">5</span>
+                    </div>
+                    
+                    <!-- 销售额统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售额统计</span>
+                        <span class="stat-value stat-highlight">¥247.50</span>
+                    </div>
+                    
+                    <!-- 销售利润统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售利润统计</span>
+                        <span class="stat-value stat-highlight">¥82.50</span>
+                    </div>
+                    
+                    <!-- 销售商品明细 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售商品明细</span>
+                        <span class="stat-value">泛趣(5件) - 555</span>
+                    </div>
+                    
+                    <!-- 畅销商品排行 -->
+                    <div class="stat-item">
+                        <span class="stat-label">畅销商品排行</span>
+                        <span class="stat-value">泛趣(5件)</span>
+                    </div>
+                    
+                    <!-- 总任务数 -->
+                    <div class="stat-item">
+                        <span class="stat-label">总任务数</span>
+                        <span class="stat-value">1 个</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-case">
+            <h2 class="test-title">测试场景2：多商品显示</h2>
+            <p class="test-description">模拟显示多个不同商品的情况</p>
+            
+            <div class="salesperson-stat-card">
+                <div class="stats-header">
+                    <div class="stats-title">销售运营 统计</div>
+                </div>
+                
+                <div class="salesperson-stats-grid-item">
+                    <!-- 发货数量统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">发货数量统计</span>
+                        <span class="stat-value stat-highlight">15</span>
+                    </div>
+                    
+                    <!-- 销售额统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售额统计</span>
+                        <span class="stat-value stat-highlight">¥1,247.50</span>
+                    </div>
+                    
+                    <!-- 销售利润统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售利润统计</span>
+                        <span class="stat-value stat-highlight">¥482.50</span>
+                    </div>
+                    
+                    <!-- 销售商品明细（多商品） -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售商品明细</span>
+                        <span class="stat-value">无线蓝牙耳机(3件) - 泛趣科技，智能手表Pro(2件) - 泛趣科技，便携充电宝(5件) - 泛趣科技，高清摄像头(1件) - 泛趣科技，游戏手柄(4件) - 泛趣科技</span>
+                    </div>
+                    
+                    <!-- 畅销商品排行 -->
+                    <div class="stat-item">
+                        <span class="stat-label">畅销商品排行</span>
+                        <span class="stat-value">无线蓝牙耳机(3件)，便携充电宝(5件)，智能手表Pro(2件)</span>
+                    </div>
+                    
+                    <!-- 总任务数 -->
+                    <div class="stat-item">
+                        <span class="stat-label">总任务数</span>
+                        <span class="stat-value">8 个</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-case">
+            <h2 class="test-title">测试场景3：无商品数据</h2>
+            <p class="test-description">当没有商品数据时的显示情况</p>
+            
+            <div class="salesperson-stat-card">
+                <div class="stats-header">
+                    <div class="stats-title">销售运营 统计</div>
+                </div>
+                
+                <div class="salesperson-stats-grid-item">
+                    <!-- 发货数量统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">发货数量统计</span>
+                        <span class="stat-value stat-highlight">0</span>
+                    </div>
+                    
+                    <!-- 销售额统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售额统计</span>
+                        <span class="stat-value stat-highlight">¥0.00</span>
+                    </div>
+                    
+                    <!-- 销售利润统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售利润统计</span>
+                        <span class="stat-value stat-highlight">¥0.00</span>
+                    </div>
+                    
+                    <!-- 销售商品明细（无数据） -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售商品明细</span>
+                        <span class="stat-value">暂无商品</span>
+                    </div>
+                    
+                    <!-- 畅销商品排行 -->
+                    <div class="stat-item">
+                        <span class="stat-label">畅销商品排行</span>
+                        <span class="stat-value">无</span>
+                    </div>
+                    
+                    <!-- 总任务数 -->
+                    <div class="stat-item">
+                        <span class="stat-label">总任务数</span>
+                        <span class="stat-value">0 个</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-case">
+            <h2 class="test-title">测试场景4：超长商品名称</h2>
+            <p class="test-description">测试超长商品名称的换行处理</p>
+            
+            <div class="salesperson-stat-card">
+                <div class="stats-header">
+                    <div class="stats-title">销售运营 统计</div>
+                </div>
+                
+                <div class="salesperson-stats-grid-item">
+                    <!-- 发货数量统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">发货数量统计</span>
+                        <span class="stat-value stat-highlight">3</span>
+                    </div>
+                    
+                    <!-- 销售额统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售额统计</span>
+                        <span class="stat-value stat-highlight">¥897.00</span>
+                    </div>
+                    
+                    <!-- 销售利润统计 -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售利润统计</span>
+                        <span class="stat-value stat-highlight">¥297.00</span>
+                    </div>
+                    
+                    <!-- 销售商品明细（超长名称） -->
+                    <div class="stat-item">
+                        <span class="stat-label">销售商品明细</span>
+                        <span class="stat-value">超长商品名称测试商品名称可能会非常长以至于需要换行处理才能正常显示(2件) - 超长供应商名称有限公司责任公司集团总公司分公司子公司孙公司曾孙公司(1件) - 泛趣科技有限公司责任公司集团总公司分公司子公司孙公司曾孙公司，另一个超长商品名称测试商品名称可能会非常长以至于需要换行处理才能正常显示(1件) - 另一个超长供应商名称有限公司责任公司集团总公司分公司子公司孙公司曾孙公司</span>
+                    </div>
+                    
+                    <!-- 畅销商品排行 -->
+                    <div class="stat-item">
+                        <span class="stat-label">畅销商品排行</span>
+                        <span class="stat-value">超长商品名称测试商品名称可能会非常长以至于需要换行处理才能正常显示(2件)</span>
+                    </div>
+                    
+                    <!-- 总任务数 -->
+                    <div class="stat-item">
+                        <span class="stat-label">总任务数</span>
+                        <span class="stat-value">2 个</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

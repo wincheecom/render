@@ -1204,7 +1204,7 @@ app.get('/api/products/:id', requireRole(['admin', 'sales']), async (req, res) =
   }
 });
 
-app.put('/api/products/:id', requireRole(['admin']), async (req, res) => {
+app.put('/api/products/:id', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -1265,7 +1265,7 @@ app.put('/api/products/:id', requireRole(['admin']), async (req, res) => {
   }
 });
 
-app.delete('/api/products/:id', requireRole(['admin']), async (req, res) => {
+app.delete('/api/products/:id', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const { id } = req.params;
     console.log('准备删除产品，ID:', id);

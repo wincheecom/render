@@ -1682,8 +1682,7 @@
             padding: 6px;
             overflow: hidden;
             box-sizing: border-box;
-            height: 357px;
-            max-height: 357px;
+            max-height: calc(100% - 40px);
             flex-grow: 1;
             align-self: stretch;
         }
@@ -1802,7 +1801,6 @@
             margin-bottom: 0;
             align-self: flex-end;
             flex: 0 0 auto;
-            background-color: transparent;
         }
         .card {
             flex: 1;
@@ -3558,7 +3556,7 @@
     </div>
 
     <!-- 账户管理模块 -->
-    <div class="module-content" id="user-management" style="display: none;">
+    <div class="module-content" id="user-management">
         <div class="table-container">
             <div class="table-header">
                 <div class="table-title">账户管理</div>
@@ -3891,6 +3889,7 @@
         
         /* 调整用户管理模块以与菜单栏左对齐 */
         #user-management {
+            display: block;
             padding: 20px;
             margin-left: var(--sidebar-width);
             min-height: 100vh;
@@ -5197,9 +5196,9 @@
                             }
                             
                             if (product) {
-                                // 修正价格字段名称 - 根据数据库结构，产品表使用的是 sale_price 和 purchase_price
-                                const salePrice = parseFloat(item.salePrice || product.sale_price || product.salePrice) || 0;
-                                const purchasePrice = parseFloat(product.purchase_price || product.purchasePrice) || 0;
+                                // 确保价格是有效数值
+                                const salePrice = parseFloat(item.salePrice || product.salePrice) || 0;
+                                const purchasePrice = parseFloat(product.purchasePrice) || 0;
                                 
                                 const itemSales = salePrice * quantity;
                                 const itemCost = purchasePrice * quantity;
@@ -5212,9 +5211,9 @@
                                 const productId = product.id || item.productId;
                                 if (!productStats[productId]) {
                                     productStats[productId] = {
-                                        name: item.productName || product.product_name || product.name,
-                                        code: product.product_code || product.code,
-                                        supplier: product.product_supplier || product.supplier || '',  // 确保供应商信息不为undefined
+                                        name: item.productName || product.name,
+                                        code: product.code,
+                                        supplier: product.supplier || '',  // 确保供应商信息不为undefined
                                         quantity: 0,
                                         sales: 0,
                                         profit: 0,
@@ -5251,41 +5250,6 @@
                                     // 由于没有成本信息，利润暂时设为0
                                 } else {
                                     console.warn('在历史记录中找不到对应产品，也无法从item中获取价格信息:', item.productId || item.product_id, '产品列表长度:', products.length);
-                                    
-                                    // 尝试使用产品ID直接从products数组中查找
-                                    const productId = item.productId || item.product_id;
-                                    if (productId) {
-                                        const fallbackProduct = products.find(p => p.id == productId);
-                                        if (fallbackProduct) {
-                                            // 使用备用产品信息计算销售额
-                                            const salePrice = parseFloat(fallbackProduct.sale_price || fallbackProduct.salePrice) || 0;
-                                            const purchasePrice = parseFloat(fallbackProduct.purchase_price || fallbackProduct.purchasePrice) || 0;
-                                            
-                                            const itemSales = salePrice * quantity;
-                                            const itemCost = purchasePrice * quantity;
-                                            const itemProfit = itemSales - itemCost;
-                                            
-                                            totalSales += itemSales;
-                                            totalCost += itemCost;
-                                            totalProfit += itemProfit;
-                                            
-                                            if (!productStats[productId]) {
-                                                productStats[productId] = {
-                                                    name: fallbackProduct.product_name || fallbackProduct.name,
-                                                    code: fallbackProduct.product_code || fallbackProduct.code,
-                                                    supplier: fallbackProduct.product_supplier || fallbackProduct.supplier || '',
-                                                    quantity: 0,
-                                                    sales: 0,
-                                                    profit: 0,
-                                                    profitMargin: 0
-                                                };
-                                            }
-                                            
-                                            productStats[productId].quantity += quantity;
-                                            productStats[productId].sales += itemSales;
-                                            productStats[productId].profit += itemProfit;
-                                        }
-                                    }
                                 }
                             }
                         });
@@ -5316,8 +5280,7 @@
                         monthlySales,
                         monthlyShipments,
                         monthlyProfit,
-                        filteredHistory,
-                        allProducts: products
+                        filteredHistory
                     };
                 } catch (error) {
                     console.error('获取统计数据失败:', error);
@@ -5403,17 +5366,6 @@
                                 const quantity = parseInt(item.quantity) || 0;
                                 const salePrice = parseFloat(product.sale_price || product.salePrice) || 0;
                                 monthlyData[key] += salePrice * quantity;
-                            } else {
-                                // 如果在产品查找中失败，尝试使用item中的productId直接查找
-                                const productId = item.productId || item.product_id;
-                                if (productId) {
-                                    const fallbackProduct = products.find(p => p.id == productId);
-                                    if (fallbackProduct) {
-                                        const quantity = parseInt(item.quantity) || 0;
-                                        const salePrice = parseFloat(fallbackProduct.sale_price || fallbackProduct.salePrice) || 0;
-                                        monthlyData[key] += salePrice * quantity;
-                                    }
-                                }
                             }
                         });
                     }
@@ -5550,19 +5502,6 @@
                                 const purchasePrice = parseFloat(product.purchase_price || product.purchasePrice) || 0;
                                 const profit = (salePrice - purchasePrice) * quantity;
                                 monthlyData[key] += profit;
-                            } else {
-                                // 如果在产品查找中失败，尝试使用item中的productId直接查找
-                                const productId = item.productId || item.product_id;
-                                if (productId) {
-                                    const fallbackProduct = products.find(p => p.id == productId);
-                                    if (fallbackProduct) {
-                                        const quantity = parseInt(item.quantity) || 0;
-                                        const salePrice = parseFloat(fallbackProduct.sale_price || fallbackProduct.salePrice) || 0;
-                                        const purchasePrice = parseFloat(fallbackProduct.purchase_price || fallbackProduct.purchasePrice) || 0;
-                                        const profit = (salePrice - purchasePrice) * quantity;
-                                        monthlyData[key] += profit;
-                                    }
-                                }
                             }
                         });
                     }
@@ -9539,16 +9478,113 @@
                 processShipmentBtn.textContent = "处理中...";
             }
             
-            // 同时也禁用确认发货按钮
-            if (confirmShipmentBtn) {
-                confirmShipmentBtn.disabled = true;
-                confirmShipmentBtn.style.opacity = "0.5";
-                confirmShipmentBtn.style.cursor = "not-allowed";
-                confirmShipmentBtn.textContent = "处理中...";
-            }
-            
-            // 使用原生confirm替代损坏的alertify.confirm调用
-            if (!confirm('确定要标记此任务为"已发货"吗？')) {
+                '确认发货', 
+                '确定要标记此任务为"已发货"吗？', 
+                        // 先获取任务详情，因为后续会更新和删除任务
+                        const task = await DataManager.getTaskById(taskId);
+                        if (!task) {
+                            Utils.showAlert('任务不存在！', 'error');
+                            return;
+                        }
+                        
+                        // 直接调用完成任务的API，这会将任务移动到历史表
+                        const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const products = await DataManager.getAllProducts();
+                            const taskWithPrice = {
+                                ...task,
+                                items: task.items.map(item => {
+                                    const product = products.find(p => p.id === item.productId);
+                                    return {
+                                        ...item,
+                                        purchasePrice: product ? product.purchasePrice : 0,
+                                        salePrice: product ? product.salePrice : 0
+                                    };
+                                })
+                            };
+                            
+                            // 更新销售运营端任务卡片上的状态标签，而不是移除元素
+                            // 先尝试查找仓库任务元素（id为task-${taskId}）
+                            let taskElement = document.getElementById(`task-${taskId}`);
+                            
+                            // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
+                            if (!taskElement) {
+                                taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                            }
+                            
+                            if (taskElement) {
+                                // 查找并更新状态标签
+                                const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
+                                if (statusBadge) {
+                                    statusBadge.textContent = '已发货';
+                                    statusBadge.classList.remove('badge-warning');
+                                    statusBadge.classList.add('badge-success');
+                                }
+                                
+                                // 禁用处理发货按钮
+                                const processShipmentBtn = taskElement.querySelector('button[data-action="flip"]');
+                                if (processShipmentBtn) {
+                                    processShipmentBtn.disabled = true;
+                                    processShipmentBtn.style.opacity = '0.5';
+                                    processShipmentBtn.style.cursor = 'not-allowed';
+                                    processShipmentBtn.textContent = '已发货';
+                                }
+                                
+                                // 禁用确认发货按钮（如果在背面）
+                                const confirmShipmentBtn = taskElement.querySelector('button[data-action="complete-shipment"]');
+                                if (confirmShipmentBtn) {
+                                    confirmShipmentBtn.disabled = true;
+                                    confirmShipmentBtn.style.opacity = '0.5';
+                                    confirmShipmentBtn.style.cursor = 'not-allowed';
+                                    confirmShipmentBtn.textContent = '已发货';
+                                }
+                            }
+                            
+                            Utils.showAlert('任务已完成发货！', 'success', function() {
+                                // 立即更新UI状态，提供即时反馈
+                                expandedTaskId = null;
+
+                                // 并行更新仪表板和任务列表，提高效率
+                                updateDashboard();
+                                loadWarehouseTasksList().then(() => {
+                                    // 重新绑定仓库任务事件，确保新渲染的元素有正确的事件处理
+                                    bindWarehouseTaskEvents();
+                                });
+                                loadSalesPublishedTasks();
+                            });
+                        } else {
+                            // 如果响应不是ok状态，显示错误信息
+                            const errorData = await response.text();
+                            console.error('完成发货任务失败:', response.status, errorData);
+                            Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
+                        }
+                    } catch (error) {
+                        console.error('完成发货任务失败:', error);
+                        Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
+                        
+                        // 恢复按钮状态
+                        if (processShipmentBtn) {
+                            processShipmentBtn.disabled = false;
+                            processShipmentBtn.style.opacity = "1";
+                            processShipmentBtn.style.cursor = "pointer";
+                            processShipmentBtn.textContent = "处理发货";
+                        }
+                        if (confirmShipmentBtn) {
+                            confirmShipmentBtn.disabled = false;
+                            confirmShipmentBtn.style.opacity = "1";
+                            confirmShipmentBtn.style.cursor = "pointer";
+                            confirmShipmentBtn.textContent = "确认发货";
+                        }
+                    }
+                },
+            function() {  // 点击"取消"的回调
                 // 用户取消操作，恢复按钮状态
                 if (processShipmentBtn) {
                     processShipmentBtn.disabled = false;
@@ -9562,140 +9598,8 @@
                     confirmShipmentBtn.style.cursor = "pointer";
                     confirmShipmentBtn.textContent = "确认发货";
                 }
-                return;
             }
-            
-            try {
-                // 先获取任务详情，因为后续会更新和删除任务
-                const task = await DataManager.getTaskById(taskId);
-                if (!task) {
-                    Utils.showAlert('任务不存在！', 'error');
-                    // 恢复按钮状态
-                    if (processShipmentBtn) {
-                        processShipmentBtn.disabled = false;
-                        processShipmentBtn.style.opacity = "1";
-                        processShipmentBtn.style.cursor = "pointer";
-                        processShipmentBtn.textContent = "处理发货";
-                    }
-                    if (confirmShipmentBtn) {
-                        confirmShipmentBtn.disabled = false;
-                        confirmShipmentBtn.style.opacity = "1";
-                        confirmShipmentBtn.style.cursor = "pointer";
-                        confirmShipmentBtn.textContent = "确认发货";
-                    }
-                    return;
-                }
-
-                // 直接调用完成任务的API，这会将任务移动到历史表
-                const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
-                    }
-                });
-
-                if (response.ok) {
-                    const products = await DataManager.getAllProducts();
-                    const taskWithPrice = {
-                        ...task,
-                        items: task.items.map(item => {
-                            const product = products.find(p => p.id === item.productId);
-                            return {
-                                ...item,
-                                purchasePrice: product ? product.purchasePrice : 0,
-                                salePrice: product ? product.salePrice : 0
-                            };
-                        })
-                    };
-
-                    // 更新销售运营端任务卡片上的状态标签，而不是移除元素
-                    // 先尝试查找仓库任务元素（id为task-）
-                    let taskElement = document.getElementById(`task-${taskId}-front`);
-
-                    // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
-                    if (!taskElement) {
-                        taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-                    }
-
-                    if (taskElement) {
-                        // 查找并更新状态标签
-                        const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
-                        if (statusBadge) {
-                            statusBadge.textContent = '已发货';
-                            statusBadge.classList.remove('badge-warning');
-                            statusBadge.classList.add('badge-success');
-                        }
-
-                        // 禁用处理发货按钮
-                        const processShipmentBtn = taskElement.querySelector('button[data-action="flip"]');
-                        if (processShipmentBtn) {
-                            processShipmentBtn.disabled = true;
-                            processShipmentBtn.style.opacity = '0.5';
-                            processShipmentBtn.style.cursor = 'not-allowed';
-                            processShipmentBtn.textContent = '已发货';
-                        }
-
-                        // 禁用确认发货按钮（如果在背面）
-                        const confirmShipmentBtn = taskElement.querySelector('button[data-action="complete-shipment"]');
-                        if (confirmShipmentBtn) {
-                            confirmShipmentBtn.disabled = true;
-                            confirmShipmentBtn.style.opacity = '0.5';
-                            confirmShipmentBtn.style.cursor = 'not-allowed';
-                            confirmShipmentBtn.textContent = '已发货';
-                        }
-                    }
-
-                    Utils.showAlert('任务已完成发货！', 'success', function() {
-                        // 立即更新UI状态，提供即时反馈
-                        expandedTaskId = null;
-
-                        // 并行更新仪表板和任务列表，提高效率
-                        updateDashboard();
-                        loadWarehouseTasksList().then(() => {
-                            // 重新绑定仓库任务事件，确保新渲染的元素有正确的事件处理
-                            bindWarehouseTaskEvents();
-                        });
-                        loadSalesPublishedTasks();
-                    });
-                } else {
-                    // 如果响应不是ok状态，显示错误信息
-                    const errorData = await response.text();
-                    console.error('完成发货任务失败:', response.status, errorData);
-                    Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
-                    
-                    // 恢复按钮状态
-                    if (processShipmentBtn) {
-                        processShipmentBtn.disabled = false;
-                        processShipmentBtn.style.opacity = "1";
-                        processShipmentBtn.style.cursor = "pointer";
-                        processShipmentBtn.textContent = "处理发货";
-                    }
-                    if (confirmShipmentBtn) {
-                        confirmShipmentBtn.disabled = false;
-                        confirmShipmentBtn.style.opacity = "1";
-                        confirmShipmentBtn.style.cursor = "pointer";
-                        confirmShipmentBtn.textContent = "确认发货";
-                    }
-                }
-            } catch (error) {
-                console.error('完成发货任务失败:', error);
-                Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
-
-                // 恢复按钮状态
-                if (processShipmentBtn) {
-                    processShipmentBtn.disabled = false;
-                    processShipmentBtn.style.opacity = "1";
-                    processShipmentBtn.style.cursor = "pointer";
-                    processShipmentBtn.textContent = "处理发货";
-                }
-                if (confirmShipmentBtn) {
-                    confirmShipmentBtn.disabled = false;
-                    confirmShipmentBtn.style.opacity = "1";
-                    confirmShipmentBtn.style.cursor = "pointer";
-                    confirmShipmentBtn.textContent = "确认发货";
-                }
-            }
+            );
         }
         // 预览任务本体码
         function previewTaskBodyCode(taskId) {
@@ -11271,15 +11175,6 @@
                                 supplier = product.supplier;
                             }
                             
-                            // 尝试从任务对象中获取完整的商品信息
-                            if (supplier === '未知供应商' && stats && stats.allProducts) {
-                                // 查找关联的商品信息
-                                const matchedProduct = stats.allProducts.find(p => p.id == productId || p.id == item.productId);
-                                if (matchedProduct && (matchedProduct.product_supplier || matchedProduct.supplier)) {
-                                    supplier = matchedProduct.product_supplier || matchedProduct.supplier;
-                                }
-                            }
-                            
                             productMap[productId] = {
                                 name: item.productName || product.name || '未知商品',
                                 code: item.productCode || product.code || 'N/A',
@@ -11291,8 +11186,8 @@
                         }
                         
                         const quantity = item.quantity || 0;
-                        const salePrice = item.salePrice || item.sale_price || product.sale_price || product.salePrice || 0;
-                        const purchasePrice = product.purchase_price || product.purchasePrice || 0;
+                        const salePrice = item.salePrice || product.salePrice || 0;
+                        const purchasePrice = product.purchasePrice || 0;
                         
                         productMap[productId].quantity += quantity;
                         productMap[productId].sales += salePrice * quantity;
