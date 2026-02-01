@@ -1,0 +1,21 @@
+#!/bin/bash
+# GitHub 推送配置说明
+
+echo "要推送更改到GitHub，请按以下步骤操作："
+echo ""
+echo "1. 创建个人访问令牌 (Personal Access Token):"
+echo "   - 访问 https://github.com/settings/tokens"
+echo "   - 点击 'Generate new token'"
+echo "   - 设置适当的权限（通常选择 repo 权限）"
+echo "   - 复制生成的令牌"
+echo ""
+echo "2. 替换远程仓库URL，使用令牌认证："
+echo "   git remote set-url origin https://<your_token>@github.com/wincheecom/render.git"
+echo ""
+echo "   或者，推荐使用SSH方式（需要先配置SSH密钥）："
+echo "   git remote set-url origin git@github.com:wincheecom/render.git"
+echo ""
+echo "3. 然后推送更改："
+echo "   git push origin main"
+echo ""
+echo "注意：如果您已在本地配置了SSH密钥，则直接运行 'git push origin main' 即可"
