@@ -6199,15 +6199,19 @@
             
             // 添加一些初始数据（如果从未初始化过）
             (async () => {
-                // 检查是否是首次运行系统
-                const hasProductsInitialized = localStorage.getItem('products_initialized');
-                if (!hasProductsInitialized) {
-                    const products = await DataManager.getAllProducts();
-                    if (products.length === 0) {
-                        initializeSampleData();
-                        // 标记产品数据已初始化
-                        localStorage.setItem('products_initialized', 'true');
+                try {
+                    // 检查是否是首次运行系统
+                    const hasProductsInitialized = localStorage.getItem('products_initialized');
+                    if (!hasProductsInitialized) {
+                        const products = await DataManager.getAllProducts();
+                        if (products.length === 0) {
+                            initializeSampleData();
+                            // 标记产品数据已初始化
+                            localStorage.setItem('products_initialized', 'true');
+                        }
                     }
+                } catch (error) {
+                    console.error('初始化示例数据失败:', error);
                 }
             })();
         }
