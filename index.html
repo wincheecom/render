@@ -1408,6 +1408,8 @@
             align-self: flex-start;
             /* 确保容器不会影响布局宽度 */
             flex: 0 0 auto;
+            /* 添加3D视角 */
+            perspective: 1500px;
         }
         
         .task-flip-container .task-front, .task-flip-container .task-back {
@@ -9054,6 +9056,16 @@
             
             if (flipContainer && flipContainer.classList.contains('task-flip-container')) {
                 flipContainer.classList.toggle('flipped');
+                
+                // 更新按钮文本以反映当前状态
+                const flipButton = document.querySelector(`[data-task-id="${taskId}"][data-action="flip"]`);
+                if (flipButton) {
+                    if (flipContainer.classList.contains('flipped')) {
+                        flipButton.textContent = '返回';
+                    } else {
+                        flipButton.textContent = '处理发货';
+                    }
+                }
             } else {
                 console.error(`未找到有效的翻转容器`);
             }
