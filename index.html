@@ -6113,10 +6113,18 @@
             }
             
             // 生成侧边栏菜单
-            generateSidebarMenu();
+            try {
+                generateSidebarMenu();
+            } catch (error) {
+                console.error('生成侧边栏菜单失败:', error);
+            }
             
             // 绑定菜单切换事件
-            bindMenuEvents();
+            try {
+                bindMenuEvents();
+            } catch (error) {
+                console.error('绑定菜单事件失败:', error);
+            }
             
             // 绑定退出登录事件
             document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -6124,10 +6132,18 @@
             });
             
             // 初始化各模块
-            initDashboard();
+            try {
+                initDashboard();
+            } catch (error) {
+                console.error('初始化仪表板失败:', error);
+            }
             
             // 默认显示总览页面
-            switchModule('dashboard');
+            try {
+                switchModule('dashboard');
+            } catch (error) {
+                console.error('切换到仪表板模块失败:', error);
+            }
             
             // 响应式菜单切换 - 支持移动端滑出和桌面端折叠
             document.getElementById('menuToggle').addEventListener('click', function() {
@@ -6206,6 +6222,12 @@
                 if (moduleId === 'warehouse-operations') icon = 'fa-warehouse';
                 if (moduleId === 'statistics-dashboard') icon = 'fa-chart-pie';
                 if (moduleId === 'user-management') icon = 'fa-users';
+                
+                // 确保模块存在
+                if (!module) {
+                    console.error(`模块 ${moduleId} 未定义`);
+                    return;
+                }
                 
                 const menuItem = document.createElement('li');
                 menuItem.className = 'menu-item';
