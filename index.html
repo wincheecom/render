@@ -9158,13 +9158,23 @@
                 
                 if (flipContainer.classList.contains('flipped')) {
                     // 如果卡片已翻转到背面，将按钮文本改为"返回"
-                    if (currentText.includes('处理发货') || currentText.includes('详情')) {
+                    if (currentText.includes('处理发货') || currentText.includes('详情') || currentText.includes('已发货')) {
                         button.innerHTML = '<i class="fas fa-arrow-left"></i> 返回';
                     }
                 } else {
-                    // 如果卡片翻转到正面，将按钮文本改为"处理发货"
+                    // 如果卡片翻转到正面，根据按钮原来的状态决定显示内容
                     if (currentText.includes('返回')) {
-                        button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
+                        // 检查按钮之前是否处于已发货状态
+                        const isPreviouslyShipped = button.textContent.trim().includes('已发货');
+                        const isInWarehouseModule = button.closest('.warehouse-tasks-gallery') !== null;
+                        if (isPreviouslyShipped) {
+                            // 如果之前是已发货状态，翻转回来后仍保持已发货状态
+                            button.innerHTML = '<i class="fas fa-check"></i> 已发货';
+                        } else if (isInWarehouseModule) {
+                            button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
+                        } else {
+                            button.innerHTML = '<i class="fas fa-info-circle"></i> 详情';
+                        }
                     }
                 }
             });
@@ -9193,14 +9203,10 @@
         function warehouseTaskEventHandler(e) {
             // 处理翻转卡片事件
             if (e.target.closest('[data-action="flip"]')) {
-                e.preventDefault();
                 e.stopPropagation();
                 const button = e.target.closest('[data-action="flip"]');
                 const taskId = button.getAttribute('data-task-id');
-                // 防止重复触发，延迟一点时间再执行
-                setTimeout(() => {
-                    toggleTaskCardFlip(taskId);
-                }, 0);
+                toggleTaskCardFlip(taskId);
             }
             // 处理确认发货事件
             else if (e.target.closest('[data-action="complete-shipment"]')) {
