@@ -4181,15 +4181,22 @@
                         // 解码payload部分（第二部分）
                         let payload;
                         try {
-                            payload = JSON.parse(atob(tokenParts[1]));
+                            // 处理JWT payload的Base64Url解码
+                            const base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+                            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                            }).join(''));
+                            payload = JSON.parse(jsonPayload);
                         } catch (decodeError) {
                             console.error('JWT payload解码失败:', decodeError);
-                            this.logout();
-                            return null;
+                            // 如果解码失败，仍然返回用户信息，但记录错误
+                            console.warn('JWT解码失败但仍返回用户信息');
+                            return user;
                         }
-                        const currentTime = Math.floor(Date.now() / 1000);
                         
-                        if (payload.exp < currentTime) {
+                        // 检查过期时间，如果存在的话
+                        const currentTime = Math.floor(Date.now() / 1000);
+                        if (payload.exp && payload.exp < currentTime) {
                             // Token已过期，清除本地存储
                             this.logout();
                             return null;
