@@ -676,7 +676,7 @@ app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, re
     const result = await db.query(
       `INSERT INTO users (email, password_hash, name, role, company_name, currency, language, settings, is_active) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, email, name, role, company_name, currency, language, settings, is_active, created_at, updated_at`,
-      [email, passwordHash, name, role, companyName || '公司名称', 'USD', 'en', {}, true]
+      [email, passwordHash, name, role, companyName || '名称', 'USD', 'en', {}, true]
     );
     
     const newUser = result.rows[0];

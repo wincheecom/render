@@ -40,7 +40,7 @@ async function createSalesAccount() {
       console.log(`邮箱: ${email}`);
       console.log(`密码: ${password}`); // 实际部署时不应该打印密码
       console.log(`角色: ${role}`);
-      console.log(`公司名称: ${companyName}`);
+      console.log(`名称: ${companyName}`);
     }
   } catch (error) {
     console.error('创建销售运营账户时出错:', error);

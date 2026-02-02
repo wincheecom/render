@@ -60,10 +60,10 @@ async function initializeDatabase() {
          ($11, $12, $13, $14, $15),
          ($16, $17, $18, $19, $20);`,
         [
-          'admin@example.com', adminPasswordHash, '管理员1', 'admin', '公司名称',
-          'admin2@example.com', adminPasswordHash, '管理员2', 'admin', '公司名称',
-          'sales@example.com', salesPasswordHash, '销售运营', 'sales', '公司名称',
-          'warehouse@example.com', warehousePasswordHash, '仓库管理', 'warehouse', '公司名称'
+          'admin@example.com', adminPasswordHash, '管理员1', 'admin', '名称',
+          'admin2@example.com', adminPasswordHash, '管理员2', 'admin', '名称',
+          'sales@example.com', salesPasswordHash, '销售运营', 'sales', '名称',
+          'warehouse@example.com', warehousePasswordHash, '仓库管理', 'warehouse', '名称'
         ]
       );
       
@@ -82,7 +82,7 @@ async function initializeDatabase() {
         await pool.query(
           `INSERT INTO users (email, password_hash, name, role, company_name)
            VALUES ($1, $2, $3, $4, $5)`,
-          ['admin@example.com', adminPasswordHash, '管理员1', 'admin', '公司名称']
+          ['admin@example.com', adminPasswordHash, '管理员1', 'admin', '名称']
         );
         
         console.log('已添加默认管理员账户');
