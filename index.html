@@ -4324,6 +4324,9 @@
                     // 记录活动
                     this.addActivity('product', `添加新产品: ${product.name} (${product.code})`);
                     
+                    // 清除产品缓存，以便下次获取最新的产品数据
+                    this.clearProductsCache();
+                    
                     return mappedProduct;
                 } catch (error) {
                     console.error('添加产品失败:', error);
@@ -4394,6 +4397,9 @@
                         console.error('删除产品失败:', response.statusText);
                         return false;
                     }
+                    
+                    // 清除产品缓存，以便下次获取最新的产品数据
+                    this.clearProductsCache();
                     
                     return true;
                 } catch (error) {
@@ -4659,6 +4665,9 @@
                     // 记录活动
                     this.addActivity('task', `创建发货任务: ${mappedTask.taskNumber}`);
                     
+                    // 清除历史记录缓存，以便下次获取最新的任务数据
+                    this.clearHistoryCache();
+                    
                     return mappedTask;
                 } catch (error) {
                     console.error('创建任务失败:', error);
@@ -4689,6 +4698,9 @@
                         console.error('更新任务失败:', response.statusText);
                         return false;
                     }
+                    
+                    // 清除历史记录缓存，以便下次获取最新的任务数据
+                    this.clearHistoryCache();
                     
                     return true;
                 } catch (error) {
@@ -4721,6 +4733,9 @@
                         }
                         return false;
                     }
+                    
+                    // 清除历史记录缓存，以便下次获取最新的任务数据
+                    this.clearHistoryCache();
                     
                     return true;
                 } catch (error) {
@@ -4938,6 +4953,9 @@
                         return false;
                     }
                     
+                    // 清除历史记录缓存，以便下次获取最新的任务数据
+                    this.clearHistoryCache();
+                    
                     return true;
                 } catch (error) {
                     console.error('完成任务并移动到历史记录失败:', error);
@@ -5134,52 +5152,99 @@
             
             static async getStatisticsData(filter = 'day', userId = null) {
                 try {
-                    const history = await this.getHistory();
-                    const products = await this.getAllProducts();
+                    // 使用缓存的数据，避免重复请求
+                    let history, products, allUsers;
+                    
+                    // 检查缓存是否有效，如果有效则使用缓存
+                    if (this.cachedHistory && this.cachedHistory.timestamp && 
+                        (Date.now() - this.cachedHistory.timestamp) < 30000) { // 30秒缓存
+                        history = this.cachedHistory.data;
+                    } else {
+                        history = await this.getHistory();
+                        this.cachedHistory = { data: history, timestamp: Date.now() };
+                    }
+                    
+                    if (this.cachedProducts && this.cachedProducts.timestamp && 
+                        (Date.now() - this.cachedProducts.timestamp) < 30000) { // 30秒缓存
+                        products = this.cachedProducts.data;
+                    } else {
+                        products = await this.getAllProducts();
+                        this.cachedProducts = { data: products, timestamp: Date.now() };
+                    }
+                    
+                    if (this.cachedUsers && this.cachedUsers.timestamp && 
+                        (Date.now() - this.cachedUsers.timestamp) < 30000) { // 30秒缓存
+                        allUsers = this.cachedUsers.data;
+                    } else {
+                        allUsers = await this.getAllUsers();
+                        this.cachedUsers = { data: allUsers, timestamp: Date.now() };
+                    }
+                    
                     const { startDate, endDate } = Utils.getDateRange(filter);
                     
                     // 获取当前用户信息
                     const currentUser = this.getCurrentUser();
                     
-                    // 首先获取所有用户信息用于后续的ID和名称匹配
-                    const allUsers = await this.getAllUsers();
+                    // 预先创建用户ID到用户信息的映射，提高查找效率
+                    const userIdMap = {};
+                    allUsers.forEach(user => {
+                        userIdMap[user.id] = user;
+                    });
                     
-                    const filteredHistory = history.filter(task => {
+                    // 预先创建用户名称到用户ID的映射，用于快速匹配
+                    const userNameMap = {};
+                    allUsers.forEach(user => {
+                        if (user.name) userNameMap[user.name] = user.id;
+                        if (user.username) userNameMap[user.username] = user.id;
+                        if (user.email) userNameMap[user.email] = user.id;
+                    });
+                    
+                    // 优化筛选逻辑，减少重复计算
+                    const filteredHistory = [];
+                    for (let i = 0; i < history.length; i++) {
+                        const task = history[i];
                         const taskDate = new Date(task.completedAt || task.createdAt);
                         
                         // 检查日期范围
-                        const dateInRange = taskDate >= startDate && taskDate < endDate;
-                        if (!dateInRange) return false;
+                        if (taskDate < startDate || taskDate >= endDate) continue;
                         
                         // 获取任务创建者信息
                         const taskCreator = task.creator_name || task.creatorName || task.creator;
                         
                         // 如果指定了特定用户ID，则只显示该用户的数据
                         if (userId && userId !== 'all') {
-                            // 查找指定用户ID对应的用户信息
-                            const targetUser = allUsers.find(u => u.id === userId);
+                            // 使用预建的映射快速查找
+                            const targetUser = userIdMap[userId];
                             if (targetUser) {
                                 // 比较任务创建者与目标用户的名称或ID
-                                return taskCreator === targetUser.name || 
-                                       taskCreator === targetUser.username ||
-                                       taskCreator === targetUser.email;
+                                if (taskCreator === targetUser.name || 
+                                    taskCreator === targetUser.username ||
+                                    taskCreator === targetUser.email) {
+                                    filteredHistory.push(task);
+                                }
                             } else {
                                 // 如果没找到目标用户，尝试直接比较userId与任务创建者名称
                                 // 这是为了处理可能传入用户名而非用户ID的情况
-                                return taskCreator === userId;
+                                if (taskCreator === userId) {
+                                    filteredHistory.push(task);
+                                }
                             }
+                            continue;
                         }
                         
                         // 对于非管理员用户，只处理他们自己创建的任务
                         if (currentUser && currentUser.role !== 'admin') {
                             // 检查任务创建者是否与当前用户匹配（考虑多种可能的标识符）
-                            return taskCreator === currentUser.name || 
-                                   taskCreator === currentUser.username || 
-                                   taskCreator === currentUser.email;
+                            if (taskCreator === currentUser.name || 
+                                taskCreator === currentUser.username || 
+                                taskCreator === currentUser.email) {
+                                filteredHistory.push(task);
+                            }
                         } else {
-                            return true; // 管理员可以看到所有数据
+                            // 管理员可以看到所有数据
+                            filteredHistory.push(task);
                         }
-                    });
+                    }
                     
 
                     
@@ -5789,6 +5854,26 @@
                     console.error('错误堆栈:', error.stack);
                     return [];
                 }
+            }
+            
+            // 清除缓存的方法
+            static clearCache() {
+                this.cachedHistory = null;
+                this.cachedProducts = null;
+                this.cachedUsers = null;
+            }
+            
+            // 在数据更新时清除相关缓存
+            static clearHistoryCache() {
+                this.cachedHistory = null;
+            }
+            
+            static clearProductsCache() {
+                this.cachedProducts = null;
+            }
+            
+            static clearUsersCache() {
+                this.cachedUsers = null;
             }
         }
         
