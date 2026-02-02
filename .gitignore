@@ -12,7 +12,7 @@ build/
 *backup*
 test_*.js
 debug_*.js
-fix_user_fields.js
+fix_*.js
 verify_*.js
 apply_*.js
 check_*.js
