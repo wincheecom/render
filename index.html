@@ -3093,12 +3093,12 @@
             <form class="login-form" id="loginForm">
                 <div class="form-group">
                     <label for="username">邮箱</label>
-                    <input type="email" id="username" class="form-control" placeholder="邮箱地址" required>
+                    <input type="email" id="username" class="form-control" placeholder="邮箱地址" required autocomplete="username">
                 </div>
                             
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" id="password" class="form-control" placeholder="密码" required>
+                    <input type="password" id="password" class="form-control" placeholder="密码" required autocomplete="current-password">
                 </div>
                             
                 <button type="submit" class="btn btn-primary">
@@ -3118,15 +3118,15 @@
                 <form id="registerForm">
                     <div class="mb-3">
                         <label for="registerName" class="form-label">姓名</label>
-                        <input type="text" class="form-control" id="registerName" placeholder="填写公司简称" required>
+                        <input type="text" class="form-control" id="registerName" placeholder="填写公司简称" required autocomplete="name">
                     </div>
                     <div class="mb-3">
                         <label for="registerEmail" class="form-label">邮箱</label>
-                        <input type="email" class="form-control" id="registerEmail" placeholder="填写邮箱地址" required>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="填写邮箱地址" required autocomplete="email">
                     </div>
                     <div class="mb-3">
                         <label for="registerPassword" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码，至少6位" required>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码，至少6位" required autocomplete="new-password">
                     </div>
                     <div class="mb-3">
                         <label for="registerRole" class="form-label">角色</label>
@@ -3255,16 +3255,16 @@
                                 <div class="mb-16">
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <input type="text" id="productCode" class="form-control" placeholder="货号" required>
+                                            <input type="text" id="productCode" class="form-control" placeholder="货号" required autocomplete="off">
                                         </div>
                                         
                                         <div class="form-group">
-                                            <input type="text" id="productName" class="form-control" placeholder="名称" required>
+                                            <input type="text" id="productName" class="form-control" placeholder="名称" required autocomplete="off">
                                         </div>
                                     </div>
                                     
                                     <div class="form-group" style="width: 100%; margin-bottom: 16px;">
-                                        <input type="text" id="productSupplier" class="form-control" placeholder="供应商" style="width: 100%;">
+                                        <input type="text" id="productSupplier" class="form-control" placeholder="供应商" style="width: 100%;" autocomplete="off">
                                     </div>
                                     
                                     <div class="form-row">
@@ -3326,7 +3326,7 @@
                             </div>
                             <div class="search-box">
                                 <i class="fas fa-search search-icon"></i>
-                                <input type="text" class="search-input" id="productSearch" placeholder="搜索产品名称或货号">
+                                <input type="text" class="search-input" id="productSearch" placeholder="搜索产品名称或货号" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -3385,7 +3385,7 @@
                                 <div class="mb-16">
                                     <div class="search-box">
                                         <i class="fas fa-search search-icon"></i>
-                                        <input type="text" class="search-input" id="productSearchInput" placeholder="点击搜索商品名称或货号，选择商品，创建发货任务">
+                                        <input type="text" class="search-input" id="productSearchInput" placeholder="点击搜索商品名称或货号，选择商品，创建发货任务" autocomplete="off">
                                     </div>
                                     
                                     <div class="multiselect-dropdown hidden" id="multiselectDropdown">
@@ -3628,11 +3628,11 @@
                             <input type="hidden" id="userId">
                             <div class="form-group mb-3">
                                 <label for="userName" class="form-label">姓名</label>
-                                <input type="text" class="form-control" id="userName" placeholder="请输入用户姓名" required>
+                                <input type="text" class="form-control" id="userName" placeholder="请输入用户姓名" required autocomplete="name">
                             </div>
                             <div class="form-group mb-3">
                                 <label for="userEmail" class="form-label">邮箱</label>
-                                <input type="email" class="form-control" id="userEmail" placeholder="请输入用户邮箱" required>
+                                <input type="email" class="form-control" id="userEmail" placeholder="请输入用户邮箱" required autocomplete="email">
                             </div>
                             <div class="form-group mb-3">
                                 <label for="userRole" class="form-label">角色</label>
@@ -3646,7 +3646,7 @@
                             
                             <div class="form-group mb-3">
                                 <label for="userPassword" class="form-label">密码</label>
-                                <input type="password" class="form-control" id="userPassword" placeholder="留空则不修改密码">
+                                <input type="password" class="form-control" id="userPassword" placeholder="留空则不修改密码" autocomplete="new-password">
                             </div>
                         </form>
                     </div>
