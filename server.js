@@ -421,7 +421,11 @@ app.post('/api/auth/login', async (req, res) => {
         companyName: user.company_name,
         currency: user.currency,
         language: user.language,
-        settings: user.settings
+        settings: user.settings,
+        isActive: user.is_active,
+        lastLogin: user.last_login,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at
       }
     });
   } catch (err) {
@@ -464,10 +468,10 @@ app.post('/api/auth/register', async (req, res) => {
     
     // 创建新用户
     const result = await db.query(
-      `INSERT INTO users (email, password_hash, name, role, company_name, currency, language, settings, is_active) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-       RETURNING id, email, name, role, company_name, currency, language, settings, created_at`,
-      [email, hashedPassword, name, role, companyName || '', 'USD', 'en', {}, true]
+      `INSERT INTO users (email, password_hash, name, role, company_name, currency, language, settings, is_active, last_login, created_at, updated_at) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) 
+       RETURNING id, email, name, role, company_name, currency, language, settings, is_active, created_at`,
+      [email, hashedPassword, name, role, companyName || '', 'USD', 'en', {}, true, null, new Date(), new Date()]
     );
     
     const user = result.rows[0];
@@ -494,7 +498,11 @@ app.post('/api/auth/register', async (req, res) => {
         companyName: user.company_name,
         currency: user.currency,
         language: user.language,
-        settings: user.settings
+        settings: user.settings,
+        isActive: user.is_active,
+        lastLogin: user.last_login,
+        createdAt: user.created_at,
+        updatedAt: user.created_at  // 在注册时，created_at 和 updated_at 是相同的
       }
     });
   } catch (err) {
@@ -695,7 +703,20 @@ app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, re
     
     res.status(201).json({
       token,
-      user: newUser
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role,
+        companyName: newUser.company_name,
+        currency: newUser.currency,
+        language: newUser.language,
+        settings: newUser.settings,
+        isActive: newUser.is_active,
+        lastLogin: newUser.last_login,
+        createdAt: newUser.created_at,
+        updatedAt: newUser.updated_at
+      }
     });
   } catch (err) {
     console.error('创建用户错误:', err);
