@@ -411,6 +411,7 @@
             box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
+            border: none;
         }
 
         .card:hover {
@@ -426,9 +427,11 @@
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
-            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
+            border: none;
+            box-shadow: none;
+            outline: none;
         }
                 
         .stat-number {
@@ -972,9 +975,11 @@
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
-            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
+            border: none;
+            box-shadow: none;
+            outline: none;
         }
         
         .stat-number {
@@ -1012,28 +1017,30 @@
             color: white;
             border-color: var(--primary);
         }
-        
+                
         .stat-card {
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
-            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
+            border: none;
+            box-shadow: none;
+            outline: none;
         }
-        
+                
         .stat-number {
             font-size: 2.2rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 4px;
         }
-        
+                
         .stat-label {
             color: var(--gray);
             font-size: 0.85rem;
         }
-
+                
         /* ===== 最近添加的产品布局 ===== */
         .recent-products-scroll {
             overflow-y: auto;
@@ -1818,9 +1825,10 @@
             box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
+            border: none;
         }
-
-        
+                
+                
         /* 任务卡片样式 */
         .warehouse-tasks-gallery .task-front {
             /* 应用统计卡样式 */
@@ -1841,6 +1849,7 @@
             min-height: 220px;
             box-sizing: border-box;
             max-width: 302.66px;
+            border: none;
         }
         
         /* 响应式调整：小屏幕上适当减小仓库任务卡片高度 */
@@ -2146,6 +2155,7 @@
         /* 隐藏外层card容器，保留任务卡片本身 */
         .published-tasks-section .card {
             display: none;
+            border: none;
         }
 
         .task-left-section {
@@ -3031,6 +3041,13 @@
             margin: 0;
         }
         
+        /* 模态框底部按钮居中对齐 */
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        
         /* 用户管理模块模态框宽度调整 */
         #userModal .modal-dialog {
             max-width: 500px;
@@ -3722,7 +3739,7 @@
                 
         #statistics-analysis .card {
             border-radius: 10px;
-            border: 1px solid var(--gray-light);
+            border: none;
             background-color: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             overflow: hidden;
@@ -3794,9 +3811,11 @@
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
-            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
+            border: none;
+            box-shadow: none;
+            outline: none;
         }
         
         #statistics-dashboard .stat-number {
