@@ -464,10 +464,10 @@ app.post('/api/auth/register', async (req, res) => {
     
     // 创建新用户
     const result = await db.query(
-      `INSERT INTO users (email, password_hash, name, role, company_name) 
-       VALUES ($1, $2, $3, $4, $5) 
+      `INSERT INTO users (email, password_hash, name, role, company_name, currency, language, settings, is_active) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
        RETURNING id, email, name, role, company_name, currency, language, settings, created_at`,
-      [email, hashedPassword, name, role, companyName || '']
+      [email, hashedPassword, name, role, companyName || '', 'USD', 'en', {}, true]
     );
     
     const user = result.rows[0];
