@@ -3,7 +3,6 @@
  * 用于处理销售统计相关的功能
  */
 
-console.log('Salesperson statistics module loaded');
 
 /**
  * 更新销售员统计数据
