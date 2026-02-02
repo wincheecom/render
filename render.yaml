@@ -45,7 +45,7 @@ services:
         sync: false
 
 
-databases:
+ databases:
   - name: funseek-db
     region: singapore
     databaseName: funseek
