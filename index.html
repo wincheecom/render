@@ -3627,6 +3627,10 @@
                                 </select>
                             </div>
                             <div class="form-group mb-3">
+                                <label for="userCompanyName" class="form-label">公司名称</label>
+                                <input type="text" class="form-control" id="userCompanyName" placeholder="请输入公司名称">
+                            </div>
+                            <div class="form-group mb-3">
                                 <label for="userPassword" class="form-label">密码</label>
                                 <input type="password" class="form-control" id="userPassword" placeholder="留空则不修改密码">
                             </div>
@@ -11040,6 +11044,7 @@
                 document.getElementById('userName').value = user.name || user.username || '';
                 document.getElementById('userEmail').value = user.email || user.username || '';
                 document.getElementById('userRole').value = user.role || '';
+                document.getElementById('userCompanyName').value = user.companyName || user.company_name || '';
                 
                 // 编辑时密码不是必需的
                 document.getElementById('userPassword').required = false;
@@ -11055,6 +11060,7 @@
             const name = document.getElementById('userName').value;
             const email = document.getElementById('userEmail').value;
             const role = document.getElementById('userRole').value;
+            const companyName = document.getElementById('userCompanyName').value;
             const password = document.getElementById('userPassword').value;
             
             if (!name || !email || !role) {
@@ -11074,7 +11080,7 @@
                     method = 'POST';
                 }
                 
-                const userData = { name, email, role };
+                const userData = { name, email, role, companyName };
                 if (password) {
                     userData.password = password;
                 }

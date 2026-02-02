@@ -657,7 +657,7 @@ app.get('/api/users/:id', authenticateToken, async (req, res) => {
 // 创建新用户（仅限管理员）
 app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, res) => {
   try {
-    const { email, name, role, password } = req.body;
+    const { email, name, role, password, companyName } = req.body;
     
     if (!email || !name || !role || !password) {
       return res.status(400).json({ error: '缺少必需字段', message: '邮箱、姓名、角色和密码都是必需的' });
@@ -676,7 +676,7 @@ app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, re
     const result = await db.query(
       `INSERT INTO users (email, password_hash, name, role, company_name, currency, language, settings, is_active) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, email, name, role, company_name, currency, language, settings, is_active, created_at, updated_at`,
-      [email, passwordHash, name, role, '公司名称', 'USD', 'en', {}, true]
+      [email, passwordHash, name, role, companyName || '公司名称', 'USD', 'en', {}, true]
     );
     
     const newUser = result.rows[0];
