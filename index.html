@@ -430,7 +430,7 @@
             padding: 20px;
             transition: var(--transition);
             border: none;
-            box-shadow: none;
+            box-shadow: var(--shadow);
             outline: none;
         }
                 
@@ -590,6 +590,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 6px; /* 与.btn保持一致的图标间距 */
         }
 
         .btn-outline:hover {
@@ -978,7 +979,7 @@
             padding: 20px;
             transition: var(--transition);
             border: none;
-            box-shadow: none;
+            box-shadow: var(--shadow);
             outline: none;
         }
         
@@ -1025,7 +1026,7 @@
             padding: 20px;
             transition: var(--transition);
             border: none;
-            box-shadow: none;
+            box-shadow: var(--shadow);
             outline: none;
         }
                 
@@ -3596,7 +3597,7 @@
         <div class="table-container">
             <div class="table-header">
                 <div class="table-title">账户管理</div>
-                <div class="d-flex align-center gap-12">
+                <div class="d-flex align-center gap-12" style="align-items: stretch;">
                     <button class="btn btn-primary" onclick="showAddUserModal()">
                         <i class="fas fa-plus"></i> 添加用户
                     </button>
@@ -3825,7 +3826,7 @@
             padding: 20px;
             transition: var(--transition);
             border: none;
-            box-shadow: none;
+            box-shadow: var(--shadow);
             outline: none;
         }
         
@@ -3926,10 +3927,11 @@
             flex: 1 1 auto;
         }
         
-        /* 调整用户管理模块以与菜单栏左对齐 */
+        /* 调整用户管理模块以与总览区域顶部对齐 */
         #user-management {
             padding: 20px;
             margin-left: var(--sidebar-width);
+            margin-top: calc(var(--header-height) + 20px); /* 与总览模块顶部对齐: header-height(70px) + main-content padding(20px) */
             min-height: 100vh;
             box-sizing: border-box;
         }
@@ -3955,16 +3957,25 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 4px; /* 统一图标间距 */
         }
         
         #user-management .btn i {
-            margin-right: 4px;
+            margin-right: 0; /* 移除单独的margin设置，使用gap统一控制 */
         }
                 
 
                 
 
         /* 响应式调整 */
+        @media (max-width: 992px) {
+            /* 移动端用户管理模块调整 */
+            #user-management {
+                margin-left: 0;
+                margin-top: calc(var(--header-height) + 16px); /* 移动端padding较小 */
+            }
+        }
+        
         @media (max-width: 768px) {
             /* 小屏幕上的统计项调整 */
             .stat-item {

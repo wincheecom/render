@@ -299,6 +299,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Route to serve the simple login test page
+app.get('/login-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'simple_login.html'));
+});
+
 // 权限中间件
 function requireRole(requiredRoles) {
   return (req, res, next) => {
@@ -377,6 +382,8 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: '邮箱和密码都是必填项' });
     }
     
+    console.log(`收到登录请求: ${email}`);
+    
     // 查询用户
     const result = await db.query('SELECT * FROM users WHERE email = $1 AND is_active = true', [email]);
     
@@ -394,6 +401,8 @@ app.post('/api/auth/login', async (req, res) => {
       console.log(`登录失败: 用户 ${email} 密码错误`);
       return res.status(401).json({ error: '邮箱或密码错误' });
     }
+    
+    console.log(`登录成功: 用户 ${email} (${user.name}) 登录成功`);
     
     // 生成 JWT Token
     const token = jwt.sign(
