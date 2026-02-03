@@ -1403,7 +1403,7 @@
         }
         
         .task-flip-container {
-            width: 100%;
+            width: 302.66px;
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
@@ -1413,7 +1413,7 @@
             transform-origin: center;
             -webkit-transform-origin: center;
             /* 确保容器宽度固定，防止翻转时变形 */
-            max-width: 100%;
+            max-width: 302.66px;
             max-height: 100%;
             flex-shrink: 0;
             align-self: flex-start;
@@ -1502,8 +1502,8 @@
             .task-flip-container .task-front,
             .task-flip-container .task-back {
                 min-height: 200px;
-                width: calc(100% - 20px);
-                max-width: 302.66px;
+                width: 100%;
+                max-width: 100%;
             }
             
             .task-flip-container .task-front {
@@ -1520,8 +1520,8 @@
             .task-flip-container .task-front,
             .task-flip-container .task-back {
                 min-height: 180px;
-                width: calc(100% - 12px);
-                max-width: 302.66px;
+                width: 100%;
+                max-width: 100%;
             }
             
             .task-flip-container .task-front {
@@ -8617,7 +8617,7 @@
                 const creatorId = task.creatorName || task.creator_name || '未知';
                 
                 return `
-                    <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
+                    <div class="task-flip-container" data-task-id="${task.id}" onclick="toggleTaskCardFlip('${task.id}')">
                         <!-- 卡片正面 -->
                         <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
                             <div class="task-gallery-img">
@@ -8650,67 +8650,67 @@
                                         <div class="file-label">本体码</div>
                                         ${task.bodyCodeImage ? 
                                             (task.bodyCodeType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'bodyCode')">
+                                                `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                 </div>` : 
-                                                `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'bodyCode')">`) : 
-                                            '<div class="no-file">未上传</div>'}
+                                                `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">`) :
+                                            '<div class="no-file">未上传</div>'
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">条码</div>
                                         ${task.barcodeImage ? 
                                             (task.barcodeType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'barcode')">
+                                                `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                 </div>` : 
-                                                `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'barcode')">`) : 
-                                            '<div class="no-file">未上传</div>'}
+                                                `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">`) :
+                                            '<div class="no-file">未上传</div>'
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">警示码</div>
                                         ${task.warningCodeImage ? 
                                             (task.warningCodeType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'warningCode')">
+                                                `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                 </div>` : 
-                                                `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'warningCode')">`) : 
-                                            '<div class="no-file">未上传</div>'}
+                                                `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">`) :
+                                            '<div class="no-file">未上传</div>'
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">箱唛</div>
                                         ${task.labelImage ? 
                                             (task.labelType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'label')">
+                                                `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                 </div>` : 
-                                                `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'label')">`) : 
-                                            '<div class="no-file">未上传</div>'}
+                                                `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">`) :
+                                            '<div class="no-file">未上传</div>'
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">说明书</div>
                                         ${task.manualImage ? 
                                             (task.manualType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'manual')">
+                                                `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                 </div>` : 
-                                                `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'manual')">`) : 
-                                            '<div class="no-file">未上传</div>'}
+                                                `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">`) :
+                                            '<div class="no-file">未上传</div>'
                                     </div>
                                     <div class="task-file-item">
                                         <div class="file-label">其他</div>
                                         ${task.otherImage ? 
                                             (task.otherType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'other')">
+                                                `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">
                                                     <i class="fas fa-file-pdf"></i>
                                                     <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                 </div>` : 
-                                                `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'other')">`) : 
-                                            '<div class="no-file">未上传</div>'}
+                                                `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">`) :
+                                            '<div class="no-file">未上传</div>'
                                     </div>
                                 </div>
                                 <div class="task-back-actions">
@@ -9142,66 +9142,66 @@
                                                     <div class="file-label">本体码</div>
                                                     ${task.bodyCodeImage ? 
                                                         (task.bodyCodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'bodyCode')">
+                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'bodyCode')">`) : 
+                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">条码</div>
                                                     ${task.barcodeImage ? 
                                                         (task.barcodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'barcode')">
+                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'barcode')">`) : 
+                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">警示码</div>
                                                     ${task.warningCodeImage ? 
                                                         (task.warningCodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'warningCode')">
+                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'warningCode')">`) : 
+                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">箱唛</div>
                                                     ${task.labelImage ? 
                                                         (task.labelType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'label')">
+                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'label')">`) : 
+                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">说明书</div>
                                                     ${task.manualImage ? 
                                                         (task.manualType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'manual')">
+                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'manual')">`) : 
+                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                                 <div class="task-file-item">
                                                     <div class="file-label">其他</div>
                                                     ${task.otherImage ? 
                                                         (task.otherType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'other')">
+                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">
                                                                 <i class="fas fa-file-pdf"></i>
                                                                 <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
                                                             </div>` : 
-                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'other')">`) : 
+                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">`) : 
                                                         '<div class="no-file">未上传</div>'}
                                                 </div>
                                             </div>
@@ -10277,10 +10277,24 @@
                             <div class="pdf-info">
                                 <h3>${fileName || fileTitle}</h3>
                                 <p>任务号: ${task.taskNumber}</p>
+                                <p><small>右键点击上方文档可替换文件</small></p>
                             </div>
                         </body>
                         </html>
                     `);
+                    
+                    // 添加右键菜单功能
+                    printWindow.addEventListener('load', function() {
+                        const pdfFrame = printWindow.document.querySelector('iframe');
+                        if (pdfFrame) {
+                            pdfFrame.addEventListener('contextmenu', function(e) {
+                                e.preventDefault();
+                                if (confirm('是否要替换当前文件?')) {
+                                    replaceTaskFile(taskId, fileType);
+                                }
+                            });
+                        }
+                    });
                 } else {
                     printWindow.document.write(`
                         <!DOCTYPE html>
@@ -10289,15 +10303,16 @@
                             <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
                             <style>
                                 body { font-family: Arial; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
-                                img { max-width: 100%; max-height: 90vh; }
+                                img { max-width: 100%; max-height: 90vh; cursor: pointer; }
                                 .image-info { margin-top: 20px; text-align: center; }
                             </style>
                         </head>
                         <body>
-                            <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)">
+                            <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)" oncontextmenu="handleFilePreviewRightClick(event, '${taskId}', '${fileType}'); return false;">
                             <div class="image-info">
                                 <h3>任务${fileTitle}</h3>
                                 <p>任务号: ${task.taskNumber}</p>
+                                <p><small>右键点击上方图片可替换文件</small></p>
                             </div>
                         </body>
                         </html>
@@ -10308,6 +10323,110 @@
                 console.error('获取任务数据失败:', error);
                 Utils.showAlert('获取任务数据失败，请刷新页面重试', 'error');
             }
+        }
+        
+        // 处理文件预览右键点击事件
+        function handleFilePreviewRightClick(event, taskId, fileType) {
+            event.preventDefault();
+            if (confirm('是否要替换当前文件?')) {
+                replaceTaskFile(taskId, fileType);
+            }
+        }
+                    
+        // 处理文件预览点击下载事件
+        function handleFilePreviewClick(taskId, fileType) {
+            downloadTaskFile(taskId, fileType);
+        }
+                    
+        // 下载任务文件
+        async function downloadTaskFile(taskId, fileType) {
+            try {
+                const task = await DataManager.getTaskById(taskId);
+                if (!task) {
+                    Utils.showAlert('任务不存在', 'error');
+                    return;
+                }
+                            
+                const fieldName = fileType + 'Image';
+                const fileNameField = fileType + 'FileName';
+                            
+                const fileData = task[fieldName];
+                const fileName = task[fileNameField] || `${fileType}_file`;
+                            
+                if (!fileData) {
+                    Utils.showAlert('文件未上传', 'warning');
+                    return;
+                }
+                            
+                // 创建临时链接下载文件
+                const link = document.createElement('a');
+                link.href = fileData;
+                link.download = fileName;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('下载文件失败:', error);
+                Utils.showAlert('下载文件失败', 'error');
+            }
+        }
+        
+        // 替换任务文件
+        async function replaceTaskFile(taskId, fileType) {
+            // 创建隐藏的文件输入元素
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*,.pdf';
+            
+            fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // 验证文件类型
+                if (!file.type.match('image.*') && !file.type.match(/pdf/)) {
+                    if (!file.name.toLowerCase().endsWith('.pdf')) {
+                        Utils.showAlert('请选择图片或PDF文件', 'warning');
+                        return;
+                    }
+                }
+                
+                // 检查文件大小（3M限制）
+                if (file.size > 3 * 1024 * 1024) { // 3MB
+                    Utils.showAlert('文件大小不能超过3MB', 'warning');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        // 准备更新数据
+                        const updateData = {};
+                        const fieldName = fileType + 'Image';
+                        const fileNameField = fileType + 'FileName';
+                        const typeField = fileType + 'Type';
+                        
+                        updateData[fieldName] = e.target.result;
+                        updateData[fileNameField] = file.name;
+                        updateData[typeField] = file.type.includes('pdf') ? 'pdf' : 'image';
+                        
+                        // 更新任务数据
+                        await DataManager.updateTask(taskId, updateData);
+                        
+                        // 刷新任务卡片显示
+                        await loadSalesPublishedTasks();
+                        
+                        Utils.showAlert('文件替换成功', 'success');
+                    } catch (error) {
+                        console.error('替换文件失败:', error);
+                        Utils.showAlert('替换文件失败', 'error');
+                    }
+                };
+                reader.readAsDataURL(file);
+            };
+            
+            // 触发文件选择对话框
+            fileInput.click();
         }
 
         // ============================================
