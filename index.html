@@ -6044,6 +6044,10 @@
 
         async function authenticateUser(email, password) {
             try {
+                console.log('尝试登录:', email);
+                console.log('API基础地址:', DataManager.API_BASE);
+                console.log('完整请求URL:', `${DataManager.API_BASE}/api/auth/login`);
+                
                 const response = await fetch(`${DataManager.API_BASE}/api/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -6051,6 +6055,9 @@
                     },
                     body: JSON.stringify({ email, password })
                 });
+                
+                console.log('响应状态:', response.status);
+                console.log('响应头:', [...response.headers.entries()]);
                 
                 // 检查响应是否为JSON格式
                 const contentType = response.headers.get('content-type');
@@ -6382,7 +6389,7 @@
                 const menuItem = document.createElement('li');
                 menuItem.className = 'menu-item';
                 menuItem.innerHTML = `
-                    <a href="#" class="menu-link" data-module="${moduleId}" data-icon="\\${icon}">
+                    <a href="#" class="menu-link" data-module="${moduleId}" data-icon="${icon}">
                         <span>${module.name}</span>
                     </a>
                 `;
@@ -8621,114 +8628,96 @@
                 // 获取创建人ID
                 const creatorId = task.creatorName || task.creator_name || '未知';
                 
-                return `
+                // 构建任务卡片HTML
+                let taskCardHtml = '';
+                
+                // 构建正面内容
+                const frontContent = `
+                    <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
+                        <div class="task-gallery-img">
+                            ${firstProductImage ? 
+                                `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                            }
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">${firstProductName}</div>
+                            <div class="task-gallery-code" data-content="${firstProductCode}">货号: ${firstProductCode}</div>
+                            <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
+                            <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
+                        </div>
+                        <div class="task-gallery-actions d-flex align-items-center gap-2">
+                            <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
+                                ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
+                                <i class="fas fa-info-circle"></i> 详情
+                            </button>
+                        </div>
+                    </div>`;
+                
+                // 构建背面内容
+                const backContent = `
+                    <div class="task-back">
+                        <div class="task-back-content">
+                            <div class="task-files-container">
+                                ${generateFileItem('本体码', task.bodyCodeImage, task.bodyCodeType, task.bodyCodeFileName, task.id, 'bodyCode')}
+                                ${generateFileItem('条码', task.barcodeImage, task.barcodeType, task.barcodeFileName, task.id, 'barcode')}
+                                ${generateFileItem('警示码', task.warningCodeImage, task.warningCodeType, task.warningCodeFileName, task.id, 'warningCode')}
+                                ${generateFileItem('箱唛', task.labelImage, task.labelType, task.labelFileName, task.id, 'label')}
+                                ${generateFileItem('说明书', task.manualImage, task.manualType, task.manualFileName, task.id, 'manual')}
+                                ${generateFileItem('其他', task.otherImage, task.otherType, task.otherFileName, task.id, 'other')}
+                            </div>
+                            <div class="task-back-actions">
+                                <div class="back-action-buttons">
+                                    <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
+                                    <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                
+                // 组合完整卡片
+                taskCardHtml = `
                     <div class="task-flip-container" data-task-id="${task.id}" onclick="toggleTaskCardFlip('${task.id}')">
-                        <!-- 卡片正面 -->
-                        <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
-                            <div class="task-gallery-img">
-                                ${firstProductImage ? 
-                                    `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
-                                    '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
-                                }
-                            </div>
-                            <div class="task-info-container">
-                                <div class="task-gallery-name">${firstProductName}</div>
-                                <div class="task-gallery-code" data-content="${firstProductCode}">货号: ${firstProductCode}</div>
-                                <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
-                                <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
-                            </div>
-                            <div class="task-gallery-actions d-flex align-items-center gap-2">
-                                <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
-                                    ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
-                                </span>
-                                <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
-                                    <i class="fas fa-info-circle"></i> 详情
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- 卡片背面 -->
-                        <div class="task-back">
-                            <div class="task-back-content">
-                                <div class="task-files-container">
-                                    <div class="task-file-item">
-                                        <div class="file-label">本体码</div>
-                                        ${task.bodyCodeImage ? 
-                                            (task.bodyCodeType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                </div>` : 
-                                                `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">`) :
-                                            '<div class="no-file">未上传</div>'
-                                    </div>
-                                    <div class="task-file-item">
-                                        <div class="file-label">条码</div>
-                                        ${task.barcodeImage ? 
-                                            (task.barcodeType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                </div>` : 
-                                                `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">`) :
-                                            '<div class="no-file">未上传</div>'
-                                    </div>
-                                    <div class="task-file-item">
-                                        <div class="file-label">警示码</div>
-                                        ${task.warningCodeImage ? 
-                                            (task.warningCodeType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                </div>` : 
-                                                `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">`) :
-                                            '<div class="no-file">未上传</div>'
-                                    </div>
-                                    <div class="task-file-item">
-                                        <div class="file-label">箱唛</div>
-                                        ${task.labelImage ? 
-                                            (task.labelType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                </div>` : 
-                                                `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">`) :
-                                            '<div class="no-file">未上传</div>'
-                                    </div>
-                                    <div class="task-file-item">
-                                        <div class="file-label">说明书</div>
-                                        ${task.manualImage ? 
-                                            (task.manualType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                </div>` : 
-                                                `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">`) :
-                                            '<div class="no-file">未上传</div>'
-                                    </div>
-                                    <div class="task-file-item">
-                                        <div class="file-label">其他</div>
-                                        ${task.otherImage ? 
-                                            (task.otherType === 'pdf' ? 
-                                                `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                    <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                </div>` : 
-                                                `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">`) :
-                                            '<div class="no-file">未上传</div>'
-                                    </div>
-                                </div>
-                                <div class="task-back-actions">
-                                    <div class="back-action-buttons">
-                                        <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
-                                        <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                        ${frontContent}
+                        ${backContent}
+                    </div>`;
+                
+                return taskCardHtml;
             }).join('');
+        }
+        
+        // 辅助函数：生成文件项HTML
+        function generateFileItem(label, imageUrl, fileType, fileName, taskId, fileTypeKey) {
+            let fileHtml = '';
+            
+            if (imageUrl) {
+                if (fileType === 'pdf') {
+                    fileHtml = `
+                        <div class="task-file-item">
+                            <div class="file-label">${label}</div>
+                            <div class="pdf-preview" title="${fileName || 'PDF文件'}" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}')" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
+                                <i class="fas fa-file-pdf"></i>
+                                <div class="pdf-filename">${fileName ? fileName.substring(0, 12) + (fileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                            </div>
+                        </div>`;
+                } else {
+                    fileHtml = `
+                        <div class="task-file-item">
+                            <div class="file-label">${label}</div>
+                            <img src="${imageUrl}" alt="${label}" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}')" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
+                        </div>`;
+                }
+            } else {
+                fileHtml = `
+                    <div class="task-file-item">
+                        <div class="file-label">${label}</div>
+                        <div class="no-file">未上传</div>
+                    </div>`;
+            }
+            
+            return fileHtml;
         }
 
         function viewTaskDetail(taskId) {
@@ -9143,72 +9132,13 @@
                                     <div class="task-back">
                                         <div class="task-back-content">
                                             <div class="task-files-container">
-                                                <div class="task-file-item">
-                                                    <div class="file-label">本体码</div>
-                                                    ${task.bodyCodeImage ? 
-                                                        (task.bodyCodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                            </div>` : 
-                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'bodyCode')" oncontextmenu="replaceTaskFile('${task.id}', 'bodyCode'); return false;">`) : 
-                                                        '<div class="no-file">未上传</div>'}
-                                                </div>
-                                                <div class="task-file-item">
-                                                    <div class="file-label">条码</div>
-                                                    ${task.barcodeImage ? 
-                                                        (task.barcodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                            </div>` : 
-                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'barcode')" oncontextmenu="replaceTaskFile('${task.id}', 'barcode'); return false;">`) : 
-                                                        '<div class="no-file">未上传</div>'}
-                                                </div>
-                                                <div class="task-file-item">
-                                                    <div class="file-label">警示码</div>
-                                                    ${task.warningCodeImage ? 
-                                                        (task.warningCodeType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                            </div>` : 
-                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'warningCode')" oncontextmenu="replaceTaskFile('${task.id}', 'warningCode'); return false;">`) : 
-                                                        '<div class="no-file">未上传</div>'}
-                                                </div>
-                                                <div class="task-file-item">
-                                                    <div class="file-label">箱唛</div>
-                                                    ${task.labelImage ? 
-                                                        (task.labelType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                            </div>` : 
-                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'label')" oncontextmenu="replaceTaskFile('${task.id}', 'label'); return false;">`) : 
-                                                        '<div class="no-file">未上传</div>'}
-                                                </div>
-                                                <div class="task-file-item">
-                                                    <div class="file-label">说明书</div>
-                                                    ${task.manualImage ? 
-                                                        (task.manualType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                            </div>` : 
-                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'manual')" oncontextmenu="replaceTaskFile('${task.id}', 'manual'); return false;">`) : 
-                                                        '<div class="no-file">未上传</div>'}
-                                                </div>
-                                                <div class="task-file-item">
-                                                    <div class="file-label">其他</div>
-                                                    ${task.otherImage ? 
-                                                        (task.otherType === 'pdf' ? 
-                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                                                            </div>` : 
-                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${task.id}', 'other')" oncontextmenu="replaceTaskFile('${task.id}', 'other'); return false;">`) : 
-                                                        '<div class="no-file">未上传</div>'}
-                                                </div>
+                                                ${generateFileItem('本体码', task.bodyCodeImage, task.bodyCodeType, task.bodyCodeFileName, task.id, 'bodyCode')}
+                                                ${generateFileItem('条码', task.barcodeImage, task.barcodeType, task.barcodeFileName, task.id, 'barcode')}
+                                                ${generateFileItem('警示码', task.warningCodeImage, task.warningCodeType, task.warningCodeFileName, task.id, 'warningCode')}
+                                                ${generateFileItem('箱唛', task.labelImage, task.labelType, task.labelFileName, task.id, 'label')}
+                                                ${generateFileItem('说明书', task.manualImage, task.manualType, task.manualFileName, task.id, 'manual')}
+                                                ${generateFileItem('其他', task.otherImage, task.otherType, task.otherFileName, task.id, 'other')}
+                                            </div>
                                             </div>
                                             <div class="task-back-actions">
                                                 <div class="back-action-buttons">
@@ -11585,63 +11515,71 @@
             
             // 处理商品数据
             const productMap = {};
+            
+            // 首先获取所有产品信息用于价格查询
+            let allProducts = [];
+            if (stats && stats.allProducts) {
+                allProducts = stats.allProducts;
+            } else if (stats && stats.productStats) {
+                // 从productStats中提取产品信息
+                allProducts = Object.values(stats.productStats).map(p => ({
+                    id: p.id,
+                    product_code: p.code,
+                    product_name: p.name,
+                    product_supplier: p.supplier,
+                    purchase_price: p.purchasePrice,
+                    sale_price: p.salePrice
+                }));
+            }
+            
             stats.filteredHistory.forEach(task => {
                 if (task.items && Array.isArray(task.items)) {
                     task.items.forEach(item => {
-                        const product = item.product || {};
-                        const productId = item.productId || item.product_id || product.id;
+                        const productId = item.productId || item.product_id;
+                        
+                        if (!productId) {
+                            console.warn('发现缺少productId的item:', item);
+                            return;
+                        }
+                        
+                        // 查找完整的产品信息
+                        const fullProduct = allProducts.find(p => p.id == productId);
                         
                         if (!productMap[productId]) {
-                            // 从多个可能的字段获取供应商信息
+                            // 获取供应商信息
                             let supplier = '未知供应商';
                             if (item.productSupplier) {
                                 supplier = item.productSupplier;
-                            } else if (product.supplier) {
-                                supplier = product.supplier;
                             } else if (item.supplier) {
                                 supplier = item.supplier;
-                            } else if (product.product_supplier) {  // 兼容不同字段名
-                                supplier = product.product_supplier;
-                            } else if (item.product_supplier) {
-                                supplier = item.product_supplier;
-                            } else if (item.product && item.product.supplier) {  // 尝试从item.product中获取
-                                supplier = item.product.supplier;
-                            } else if (item.product && item.product.product_supplier) {
-                                supplier = item.product.product_supplier;
-                            } else if (item.product && item.product.productSupplier) {
-                                supplier = item.product.productSupplier;
-                            } else if (product.supplier) {  // 从productStats中传递的供应商信息
-                                supplier = product.supplier;
+                            } else if (fullProduct && fullProduct.product_supplier) {
+                                supplier = fullProduct.product_supplier;
+                            } else if (fullProduct && fullProduct.supplier) {
+                                supplier = fullProduct.supplier;
                             }
                             
-                            // 尝试从任务对象中获取完整的商品信息
-                            if (supplier === '未知供应商' && stats && stats.allProducts) {
-                                // 查找关联的商品信息
-                                const matchedProduct = stats.allProducts.find(p => p.id == productId || p.id == item.productId);
-                                if (matchedProduct && (matchedProduct.product_supplier || matchedProduct.supplier)) {
-                                    supplier = matchedProduct.product_supplier || matchedProduct.supplier;
-                                }
-                            }
+                            // 获取价格信息
+                            const purchasePrice = fullProduct ? (fullProduct.purchase_price || fullProduct.purchasePrice || 0) : 0;
+                            const salePrice = fullProduct ? (fullProduct.sale_price || fullProduct.salePrice || 0) : 
+                                             (item.salePrice || item.sale_price || 0);
                             
                             productMap[productId] = {
-                                name: item.productName || product.name || '未知商品',
-                                code: item.productCode || product.code || 'N/A',
+                                name: item.productName || (fullProduct ? fullProduct.product_name : '未知商品'),
+                                code: item.productCode || (fullProduct ? fullProduct.product_code : 'N/A'),
                                 supplier: supplier,
                                 quantity: 0,
-                                purchasePrice: 0,
-                                salePrice: 0,
+                                purchasePrice: purchasePrice,
+                                salePrice: salePrice,
                                 sales: 0,
                                 profit: 0
                             };
                         }
                         
                         const quantity = item.quantity || 0;
-                        const salePrice = item.salePrice || item.sale_price || product.sale_price || product.salePrice || 0;
-                        const purchasePrice = product.purchase_price || product.purchasePrice || 0;
+                        const purchasePrice = productMap[productId].purchasePrice;
+                        const salePrice = productMap[productId].salePrice;
                         
                         productMap[productId].quantity += quantity;
-                        productMap[productId].purchasePrice = purchasePrice;
-                        productMap[productId].salePrice = salePrice;
                         productMap[productId].sales += salePrice * quantity;
                         productMap[productId].profit += (salePrice - purchasePrice) * quantity;
                     });
