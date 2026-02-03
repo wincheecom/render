@@ -3561,6 +3561,9 @@
                 <div class="table-container">
                     <div class="table-header">
                         <div class="table-title">商品明细</div>
+                        <button class="btn btn-outline" onclick="downloadProductDetailsCSV()">
+                            <i class="fas fa-download"></i> 下载CSV
+                        </button>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -3570,13 +3573,15 @@
                                     <th>商品编码</th>
                                     <th>供应商</th>
                                     <th>数量</th>
+                                    <th>进货价</th>
+                                    <th>销售价</th>
                                     <th>销售额</th>
                                     <th>利润</th>
                                 </tr>
                             </thead>
                             <tbody id="productDetailList">
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">暂无商品数据</td>
+                                    <td colspan="8" class="text-center text-muted py-4">暂无商品数据</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -11623,6 +11628,8 @@
                                 code: item.productCode || product.code || 'N/A',
                                 supplier: supplier,
                                 quantity: 0,
+                                purchasePrice: 0,
+                                salePrice: 0,
                                 sales: 0,
                                 profit: 0
                             };
@@ -11633,6 +11640,8 @@
                         const purchasePrice = product.purchase_price || product.purchasePrice || 0;
                         
                         productMap[productId].quantity += quantity;
+                        productMap[productId].purchasePrice = purchasePrice;
+                        productMap[productId].salePrice = salePrice;
                         productMap[productId].sales += salePrice * quantity;
                         productMap[productId].profit += (salePrice - purchasePrice) * quantity;
                     });
@@ -11649,6 +11658,8 @@
                     <td>${product.code || 'N/A'}</td>
                     <td>${product.supplier || '未知供应商'}</td>
                     <td>${product.quantity || 0}</td>
+                    <td>${Utils.formatCurrency(product.purchasePrice || 0)}</td>
+                    <td>${Utils.formatCurrency(product.salePrice || 0)}</td>
                     <td>${Utils.formatCurrency(product.sales || 0)}</td>
                     <td>${Utils.formatCurrency(product.profit || 0)}</td>
                 `;
@@ -11658,7 +11669,7 @@
             // 如果没有数据，显示提示
             if (sortedProducts.length === 0) {
                 const noDataRow = document.createElement('tr');
-                noDataRow.innerHTML = '<td colspan="6" class="text-center text-muted py-4">暂无商品数据</td>';
+                noDataRow.innerHTML = '<td colspan="8" class="text-center text-muted py-4">暂无商品数据</td>';
                 tableBody.appendChild(noDataRow);
             }
         }
@@ -11692,6 +11703,66 @@
         window.loadStatisticsDashboardData = loadStatisticsDashboardData;
         window.filterStatistics = filterStatistics;
         window.filterByUser = filterByUser;
+        
+        // CSV下载功能
+        function downloadProductDetailsCSV() {
+            const tableBody = document.getElementById('productDetailList');
+            if (!tableBody) {
+                alert('未找到商品明细表格');
+                return;
+            }
+            
+            // 获取表格数据
+            const rows = tableBody.querySelectorAll('tr');
+            if (rows.length === 0 || (rows.length === 1 && rows[0].querySelector('td[colspan]'))) {
+                alert('暂无商品数据可导出');
+                return;
+            }
+            
+            // 构建CSV内容
+            let csvContent = '\uFEFF'; // 添加BOM以支持中文
+            
+            // 添加表头
+            csvContent += '商品名称,商品编码,供应商,数量,进货价,销售价,销售额,利润\n';
+            
+            // 添加数据行
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 8) { // 确保有足够的列
+                    const rowData = [
+                        cells[0].textContent.trim(),
+                        cells[1].textContent.trim(),
+                        cells[2].textContent.trim(),
+                        cells[3].textContent.trim(),
+                        cells[4].textContent.trim().replace('¥', ''),
+                        cells[5].textContent.trim().replace('¥', ''),
+                        cells[6].textContent.trim().replace('¥', ''),
+                        cells[7].textContent.trim().replace('¥', '')
+                    ];
+                    csvContent += rowData.join(',') + '\n';
+                }
+            });
+            
+            // 生成文件名（带当前日期）
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const filename = `商品明细_${year}${month}${day}.csv`;
+            
+            // 创建并下载文件
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        window.downloadProductDetailsCSV = downloadProductDetailsCSV;
     </script>
 </body>
 </html>
