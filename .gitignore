@@ -18,3 +18,4 @@ apply_*.js
 check_*.js
 
 simple_*.js
+*.backup
