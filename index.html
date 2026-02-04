@@ -27,6 +27,24 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
+        
+        /* 商品明细表格增强样式 */
+        .table-summary {
+            background-color: rgba(67, 97, 238, 0.05) !important;
+            font-weight: bold;
+            border-top: 2px solid var(--primary);
+        }
+        
+        .table-summary td {
+            background-color: transparent !important;
+        }
+        
+        /* 调试信息样式 */
+        .debug-info {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin: 4px 0;
+        }
 
         /* 隐藏label和h5元素 */
         label {
@@ -11571,30 +11589,40 @@
         
 // 更新商品明细表格
         function updateProductDetailTable(stats) {
+            console.log('=== updateProductDetailTable 调用开始 ===');
+            console.log('传入的stats对象:', stats);
+            
             const tableBody = document.getElementById('productDetailList');
             if (!tableBody) {
-                console.error('未找到商品明细表格');
+                console.error('❌ 未找到商品明细表格元素');
                 return;
             }
             
             // 清空现有数据
             tableBody.innerHTML = '';
             
-            if (!stats || !stats.filteredHistory || stats.filteredHistory.length === 0) {
-                const noDataRow = document.createElement('tr');
-                noDataRow.innerHTML = '<td colspan="4" class="text-center text-muted py-4">暂无商品数据</td>';
-                tableBody.appendChild(noDataRow);
+            // 数据验证
+            if (!stats) {
+                console.error('❌ stats参数为空');
+                showErrorRow(tableBody, '数据加载失败：stats对象为空');
                 return;
             }
             
-            // 处理商品数据
-            const productMap = {};
+            if (!stats.filteredHistory || stats.filteredHistory.length === 0) {
+                console.warn('⚠️ filteredHistory为空或未定义');
+                showInfoRow(tableBody, '暂无发货任务数据');
+                return;
+            }
             
-            // 首先获取所有产品信息用于价格查询
+            // 检查产品数据源
             let allProducts = [];
-            if (stats && stats.allProducts) {
+            let dataSource = 'unknown';
+            
+            if (stats.allProducts && Array.isArray(stats.allProducts) && stats.allProducts.length > 0) {
                 allProducts = stats.allProducts;
-            } else if (stats && stats.productStats) {
+                dataSource = 'allProducts';
+                console.log('✅ 使用stats.allProducts作为数据源，共', allProducts.length, '个产品');
+            } else if (stats.productStats) {
                 // 从productStats中提取产品信息
                 allProducts = Object.values(stats.productStats).map(p => ({
                     id: p.id,
@@ -11604,20 +11632,51 @@
                     purchase_price: p.purchasePrice,
                     sale_price: p.salePrice
                 }));
+                dataSource = 'productStats';
+                console.log('✅ 使用stats.productStats作为数据源，共', allProducts.length, '个产品');
+            } else {
+                console.warn('⚠️ 未找到有效的产品数据源');
+                console.log('stats对象结构:', Object.keys(stats));
+                showWarningRow(tableBody, '缺少产品价格信息，无法计算明细数据');
+                return;
             }
             
-            stats.filteredHistory.forEach(task => {
+            console.log('数据源详情:', {
+                source: dataSource,
+                productCount: allProducts.length,
+                sampleProduct: allProducts[0],
+                taskCount: stats.filteredHistory.length
+            });
+            
+            // 处理商品数据
+            const productMap = {};
+            
+            console.log('开始处理任务数据，任务总数:', stats.filteredHistory.length);
+            
+            let processedItemCount = 0;
+            let missingProductCount = 0;
+            
+            stats.filteredHistory.forEach((task, taskIndex) => {
+                console.log(`处理任务 ${taskIndex + 1}/${stats.filteredHistory.length}:`, task.taskNumber || task.id);
+                
                 if (task.items && Array.isArray(task.items)) {
-                    task.items.forEach(item => {
+                    task.items.forEach((item, itemIndex) => {
+                        processedItemCount++;
                         const productId = item.productId || item.product_id;
                         
                         if (!productId) {
-                            console.warn('发现缺少productId的item:', item);
+                            console.warn(`⚠️ 任务${taskIndex + 1}的第${itemIndex + 1}个商品缺少productId:`, item);
                             return;
                         }
                         
                         // 查找完整的产品信息
                         const fullProduct = allProducts.find(p => p.id == productId);
+                        
+                        if (!fullProduct) {
+                            missingProductCount++;
+                            console.warn(`⚠️ 未找到productId=${productId}的产品信息`);
+                            console.log('  可用产品ID列表(前10个):', allProducts.slice(0, 10).map(p => p.id));
+                        }
                         
                         if (!productMap[productId]) {
                             // 获取供应商信息
@@ -11633,13 +11692,15 @@
                             }
                             
                             // 获取价格信息
-                            const purchasePrice = fullProduct ? (fullProduct.purchase_price || fullProduct.purchasePrice || 0) : 0;
-                            const salePrice = fullProduct ? (fullProduct.sale_price || fullProduct.salePrice || 0) : 
-                                             (item.salePrice || item.sale_price || 0);
+                            const purchasePrice = fullProduct ? 
+                                (parseFloat(fullProduct.purchase_price) || parseFloat(fullProduct.purchasePrice) || 0) : 0;
+                            const salePrice = fullProduct ? 
+                                (parseFloat(fullProduct.sale_price) || parseFloat(fullProduct.salePrice) || 0) : 
+                                (parseFloat(item.salePrice) || parseFloat(item.sale_price) || 0);
                             
                             productMap[productId] = {
-                                name: item.productName || (fullProduct ? fullProduct.product_name : '未知商品'),
-                                code: item.productCode || (fullProduct ? fullProduct.product_code : 'N/A'),
+                                name: item.productName || (fullProduct ? (fullProduct.product_name || fullProduct.name) : '未知商品'),
+                                code: item.productCode || (fullProduct ? (fullProduct.product_code || fullProduct.code) : 'N/A'),
                                 supplier: supplier,
                                 quantity: 0,
                                 purchasePrice: purchasePrice,
@@ -11647,43 +11708,119 @@
                                 sales: 0,
                                 profit: 0
                             };
+                            
+                            console.log(`  创建商品映射: ${productMap[productId].name}(ID:${productId})`);
+                            console.log(`    价格信息: 进货价=${purchasePrice}, 销售价=${salePrice}`);
                         }
                         
-                        const quantity = item.quantity || 0;
+                        const quantity = parseInt(item.quantity) || 0;
                         const purchasePrice = productMap[productId].purchasePrice;
                         const salePrice = productMap[productId].salePrice;
                         
                         productMap[productId].quantity += quantity;
                         productMap[productId].sales += salePrice * quantity;
                         productMap[productId].profit += (salePrice - purchasePrice) * quantity;
+                        
+                        if (quantity > 0) {
+                            console.log(`  累计商品: ${productMap[productId].name} x${quantity}, 销售额: ${(salePrice * quantity).toFixed(2)}`);
+                        }
                     });
+                } else {
+                    console.warn(`⚠️ 任务${taskIndex + 1}缺少有效的items数据:`, task.items);
                 }
             });
             
-            // 生成表格行
-            const sortedProducts = Object.values(productMap).sort((a, b) => b.quantity - a.quantity);
-            
-            sortedProducts.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product.name || '未知商品'}</td>
-                    <td>${product.code || 'N/A'}</td>
-                    <td>${product.supplier || '未知供应商'}</td>
-                    <td>${product.quantity || 0}</td>
-                    <td>${Utils.formatCurrency(product.purchasePrice || 0)}</td>
-                    <td>${Utils.formatCurrency(product.salePrice || 0)}</td>
-                    <td>${Utils.formatCurrency(product.sales || 0)}</td>
-                    <td>${Utils.formatCurrency(product.profit || 0)}</td>
-                `;
-                tableBody.appendChild(row);
+            console.log('数据处理完成:', {
+                processedItems: processedItemCount,
+                missingProducts: missingProductCount,
+                uniqueProducts: Object.keys(productMap).length
             });
             
-            // 如果没有数据，显示提示
-            if (sortedProducts.length === 0) {
-                const noDataRow = document.createElement('tr');
-                noDataRow.innerHTML = '<td colspan="8" class="text-center text-muted py-4">暂无商品数据</td>';
-                tableBody.appendChild(noDataRow);
+            // 生成表格行
+            const sortedProducts = Object.values(productMap)
+                .filter(p => p.quantity > 0) // 只显示有数量的商品
+                .sort((a, b) => b.quantity - a.quantity);
+            
+            console.log('准备渲染表格，有效商品数量:', sortedProducts.length);
+            
+            if (sortedProducts.length > 0) {
+                sortedProducts.forEach((product, index) => {
+                    console.log(`渲染商品 ${index + 1}:`, {
+                        name: product.name,
+                        quantity: product.quantity,
+                        purchasePrice: product.purchasePrice,
+                        salePrice: product.salePrice,
+                        sales: product.sales,
+                        profit: product.profit
+                    });
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${escapeHtml(product.name || '未知商品')}</td>
+                        <td>${escapeHtml(product.code || 'N/A')}</td>
+                        <td>${escapeHtml(product.supplier || '未知供应商')}</td>
+                        <td>${product.quantity || 0}</td>
+                        <td>${Utils.formatCurrency(product.purchasePrice || 0)}</td>
+                        <td>${Utils.formatCurrency(product.salePrice || 0)}</td>
+                        <td>${Utils.formatCurrency(product.sales || 0)}</td>
+                        <td>${Utils.formatCurrency(product.profit || 0)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // 添加汇总行
+                const totalQuantity = sortedProducts.reduce((sum, p) => sum + (p.quantity || 0), 0);
+                const totalSales = sortedProducts.reduce((sum, p) => sum + (p.sales || 0), 0);
+                const totalProfit = sortedProducts.reduce((sum, p) => sum + (p.profit || 0), 0);
+                
+                const summaryRow = document.createElement('tr');
+                summaryRow.className = 'table-summary';
+                summaryRow.innerHTML = `
+                    <td><strong>总计</strong></td>
+                    <td colspan="2"></td>
+                    <td><strong>${totalQuantity}</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td><strong>${Utils.formatCurrency(totalSales)}</strong></td>
+                    <td><strong>${Utils.formatCurrency(totalProfit)}</strong></td>
+                `;
+                tableBody.appendChild(summaryRow);
+                
+                console.log('✅ 表格渲染完成，共', sortedProducts.length, '个商品');
+            } else {
+                console.warn('⚠️ 没有有效商品数据可显示');
+                showInfoRow(tableBody, '暂无有效的商品明细数据');
             }
+            
+            console.log('=== updateProductDetailTable 调用结束 ===');
+        }
+        
+        // 辅助函数：显示错误行
+        function showErrorRow(tableBody, message) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="8" class="text-center text-danger py-4"><i class="fas fa-exclamation-circle"></i> ${message}</td>`;
+            tableBody.appendChild(row);
+        }
+        
+        // 辅助函数：显示警告行
+        function showWarningRow(tableBody, message) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="8" class="text-center text-warning py-4"><i class="fas fa-exclamation-triangle"></i> ${message}</td>`;
+            tableBody.appendChild(row);
+        }
+        
+        // 辅助函数：显示信息行
+        function showInfoRow(tableBody, message) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="8" class="text-center text-muted py-4"><i class="fas fa-info-circle"></i> ${message}</td>`;
+            tableBody.appendChild(row);
+        }
+        
+        // 辅助函数：HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
         
         // 时间筛选函数
