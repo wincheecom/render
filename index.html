@@ -1853,7 +1853,24 @@
             border: none;
         }
         
-        /* 响应式调整：小屏幕上适当减小仓库任务卡片高度 */
+        /* 确保任务翻转容器在网格中正确显示 */
+        .warehouse-tasks-gallery .task-flip-container {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* 确保任务卡片本身不影响网格布局 */
+        .warehouse-tasks-gallery .task-front,
+        .warehouse-tasks-gallery .task-back {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: auto;
+            margin: 0;
+        }
         @media (max-width: 768px) {
             .warehouse-tasks-gallery .task-front {
                 min-height: 200px;
@@ -1877,25 +1894,62 @@
             transform: translateY(-2px);
         }
         
-        /* 仓库任务画廊网格布局 */
-        .warehouse-tasks-gallery {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-            align-content: start;
+        /* 仓库任务画廊网格布局 - 最高优先级强制网格显示 */
+        .warehouse-tasks-gallery,
+        .task-gallery.warehouse-tasks-gallery,
+        #warehouseTasks .task-gallery,
+        #warehouseTasks .warehouse-tasks-gallery {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+            margin-top: 8px !important;
+            align-content: start !important;
+            width: 100% !important;
+        }
+        
+        /* 特定任务卡片位置调整 */
+        #task-83-front.task-front {
+            grid-column: 1;
+            grid-row: 1;
+        }
+        
+        #task-80-front.task-front {
+            grid-column: 2;
+            grid-row: 1;
+        }
+        
+        /* 确保统计卡片和任务卡片垂直对齐 */
+        .card.stat-card,
+        .warehouse-tasks-gallery .task-flip-container {
+            align-self: start;
+        }
+        
+        /* 确保任务翻转容器在网格中正确显示 - 更强优先级 */
+        .warehouse-tasks-gallery .task-flip-container,
+        #warehouseTasks .task-flip-container {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            grid-column: auto;
+            grid-row: auto;
         }
         
         /* 响应式布局 */
         @media (max-width: 768px) {
-            .warehouse-tasks-gallery {
-                grid-template-columns: repeat(2, 1fr);
+            .warehouse-tasks-gallery,
+            .task-gallery.warehouse-tasks-gallery {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
             }
         }
         
         @media (max-width: 576px) {
-            .warehouse-tasks-gallery {
-                grid-template-columns: repeat(1, 1fr);
+            .warehouse-tasks-gallery,
+            .task-gallery.warehouse-tasks-gallery {
+                grid-template-columns: repeat(1, 1fr) !important;
+                gap: 8px !important;
             }
         }
         
@@ -9093,7 +9147,7 @@
                     
             try {
                 const tasks = await DataManager.getAllTasks();
-                const pendingTasks = tasks.filter(t => t.status === 'pending');
+                const pendingTasks = tasks.filter(t => t.status === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 const container = document.getElementById('warehouseTasks');
                         
                 if (!container) return;
@@ -9111,11 +9165,17 @@
                 // 画廊视图
                 container.innerHTML = `
                     <div class="task-gallery warehouse-tasks-gallery">
-                        ${pendingTasks.map(task => {
+                        ${pendingTasks.map((task, index) => {
                             const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
                             const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
                             const creatorId = task.creatorName || task.creator_name || '未知';
-                                            
+                            
+                            // 检查必需字段是否存在
+                            if (!task.items || !Array.isArray(task.items)) {
+                                console.error(`任务 ${task.id} 缺少有效的items数组`);
+                                return '';
+                            }
+                            
                             return `
                                 <div class="task-flip-container" data-task-id="${task.id}">
                                     <!-- 卡片正面 -->
@@ -9161,9 +9221,12 @@
                                     </div>
                                 </div>
                             `;
+
                         }).join('')}
                     </div>
                 `;
+                
+
                 
                 // 为新生成的内容绑定事件
                 bindWarehouseTaskEvents();
