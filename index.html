@@ -1925,15 +1925,25 @@
             width: 100% !important;
         }
         
-        /* 特定任务卡片位置调整 */
+        /* 特定任务卡片位置调整 - 增强版 */
         #task-83-front.task-front {
-            grid-column: 1;
-            grid-row: 1;
+            grid-column: 1 !important;
+            grid-row: 1 !important;
+            position: relative !important;
+            z-index: 1 !important;
         }
         
         #task-80-front.task-front {
-            grid-column: 2;
-            grid-row: 1;
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+        
+        /* 防止任务卡片重叠的通用规则 */
+        div[id^="task-"][id$="-front"].task-front {
+            position: relative !important;
+            z-index: auto !important;
         }
         
         /* 确保统计卡片和任务卡片垂直对齐 */
@@ -1945,13 +1955,21 @@
         /* 确保任务翻转容器在网格中正确显示 - 更强优先级 */
         .warehouse-tasks-gallery .task-flip-container,
         #warehouseTasks .task-flip-container {
-            display: block;
-            width: 100%;
-            height: auto;
-            margin: 0;
-            padding: 0;
-            grid-column: auto;
-            grid-row: auto;
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            grid-column: auto !important;
+            grid-row: auto !important;
+            position: relative !important;
+            z-index: auto !important;
+        }
+        
+        /* 确保任务卡片本身不会被其他元素遮挡 */
+        .task-flip-container .task-front {
+            position: relative !important;
+            z-index: 2 !important;
         }
         
         /* 响应式布局 */
@@ -8733,7 +8751,7 @@
                             <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
                                 ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
                             </span>
-                            <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
+                            <button class="btn btn-sm btn-outline-primary task-flip-button" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
                                 <i class="fas fa-info-circle"></i> 详情
                             </button>
                         </div>
@@ -9161,16 +9179,38 @@
         // 仓库发货模块
         // ============================================
         async function loadWarehouseTasksList() {
+            console.log('=== loadWarehouseTasksList 开始 ===');
             await updateWarehouseStats();
                     
             try {
                 const tasks = await DataManager.getAllTasks();
+                console.log('获取到所有任务:', tasks.length, '个');
+                
+                // 只显示pending状态的任务
                 const pendingTasks = tasks.filter(t => t.status === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                console.log('过滤后的待处理任务:', pendingTasks.length, '个');
+                
+                // 记录一些已完成任务的信息用于调试
+                const completedTasks = tasks.filter(t => t.status === 'completed');
+                console.log('已完成任务数量:', completedTasks.length);
+                if (completedTasks.length > 0) {
+                    console.log('最近3个已完成任务:', completedTasks.slice(0, 3).map(t => ({
+                        id: t.id,
+                        task_number: t.task_number,
+                        status: t.status,
+                        completed_at: t.completed_at
+                    })));
+                }
+                
                 const container = document.getElementById('warehouseTasks');
                         
-                if (!container) return;
+                if (!container) {
+                    console.error('❌ 未找到仓库任务容器');
+                    return;
+                }
                         
                 if (pendingTasks.length === 0) {
+                    console.log('✅ 没有待处理任务');
                     container.innerHTML = `
                         <div class="text-center py-5 text-muted">
                             <i class="fas fa-check-circle fa-2x mb-3"></i>
@@ -9181,6 +9221,7 @@
                 }
                         
                 // 画廊视图
+                console.log('渲染', pendingTasks.length, '个待处理任务');
                 container.innerHTML = `
                     <div class="task-gallery warehouse-tasks-gallery">
                         ${pendingTasks.map((task, index) => {
@@ -9193,6 +9234,8 @@
                                 console.error(`任务 ${task.id} 缺少有效的items数组`);
                                 return '';
                             }
+                            
+                            console.log(`渲染任务 ${task.id}: ${task.task_number}, 状态: ${task.status}`);
                             
                             return `
                                 <div class="task-flip-container" data-task-id="${task.id}">
@@ -9244,14 +9287,17 @@
                     </div>
                 `;
                 
-
+                console.log('✅ 任务列表渲染完成');
                 
                 // 为新生成的内容绑定事件
                 bindWarehouseTaskEvents();
+                console.log('✅ 事件绑定完成');
             } catch (error) {
-                console.error('加载仓库任务列表失败:', error);
+                console.error('❌ 加载仓库任务列表失败:', error);
                 Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
             }
+            
+            console.log('=== loadWarehouseTasksList 结束 ===');
         }
                 
         // 仓库任务视图模式 - 固定画廊视图
@@ -9263,28 +9309,42 @@
         }
         
         function toggleTaskCardFlip(taskId) {
+            console.log('=== toggleTaskCardFlip 调用开始 ===');
+            console.log('任务ID:', taskId);
+            
             // 直接通过 data-task-id 属性查找翻转容器
             const flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
             
             if (!flipContainer) {
-                console.error(`未找到任务ID为 ${taskId} 的翻转容器`);
+                console.error(`❌ 未找到任务ID为 ${taskId} 的翻转容器`);
+                console.log('尝试查找所有翻转容器:', document.querySelectorAll('.task-flip-container'));
+                console.log('尝试查找特定ID元素:', document.querySelector(`#task-${taskId}-front`));
                 return;
             }
             
+            console.log('✅ 找到翻转容器:', flipContainer);
+            
             flipContainer.classList.toggle('flipped');
+            
+            console.log('翻转状态:', flipContainer.classList.contains('flipped') ? '已翻转到背面' : '已翻转到正面');
             
             // 更新按钮文本以反映当前状态
             // 遍历所有具有相同data-task-id和data-action="flip"属性的按钮
             const flipButtons = document.querySelectorAll(`[data-task-id="${taskId}"][data-action="flip"]`);
             
-            flipButtons.forEach(button => {
+            console.log(`找到 ${flipButtons.length} 个翻转按钮`);
+            
+            flipButtons.forEach((button, index) => {
+                console.log(`处理按钮 ${index + 1}:`, button);
                 // 检查按钮当前状态，避免重复设置
                 const currentText = button.textContent.trim();
+                console.log('当前按钮文本:', currentText);
                 
                 if (flipContainer.classList.contains('flipped')) {
                     // 如果卡片已翻转到背面，将按钮文本改为"返回"
                     if (currentText.includes('处理发货') || currentText.includes('详情') || currentText.includes('已发货')) {
                         button.innerHTML = '<i class="fas fa-arrow-left"></i> 返回';
+                        console.log('✅ 按钮文本更新为: 返回');
                     }
                 } else {
                     // 如果卡片翻转到正面，根据按钮原来的状态决定显示内容
@@ -9295,25 +9355,36 @@
                         if (isPreviouslyShipped) {
                             // 如果之前是已发货状态，翻转回来后仍保持已发货状态
                             button.innerHTML = '<i class="fas fa-check"></i> 已发货';
+                            console.log('✅ 按钮文本更新为: 已发货');
                         } else if (isInWarehouseModule) {
                             button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
+                            console.log('✅ 按钮文本更新为: 处理发货');
                         } else {
                             button.innerHTML = '<i class="fas fa-info-circle"></i> 详情';
+                            console.log('✅ 按钮文本更新为: 详情');
                         }
                     }
                 }
             });
+            
+            console.log('=== toggleTaskCardFlip 调用结束 ===');
         }
         
         function bindWarehouseTaskEvents() {
+            console.log('=== bindWarehouseTaskEvents 开始 ===');
+            
             // 使用事件委托来处理仓库任务卡片的所有交互事件
             const container = document.getElementById('warehouseTasks');
+            
+            if (!container) {
+                console.error('❌ 未找到仓库任务容器');
+                return;
+            }
             
             // 移除之前可能存在的事件监听器
             const existingListener = container.getAttribute('data-event-listener-bound');
             if (existingListener) {
-                // 如果已经有监听器，先移除它
-                // 我们使用一种方式来重新绑定事件，即先移除再添加
+                console.log('移除已存在的事件监听器');
                 container.removeEventListener('click', warehouseTaskEventHandler);
             }
             
@@ -9322,6 +9393,48 @@
             
             // 标记已经绑定了事件监听器
             container.setAttribute('data-event-listener-bound', 'true');
+            
+            // 额外的安全检查：确保所有已完成任务的按钮都被禁用
+            setTimeout(() => {
+                const allFlipContainers = container.querySelectorAll('.task-flip-container');
+                console.log('检查所有任务容器:', allFlipContainers.length, '个');
+                
+                allFlipContainers.forEach((flipContainer, index) => {
+                    const taskId = flipContainer.getAttribute('data-task-id');
+                    const frontCard = flipContainer.querySelector('.task-front');
+                    const backCard = flipContainer.querySelector('.task-back');
+                    
+                    if (frontCard) {
+                        const flipButton = frontCard.querySelector('button[data-action="flip"]');
+                        if (flipButton && flipButton.textContent.includes('已发货')) {
+                            console.log(`任务 ${taskId} 的处理发货按钮已经是已发货状态`);
+                            // 确保按钮保持禁用状态
+                            flipButton.disabled = true;
+                            flipButton.style.opacity = '0.5';
+                            flipButton.style.cursor = 'not-allowed';
+                            flipButton.style.backgroundColor = '#28a745';
+                            flipButton.style.borderColor = '#28a745';
+                            flipButton.style.color = 'white';
+                        }
+                    }
+                    
+                    if (backCard) {
+                        const confirmButton = backCard.querySelector('button[data-action="complete-shipment"]');
+                        if (confirmButton && confirmButton.textContent.includes('已发货')) {
+                            console.log(`任务 ${taskId} 的确认发货按钮已经是已发货状态`);
+                            // 确保按钮保持禁用状态
+                            confirmButton.disabled = true;
+                            confirmButton.style.opacity = '0.5';
+                            confirmButton.style.cursor = 'not-allowed';
+                            confirmButton.style.backgroundColor = '#28a745';
+                            confirmButton.style.borderColor = '#28a745';
+                            confirmButton.style.color = 'white';
+                        }
+                    }
+                });
+            }, 100);
+            
+            console.log('=== bindWarehouseTaskEvents 结束 ===');
         }
         
         // 定义事件处理函数
@@ -9767,71 +9880,61 @@
         }
 
         async function completeShipment(taskId) {
+            console.log('=== completeShipment 调用开始 ===');
+            console.log('任务ID:', taskId);
+                    
             // 防止重复点击，检查任务是否已经在处理中
             const processShipmentBtn = document.querySelector(`[data-task-id="${taskId}"][data-action="flip"]`);
             const confirmShipmentBtn = document.querySelector(`[data-task-id="${taskId}"][data-action="complete-shipment"]`);
-            
+                    
+            console.log('找到处理发货按钮:', processShipmentBtn);
+            console.log('找到确认发货按钮:', confirmShipmentBtn);
+                    
             if ((processShipmentBtn && processShipmentBtn.disabled) || 
                 (confirmShipmentBtn && confirmShipmentBtn.disabled)) {
-                // 如果任一按钮已经被禁用，说明正在处理中，直接返回
+                console.log('❌ 按钮已被禁用，正在处理中，直接返回');
                 return;
             }
-            
+                    
             // 在处理开始前，先禁用按钮以防止重复点击
             if (processShipmentBtn) {
                 processShipmentBtn.disabled = true;
                 processShipmentBtn.style.opacity = "0.5";
                 processShipmentBtn.style.cursor = "not-allowed";
                 processShipmentBtn.textContent = "处理中...";
+                console.log('✅ 处理发货按钮已禁用');
             }
-            
+                    
             // 同时也禁用确认发货按钮
             if (confirmShipmentBtn) {
                 confirmShipmentBtn.disabled = true;
                 confirmShipmentBtn.style.opacity = "0.5";
                 confirmShipmentBtn.style.cursor = "not-allowed";
                 confirmShipmentBtn.textContent = "处理中...";
+                console.log('✅ 确认发货按钮已禁用');
             }
-            
+                    
             // 使用原生confirm替代损坏的alertify.confirm调用
             if (!confirm('确定要标记此任务为"已发货"吗？')) {
+                console.log('❌ 用户取消操作');
                 // 用户取消操作，恢复按钮状态
-                if (processShipmentBtn) {
-                    processShipmentBtn.disabled = false;
-                    processShipmentBtn.style.opacity = "1";
-                    processShipmentBtn.style.cursor = "pointer";
-                    processShipmentBtn.textContent = "处理发货";
-                }
-                if (confirmShipmentBtn) {
-                    confirmShipmentBtn.disabled = false;
-                    confirmShipmentBtn.style.opacity = "1";
-                    confirmShipmentBtn.style.cursor = "pointer";
-                    confirmShipmentBtn.textContent = "确认发货";
-                }
+                restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
                 return;
             }
-            
+                    
             try {
+                console.log('🔄 开始处理发货请求');
+                        
                 // 先获取任务详情，因为后续会更新和删除任务
                 const task = await DataManager.getTaskById(taskId);
                 if (!task) {
+                    console.error('❌ 任务不存在');
                     Utils.showAlert('任务不存在！', 'error');
                     // 恢复按钮状态
-                    if (processShipmentBtn) {
-                        processShipmentBtn.disabled = false;
-                        processShipmentBtn.style.opacity = "1";
-                        processShipmentBtn.style.cursor = "pointer";
-                        processShipmentBtn.textContent = "处理发货";
-                    }
-                    if (confirmShipmentBtn) {
-                        confirmShipmentBtn.disabled = false;
-                        confirmShipmentBtn.style.opacity = "1";
-                        confirmShipmentBtn.style.cursor = "pointer";
-                        confirmShipmentBtn.textContent = "确认发货";
-                    }
+                    restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
                     return;
                 }
-
+                        
                 // 直接调用完成任务的API，这会将任务移动到历史表
                 const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
                     method: 'POST',
@@ -9840,8 +9943,10 @@
                         'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
                     }
                 });
-
+                        
                 if (response.ok) {
+                    console.log('✅ 服务器响应成功');
+                            
                     const products = await DataManager.getAllProducts();
                     const taskWithPrice = {
                         ...task,
@@ -9854,93 +9959,111 @@
                             };
                         })
                     };
-
+                            
                     // 更新销售运营端任务卡片上的状态标签，而不是移除元素
                     // 先尝试查找仓库任务元素（id为task-）
                     let taskElement = document.getElementById(`task-${taskId}-front`);
-
+                            
                     // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
                     if (!taskElement) {
                         taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
                     }
-
+                            
                     if (taskElement) {
+                        console.log('✅ 找到任务元素，更新UI状态');
+                                
                         // 查找并更新状态标签
                         const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
                         if (statusBadge) {
                             statusBadge.textContent = '已发货';
                             statusBadge.classList.remove('badge-warning');
                             statusBadge.classList.add('badge-success');
+                            console.log('✅ 状态标签已更新为已发货');
                         }
-
-                        // 禁用处理发货按钮
+                                
+                        // 彻底禁用处理发货按钮
                         const processShipmentBtn = taskElement.querySelector('button[data-action="flip"]');
                         if (processShipmentBtn) {
                             processShipmentBtn.disabled = true;
                             processShipmentBtn.style.opacity = '0.5';
                             processShipmentBtn.style.cursor = 'not-allowed';
                             processShipmentBtn.textContent = '已发货';
+                            processShipmentBtn.style.backgroundColor = '#28a745';
+                            processShipmentBtn.style.borderColor = '#28a745';
+                            processShipmentBtn.style.color = 'white';
+                            console.log('✅ 处理发货按钮已永久禁用');
                         }
-
-                        // 禁用确认发货按钮（如果在背面）
+                                
+                        // 彻底禁用确认发货按钮（如果在背面）
                         const confirmShipmentBtn = taskElement.querySelector('button[data-action="complete-shipment"]');
                         if (confirmShipmentBtn) {
                             confirmShipmentBtn.disabled = true;
                             confirmShipmentBtn.style.opacity = '0.5';
                             confirmShipmentBtn.style.cursor = 'not-allowed';
                             confirmShipmentBtn.textContent = '已发货';
+                            confirmShipmentBtn.style.backgroundColor = '#28a745';
+                            confirmShipmentBtn.style.borderColor = '#28a745';
+                            confirmShipmentBtn.style.color = 'white';
+                            console.log('✅ 确认发货按钮已永久禁用');
                         }
                     }
-
+                            
                     Utils.showAlert('任务已完成发货！', 'success', function() {
+                        console.log('✅ 显示成功消息');
                         // 立即更新UI状态，提供即时反馈
                         expandedTaskId = null;
-
+                                
                         // 并行更新仪表板和任务列表，提高效率
                         updateDashboard();
                         loadWarehouseTasksList().then(() => {
                             // 重新绑定仓库任务事件，确保新渲染的元素有正确的事件处理
                             bindWarehouseTaskEvents();
+                            console.log('✅ 任务列表已重新加载并绑定事件');
                         });
                         loadSalesPublishedTasks();
                     });
                 } else {
                     // 如果响应不是ok状态，显示错误信息
                     const errorData = await response.text();
-                    console.error('完成发货任务失败:', response.status, errorData);
+                    console.error('❌ 完成发货任务失败:', response.status, errorData);
                     Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
-                    
+                            
                     // 恢复按钮状态
-                    if (processShipmentBtn) {
-                        processShipmentBtn.disabled = false;
-                        processShipmentBtn.style.opacity = "1";
-                        processShipmentBtn.style.cursor = "pointer";
-                        processShipmentBtn.textContent = "处理发货";
-                    }
-                    if (confirmShipmentBtn) {
-                        confirmShipmentBtn.disabled = false;
-                        confirmShipmentBtn.style.opacity = "1";
-                        confirmShipmentBtn.style.cursor = "pointer";
-                        confirmShipmentBtn.textContent = "确认发货";
-                    }
+                    restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
                 }
             } catch (error) {
-                console.error('完成发货任务失败:', error);
+                console.error('❌ 完成发货任务失败:', error);
                 Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
-
+                        
                 // 恢复按钮状态
-                if (processShipmentBtn) {
-                    processShipmentBtn.disabled = false;
-                    processShipmentBtn.style.opacity = "1";
-                    processShipmentBtn.style.cursor = "pointer";
-                    processShipmentBtn.textContent = "处理发货";
-                }
-                if (confirmShipmentBtn) {
-                    confirmShipmentBtn.disabled = false;
-                    confirmShipmentBtn.style.opacity = "1";
-                    confirmShipmentBtn.style.cursor = "pointer";
-                    confirmShipmentBtn.textContent = "确认发货";
-                }
+                restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
+            }
+                    
+            console.log('=== completeShipment 调用结束 ===');
+        }
+                
+        // 辅助函数：恢复按钮状态
+        function restoreButtonStates(processBtn, confirmBtn) {
+            console.log('🔄 恢复按钮状态');
+                    
+            if (processBtn) {
+                processBtn.disabled = false;
+                processBtn.style.opacity = "1";
+                processBtn.style.cursor = "pointer";
+                processBtn.textContent = "处理发货";
+                processBtn.style.backgroundColor = '';
+                processBtn.style.borderColor = '';
+                processBtn.style.color = '';
+            }
+                    
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = "1";
+                confirmBtn.style.cursor = "pointer";
+                confirmBtn.textContent = "确认发货";
+                confirmBtn.style.backgroundColor = '';
+                confirmBtn.style.borderColor = '';
+                confirmBtn.style.color = '';
             }
         }
         // 预览任务本体码
