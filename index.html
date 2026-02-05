@@ -9290,8 +9290,23 @@
                 console.log('✅ 任务列表渲染完成');
                 
                 // 为新生成的内容绑定事件
-                bindWarehouseTaskEvents();
-                console.log('✅ 事件绑定完成');
+                setTimeout(() => {
+                    bindWarehouseTaskEvents();
+                    console.log('✅ 事件绑定完成');
+                    
+                    // 额外验证：检查事件监听器是否真的绑定成功
+                    const warehouseContainer = document.getElementById('warehouseTasks');
+                    if (warehouseContainer) {
+                        const listenerStatus = warehouseContainer.getAttribute('data-event-listener-bound');
+                        console.log('📊 事件监听器绑定状态验证:', listenerStatus ? '成功' : '失败');
+                        
+                        if (!listenerStatus) {
+                            console.error('❌ 事件监听器绑定失败，尝试重新绑定');
+                            // 再次尝试绑定
+                            setTimeout(() => bindWarehouseTaskEvents(), 200);
+                        }
+                    }
+                }, 50); // 稍微延迟确保DOM完全渲染
             } catch (error) {
                 console.error('❌ 加载仓库任务列表失败:', error);
                 Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
@@ -9312,33 +9327,66 @@
             console.log('=== toggleTaskCardFlip 调用开始 ===');
             console.log('任务ID:', taskId);
             
+            // 首先检查事件监听器状态
+            const warehouseContainer = document.getElementById('warehouseTasks');
+            if (warehouseContainer) {
+                const hasListener = warehouseContainer.getAttribute('data-event-listener-bound');
+                console.log('📦 仓库容器事件监听器状态:', hasListener ? '已绑定' : '未绑定');
+                
+                // 如果事件监听器未绑定，重新绑定
+                if (!hasListener) {
+                    console.log('⚠️ 检测到事件监听器未绑定，正在重新绑定...');
+                    bindWarehouseTaskEvents();
+                }
+            }
+            
             // 直接通过 data-task-id 属性查找翻转容器
             const flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
             
             if (!flipContainer) {
                 console.error(`❌ 未找到任务ID为 ${taskId} 的翻转容器`);
-                console.log('尝试查找所有翻转容器:', document.querySelectorAll('.task-flip-container'));
-                console.log('尝试查找特定ID元素:', document.querySelector(`#task-${taskId}-front`));
+                console.log('🔍 尝试查找所有翻转容器:', document.querySelectorAll('.task-flip-container'));
+                console.log('🔍 尝试查找特定ID元素:', document.querySelector(`#task-${taskId}-front`));
+                
+                // 如果找不到容器，可能是DOM还未完全渲染，稍后重试
+                setTimeout(() => {
+                    console.log('🔄 重试查找翻转容器...');
+                    const retryContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+                    if (retryContainer) {
+                        console.log('✅ 重试成功找到容器');
+                        performFlipOperation(retryContainer, taskId);
+                    } else {
+                        console.error('❌ 重试后仍然找不到容器');
+                    }
+                }, 100);
+                
                 return;
             }
             
             console.log('✅ 找到翻转容器:', flipContainer);
+            performFlipOperation(flipContainer, taskId);
+            console.log('=== toggleTaskCardFlip 调用结束 ===');
+        }
+        
+        // 抽离翻转操作逻辑，便于重试调用
+        function performFlipOperation(flipContainer, taskId) {
+            console.log('🔄 执行翻转操作');
             
             flipContainer.classList.toggle('flipped');
             
-            console.log('翻转状态:', flipContainer.classList.contains('flipped') ? '已翻转到背面' : '已翻转到正面');
+            console.log('📊 翻转状态:', flipContainer.classList.contains('flipped') ? '已翻转到背面' : '已翻转到正面');
             
             // 更新按钮文本以反映当前状态
             // 遍历所有具有相同data-task-id和data-action="flip"属性的按钮
             const flipButtons = document.querySelectorAll(`[data-task-id="${taskId}"][data-action="flip"]`);
             
-            console.log(`找到 ${flipButtons.length} 个翻转按钮`);
+            console.log(`🔍 找到 ${flipButtons.length} 个翻转按钮`);
             
             flipButtons.forEach((button, index) => {
-                console.log(`处理按钮 ${index + 1}:`, button);
+                console.log(`🔧 处理按钮 ${index + 1}:`, button);
                 // 检查按钮当前状态，避免重复设置
                 const currentText = button.textContent.trim();
-                console.log('当前按钮文本:', currentText);
+                console.log('📝 当前按钮文本:', currentText);
                 
                 if (flipContainer.classList.contains('flipped')) {
                     // 如果卡片已翻转到背面，将按钮文本改为"返回"
@@ -9366,8 +9414,6 @@
                     }
                 }
             });
-            
-            console.log('=== toggleTaskCardFlip 调用结束 ===');
         }
         
         function bindWarehouseTaskEvents() {
@@ -9384,7 +9430,7 @@
             // 移除之前可能存在的事件监听器
             const existingListener = container.getAttribute('data-event-listener-bound');
             if (existingListener) {
-                console.log('移除已存在的事件监听器');
+                console.log('📤 移除已存在的事件监听器');
                 container.removeEventListener('click', warehouseTaskEventHandler);
             }
             
@@ -9393,11 +9439,12 @@
             
             // 标记已经绑定了事件监听器
             container.setAttribute('data-event-listener-bound', 'true');
+            console.log('📥 成功绑定事件监听器');
             
             // 额外的安全检查：确保所有已完成任务的按钮都被禁用
             setTimeout(() => {
                 const allFlipContainers = container.querySelectorAll('.task-flip-container');
-                console.log('检查所有任务容器:', allFlipContainers.length, '个');
+                console.log('🔍 检查所有任务容器:', allFlipContainers.length, '个');
                 
                 allFlipContainers.forEach((flipContainer, index) => {
                     const taskId = flipContainer.getAttribute('data-task-id');
@@ -9407,7 +9454,7 @@
                     if (frontCard) {
                         const flipButton = frontCard.querySelector('button[data-action="flip"]');
                         if (flipButton && flipButton.textContent.includes('已发货')) {
-                            console.log(`任务 ${taskId} 的处理发货按钮已经是已发货状态`);
+                            console.log(`📦 任务 ${taskId} 的处理发货按钮已经是已发货状态`);
                             // 确保按钮保持禁用状态
                             flipButton.disabled = true;
                             flipButton.style.opacity = '0.5';
@@ -9421,7 +9468,7 @@
                     if (backCard) {
                         const confirmButton = backCard.querySelector('button[data-action="complete-shipment"]');
                         if (confirmButton && confirmButton.textContent.includes('已发货')) {
-                            console.log(`任务 ${taskId} 的确认发货按钮已经是已发货状态`);
+                            console.log(`📦 任务 ${taskId} 的确认发货按钮已经是已发货状态`);
                             // 确保按钮保持禁用状态
                             confirmButton.disabled = true;
                             confirmButton.style.opacity = '0.5';
