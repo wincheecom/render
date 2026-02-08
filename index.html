@@ -15,10 +15,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
     
-    <!-- Bootstrap CSS 和 JS 库 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <style>
         /* ===== 全局样式 ===== */
         * {
@@ -26,24 +22,6 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-        }
-        
-        /* 商品明细表格增强样式 */
-        .table-summary {
-            background-color: rgba(67, 97, 238, 0.05) !important;
-            font-weight: bold;
-            border-top: 2px solid var(--primary);
-        }
-        
-        .table-summary td {
-            background-color: transparent !important;
-        }
-        
-        /* 调试信息样式 */
-        .debug-info {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin: 4px 0;
         }
 
         /* 隐藏label和h5元素 */
@@ -429,7 +407,6 @@
             box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
-            border: none;
         }
 
         .card:hover {
@@ -445,11 +422,9 @@
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
-            border: none;
-            box-shadow: var(--shadow);
-            outline: none;
         }
                 
         .stat-number {
@@ -608,7 +583,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px; /* 与.btn保持一致的图标间距 */
         }
 
         .btn-outline:hover {
@@ -994,11 +968,9 @@
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
-            border: none;
-            box-shadow: var(--shadow);
-            outline: none;
         }
         
         .stat-number {
@@ -1036,30 +1008,28 @@
             color: white;
             border-color: var(--primary);
         }
-                
+        
         .stat-card {
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
-            border: none;
-            box-shadow: var(--shadow);
-            outline: none;
         }
-                
+        
         .stat-number {
             font-size: 2.2rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 4px;
         }
-                
+        
         .stat-label {
             color: var(--gray);
             font-size: 0.85rem;
         }
-                
+
         /* ===== 最近添加的产品布局 ===== */
         .recent-products-scroll {
             overflow-y: auto;
@@ -1422,7 +1392,7 @@
         }
         
         .task-flip-container {
-            width: 302.66px;
+            width: 100%;
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
@@ -1432,14 +1402,12 @@
             transform-origin: center;
             -webkit-transform-origin: center;
             /* 确保容器宽度固定，防止翻转时变形 */
-            max-width: 302.66px;
+            max-width: 100%;
             max-height: 100%;
             flex-shrink: 0;
             align-self: flex-start;
             /* 确保容器不会影响布局宽度 */
             flex: 0 0 auto;
-            /* 添加3D视角 */
-            perspective: 1500px;
         }
         
         .task-flip-container .task-front, .task-flip-container .task-back {
@@ -1521,8 +1489,8 @@
             .task-flip-container .task-front,
             .task-flip-container .task-back {
                 min-height: 200px;
-                width: 100%;
-                max-width: 100%;
+                width: calc(100% - 20px);
+                max-width: 302.66px;
             }
             
             .task-flip-container .task-front {
@@ -1539,8 +1507,8 @@
             .task-flip-container .task-front,
             .task-flip-container .task-back {
                 min-height: 180px;
-                width: 100%;
-                max-width: 100%;
+                width: calc(100% - 12px);
+                max-width: 302.66px;
             }
             
             .task-flip-container .task-front {
@@ -1714,8 +1682,7 @@
             padding: 6px;
             overflow: hidden;
             box-sizing: border-box;
-            height: 357px;
-            max-height: 357px;
+            max-height: calc(100% - 40px);
             flex-grow: 1;
             align-self: stretch;
         }
@@ -1834,7 +1801,6 @@
             margin-bottom: 0;
             align-self: flex-end;
             flex: 0 0 auto;
-            background-color: transparent;
         }
         .card {
             flex: 1;
@@ -1844,10 +1810,9 @@
             box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
-            border: none;
         }
-                
-                
+
+        
         /* 任务卡片样式 */
         .warehouse-tasks-gallery .task-front {
             /* 应用统计卡样式 */
@@ -1868,27 +1833,9 @@
             min-height: 220px;
             box-sizing: border-box;
             max-width: 302.66px;
-            border: none;
         }
         
-        /* 确保任务翻转容器在网格中正确显示 */
-        .warehouse-tasks-gallery .task-flip-container {
-            display: block;
-            width: 100%;
-            height: auto;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* 确保任务卡片本身不影响网格布局 */
-        .warehouse-tasks-gallery .task-front,
-        .warehouse-tasks-gallery .task-back {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: auto;
-            margin: 0;
-        }
+        /* 响应式调整：小屏幕上适当减小仓库任务卡片高度 */
         @media (max-width: 768px) {
             .warehouse-tasks-gallery .task-front {
                 min-height: 200px;
@@ -1912,80 +1859,25 @@
             transform: translateY(-2px);
         }
         
-        /* 仓库任务画廊网格布局 - 最高优先级强制网格显示 */
-        .warehouse-tasks-gallery,
-        .task-gallery.warehouse-tasks-gallery,
-        #warehouseTasks .task-gallery,
-        #warehouseTasks .warehouse-tasks-gallery {
-            display: grid !important;
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 8px !important;
-            margin-top: 8px !important;
-            align-content: start !important;
-            width: 100% !important;
-        }
-        
-        /* 特定任务卡片位置调整 - 增强版 */
-        #task-83-front.task-front {
-            grid-column: 1 !important;
-            grid-row: 1 !important;
-            position: relative !important;
-            z-index: 1 !important;
-        }
-        
-        #task-80-front.task-front {
-            grid-column: 2 !important;
-            grid-row: 1 !important;
-            position: relative !important;
-            z-index: 1 !important;
-        }
-        
-        /* 防止任务卡片重叠的通用规则 */
-        div[id^="task-"][id$="-front"].task-front {
-            position: relative !important;
-            z-index: auto !important;
-        }
-        
-        /* 确保统计卡片和任务卡片垂直对齐 */
-        .card.stat-card,
-        .warehouse-tasks-gallery .task-flip-container {
-            align-self: start;
-        }
-        
-        /* 确保任务翻转容器在网格中正确显示 - 更强优先级 */
-        .warehouse-tasks-gallery .task-flip-container,
-        #warehouseTasks .task-flip-container {
-            display: block !important;
-            width: 100% !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            grid-column: auto !important;
-            grid-row: auto !important;
-            position: relative !important;
-            z-index: auto !important;
-        }
-        
-        /* 确保任务卡片本身不会被其他元素遮挡 */
-        .task-flip-container .task-front {
-            position: relative !important;
-            z-index: 2 !important;
+        /* 仓库任务画廊网格布局 */
+        .warehouse-tasks-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+            align-content: start;
         }
         
         /* 响应式布局 */
         @media (max-width: 768px) {
-            .warehouse-tasks-gallery,
-            .task-gallery.warehouse-tasks-gallery {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 8px !important;
+            .warehouse-tasks-gallery {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
         @media (max-width: 576px) {
-            .warehouse-tasks-gallery,
-            .task-gallery.warehouse-tasks-gallery {
-                grid-template-columns: repeat(1, 1fr) !important;
-                gap: 8px !important;
+            .warehouse-tasks-gallery {
+                grid-template-columns: repeat(1, 1fr);
             }
         }
         
@@ -2246,7 +2138,6 @@
         /* 隐藏外层card容器，保留任务卡片本身 */
         .published-tasks-section .card {
             display: none;
-            border: none;
         }
 
         .task-left-section {
@@ -3132,13 +3023,6 @@
             margin: 0;
         }
         
-        /* 模态框底部按钮居中对齐 */
-        .modal-footer {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
-        
         /* 用户管理模块模态框宽度调整 */
         #userModal .modal-dialog {
             max-width: 500px;
@@ -3172,6 +3056,12 @@
             align-items: center;
             justify-content: center;
         }
+        
+        /* 为 task-95-front 设置特定宽度 */
+        #task-95-front.task-front {
+            width: 302.66px !important;
+            max-width: 302.66px !important;
+        }
     </style>
 </head>
 <body>
@@ -3184,12 +3074,12 @@
             <form class="login-form" id="loginForm">
                 <div class="form-group">
                     <label for="username">邮箱</label>
-                    <input type="email" id="username" class="form-control" placeholder="邮箱地址" required autocomplete="username">
+                    <input type="email" id="username" class="form-control" placeholder="邮箱地址" required>
                 </div>
                             
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" id="password" class="form-control" placeholder="密码" required autocomplete="current-password">
+                    <input type="password" id="password" class="form-control" placeholder="密码" required>
                 </div>
                             
                 <button type="submit" class="btn btn-primary">
@@ -3209,15 +3099,15 @@
                 <form id="registerForm">
                     <div class="mb-3">
                         <label for="registerName" class="form-label">姓名</label>
-                        <input type="text" class="form-control" id="registerName" placeholder="填写公司简称" required autocomplete="name">
+                        <input type="text" class="form-control" id="registerName" placeholder="填写公司简称" required>
                     </div>
                     <div class="mb-3">
                         <label for="registerEmail" class="form-label">邮箱</label>
-                        <input type="email" class="form-control" id="registerEmail" placeholder="填写邮箱地址" required autocomplete="email">
+                        <input type="email" class="form-control" id="registerEmail" placeholder="填写邮箱地址" required>
                     </div>
                     <div class="mb-3">
                         <label for="registerPassword" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码，至少6位" required autocomplete="new-password">
+                        <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码，至少6位" required>
                     </div>
                     <div class="mb-3">
                         <label for="registerRole" class="form-label">角色</label>
@@ -3346,16 +3236,16 @@
                                 <div class="mb-16">
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <input type="text" id="productCode" class="form-control" placeholder="货号" required autocomplete="off">
+                                            <input type="text" id="productCode" class="form-control" placeholder="货号" required>
                                         </div>
                                         
                                         <div class="form-group">
-                                            <input type="text" id="productName" class="form-control" placeholder="名称" required autocomplete="off">
+                                            <input type="text" id="productName" class="form-control" placeholder="名称" required>
                                         </div>
                                     </div>
                                     
                                     <div class="form-group" style="width: 100%; margin-bottom: 16px;">
-                                        <input type="text" id="productSupplier" class="form-control" placeholder="供应商" style="width: 100%;" autocomplete="off">
+                                        <input type="text" id="productSupplier" class="form-control" placeholder="供应商" style="width: 100%;">
                                     </div>
                                     
                                     <div class="form-row">
@@ -3417,7 +3307,7 @@
                             </div>
                             <div class="search-box">
                                 <i class="fas fa-search search-icon"></i>
-                                <input type="text" class="search-input" id="productSearch" placeholder="搜索产品名称或货号" autocomplete="off">
+                                <input type="text" class="search-input" id="productSearch" placeholder="搜索产品名称或货号">
                             </div>
                         </div>
                     </div>
@@ -3476,7 +3366,7 @@
                                 <div class="mb-16">
                                     <div class="search-box">
                                         <i class="fas fa-search search-icon"></i>
-                                        <input type="text" class="search-input" id="productSearchInput" placeholder="点击搜索商品名称或货号，选择商品，创建发货任务" autocomplete="off">
+                                        <input type="text" class="search-input" id="productSearchInput" placeholder="点击搜索商品名称或货号，选择商品，创建发货任务">
                                     </div>
                                     
                                     <div class="multiselect-dropdown hidden" id="multiselectDropdown">
@@ -3517,47 +3407,41 @@
                                     <h5>上传任务相关文件</h5>
                                     <div class="task-upload-row">
                                         <div class="upload-area-col">
-                                            <label for="taskBodyCodeFile">本体码</label>
+                                            <label>本体码</label>
                                             <div class="upload-area" id="taskBodyCodeUpload">
                                                 <!-- 动态内容 -->
-                                                <input type="file" id="taskBodyCodeFile" accept="image/*,.pdf" class="hidden">
                                             </div>
                                         </div>
                                         <div class="upload-area-col">
-                                            <label for="taskBarcodeFile">条码</label>
+                                            <label>条码</label>
                                             <div class="upload-area" id="taskBarcodeUpload">
                                                 <!-- 动态内容 -->
-                                                <input type="file" id="taskBarcodeFile" accept="image/*,.pdf" class="hidden">
                                             </div>
                                         </div>
                                         <div class="upload-area-col">
-                                            <label for="taskWarningCodeFile">警示码</label>
+                                            <label>警示码</label>
                                             <div class="upload-area" id="taskWarningCodeUpload">
                                                 <!-- 动态内容 -->
-                                                <input type="file" id="taskWarningCodeFile" accept="image/*,.pdf" class="hidden">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="task-upload-row">
                                         <div class="upload-area-col">
-                                            <label for="taskLabelFile">箱唛</label>
+                                            <label>箱唛</label>
                                             <div class="upload-area" id="taskLabelUpload">
                                                 <!-- 动态内容 -->
-                                                <input type="file" id="taskLabelFile" accept="image/*,.pdf" class="hidden">
                                             </div>
                                         </div>
                                         <div class="upload-area-col">
-                                            <label for="taskManualFile">说明书</label>
+                                            <label>说明书</label>
                                             <div class="upload-area" id="taskManualUpload">
                                                 <!-- 动态内容 -->
-                                                <input type="file" id="taskManualFile" accept="image/*,.pdf" class="hidden">
                                             </div>
                                         </div>
                                         <div class="upload-area-col">
-                                            <label for="taskOtherFile">其他</label>
+                                            <label>其他</label>
                                             <div class="upload-area" id="taskOtherUpload">
                                                 <!-- 动态内容 -->
-                                                <input type="file" id="taskOtherFile" accept="image/*,.pdf" class="hidden">
                                             </div>
                                         </div>
                                     </div>
@@ -3652,9 +3536,6 @@
                 <div class="table-container">
                     <div class="table-header">
                         <div class="table-title">商品明细</div>
-                        <button class="btn btn-outline" onclick="downloadProductDetailsCSV()">
-                            <i class="fas fa-download"></i> 下载CSV
-                        </button>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -3664,15 +3545,13 @@
                                     <th>商品编码</th>
                                     <th>供应商</th>
                                     <th>数量</th>
-                                    <th>进货价</th>
-                                    <th>销售价</th>
                                     <th>销售额</th>
                                     <th>利润</th>
                                 </tr>
                             </thead>
                             <tbody id="productDetailList">
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">暂无商品数据</td>
+                                    <td colspan="6" class="text-center text-muted py-4">暂无商品数据</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -3683,11 +3562,11 @@
     </div>
 
     <!-- 账户管理模块 -->
-    <div class="module-content" id="user-management" style="display: none;">
+    <div class="module-content" id="user-management">
         <div class="table-container">
             <div class="table-header">
                 <div class="table-title">账户管理</div>
-                <div class="d-flex align-center gap-12" style="align-items: stretch;">
+                <div class="d-flex align-center gap-12">
                     <button class="btn btn-primary" onclick="showAddUserModal()">
                         <i class="fas fa-plus"></i> 添加用户
                     </button>
@@ -3730,11 +3609,11 @@
                             <input type="hidden" id="userId">
                             <div class="form-group mb-3">
                                 <label for="userName" class="form-label">姓名</label>
-                                <input type="text" class="form-control" id="userName" placeholder="请输入用户姓名" required autocomplete="name">
+                                <input type="text" class="form-control" id="userName" required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="userEmail" class="form-label">邮箱</label>
-                                <input type="email" class="form-control" id="userEmail" placeholder="请输入用户邮箱" required autocomplete="email">
+                                <input type="email" class="form-control" id="userEmail" required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="userRole" class="form-label">角色</label>
@@ -3745,10 +3624,9 @@
                                     <option value="warehouse">仓库</option>
                                 </select>
                             </div>
-                            
                             <div class="form-group mb-3">
                                 <label for="userPassword" class="form-label">密码</label>
-                                <input type="password" class="form-control" id="userPassword" placeholder="留空则不修改密码" autocomplete="new-password">
+                                <input type="password" class="form-control" id="userPassword" placeholder="留空则不修改密码">
                             </div>
                         </form>
                     </div>
@@ -3841,7 +3719,7 @@
                 
         #statistics-analysis .card {
             border-radius: 10px;
-            border: none;
+            border: 1px solid var(--gray-light);
             background-color: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             overflow: hidden;
@@ -3913,11 +3791,9 @@
             text-align: center;
             background-color: white;
             border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
             padding: 20px;
             transition: var(--transition);
-            border: none;
-            box-shadow: var(--shadow);
-            outline: none;
         }
         
         #statistics-dashboard .stat-number {
@@ -4017,11 +3893,11 @@
             flex: 1 1 auto;
         }
         
-        /* 调整用户管理模块以与总览区域顶部对齐 */
+        /* 调整用户管理模块以与菜单栏左对齐 */
         #user-management {
+            display: block;
             padding: 20px;
             margin-left: var(--sidebar-width);
-            margin-top: calc(var(--header-height) + 20px); /* 与总览模块顶部对齐: header-height(70px) + main-content padding(20px) */
             min-height: 100vh;
             box-sizing: border-box;
         }
@@ -4047,25 +3923,16 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 4px; /* 统一图标间距 */
         }
         
         #user-management .btn i {
-            margin-right: 0; /* 移除单独的margin设置，使用gap统一控制 */
+            margin-right: 4px;
         }
                 
 
                 
 
         /* 响应式调整 */
-        @media (max-width: 992px) {
-            /* 移动端用户管理模块调整 */
-            #user-management {
-                margin-left: 0;
-                margin-top: calc(var(--header-height) + 16px); /* 移动端padding较小 */
-            }
-        }
-        
         @media (max-width: 768px) {
             /* 小屏幕上的统计项调整 */
             .stat-item {
@@ -4287,22 +4154,15 @@
                         // 解码payload部分（第二部分）
                         let payload;
                         try {
-                            // 处理JWT payload的Base64Url解码
-                            const base64 = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
-                            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                            }).join(''));
-                            payload = JSON.parse(jsonPayload);
+                            payload = JSON.parse(atob(tokenParts[1]));
                         } catch (decodeError) {
                             console.error('JWT payload解码失败:', decodeError);
-                            // 如果解码失败，仍然返回用户信息，但记录错误
-                            console.warn('JWT解码失败但仍返回用户信息');
-                            return user;
+                            this.logout();
+                            return null;
                         }
-                        
-                        // 检查过期时间，如果存在的话
                         const currentTime = Math.floor(Date.now() / 1000);
-                        if (payload.exp && payload.exp < currentTime) {
+                        
+                        if (payload.exp < currentTime) {
                             // Token已过期，清除本地存储
                             this.logout();
                             return null;
@@ -4430,9 +4290,6 @@
                     // 记录活动
                     this.addActivity('product', `添加新产品: ${product.name} (${product.code})`);
                     
-                    // 清除产品缓存，以便下次获取最新的产品数据
-                    this.clearProductsCache();
-                    
                     return mappedProduct;
                 } catch (error) {
                     console.error('添加产品失败:', error);
@@ -4503,9 +4360,6 @@
                         console.error('删除产品失败:', response.statusText);
                         return false;
                     }
-                    
-                    // 清除产品缓存，以便下次获取最新的产品数据
-                    this.clearProductsCache();
                     
                     return true;
                 } catch (error) {
@@ -4771,9 +4625,6 @@
                     // 记录活动
                     this.addActivity('task', `创建发货任务: ${mappedTask.taskNumber}`);
                     
-                    // 清除历史记录缓存，以便下次获取最新的任务数据
-                    this.clearHistoryCache();
-                    
                     return mappedTask;
                 } catch (error) {
                     console.error('创建任务失败:', error);
@@ -4804,9 +4655,6 @@
                         console.error('更新任务失败:', response.statusText);
                         return false;
                     }
-                    
-                    // 清除历史记录缓存，以便下次获取最新的任务数据
-                    this.clearHistoryCache();
                     
                     return true;
                 } catch (error) {
@@ -4839,9 +4687,6 @@
                         }
                         return false;
                     }
-                    
-                    // 清除历史记录缓存，以便下次获取最新的任务数据
-                    this.clearHistoryCache();
                     
                     return true;
                 } catch (error) {
@@ -5059,9 +4904,6 @@
                         return false;
                     }
                     
-                    // 清除历史记录缓存，以便下次获取最新的任务数据
-                    this.clearHistoryCache();
-                    
                     return true;
                 } catch (error) {
                     console.error('完成任务并移动到历史记录失败:', error);
@@ -5258,99 +5100,52 @@
             
             static async getStatisticsData(filter = 'day', userId = null) {
                 try {
-                    // 使用缓存的数据，避免重复请求
-                    let history, products, allUsers;
-                    
-                    // 检查缓存是否有效，如果有效则使用缓存
-                    if (this.cachedHistory && this.cachedHistory.timestamp && 
-                        (Date.now() - this.cachedHistory.timestamp) < 30000) { // 30秒缓存
-                        history = this.cachedHistory.data;
-                    } else {
-                        history = await this.getHistory();
-                        this.cachedHistory = { data: history, timestamp: Date.now() };
-                    }
-                    
-                    if (this.cachedProducts && this.cachedProducts.timestamp && 
-                        (Date.now() - this.cachedProducts.timestamp) < 30000) { // 30秒缓存
-                        products = this.cachedProducts.data;
-                    } else {
-                        products = await this.getAllProducts();
-                        this.cachedProducts = { data: products, timestamp: Date.now() };
-                    }
-                    
-                    if (this.cachedUsers && this.cachedUsers.timestamp && 
-                        (Date.now() - this.cachedUsers.timestamp) < 30000) { // 30秒缓存
-                        allUsers = this.cachedUsers.data;
-                    } else {
-                        allUsers = await this.getAllUsers();
-                        this.cachedUsers = { data: allUsers, timestamp: Date.now() };
-                    }
-                    
+                    const history = await this.getHistory();
+                    const products = await this.getAllProducts();
                     const { startDate, endDate } = Utils.getDateRange(filter);
                     
                     // 获取当前用户信息
                     const currentUser = this.getCurrentUser();
                     
-                    // 预先创建用户ID到用户信息的映射，提高查找效率
-                    const userIdMap = {};
-                    allUsers.forEach(user => {
-                        userIdMap[user.id] = user;
-                    });
+                    // 首先获取所有用户信息用于后续的ID和名称匹配
+                    const allUsers = await this.getAllUsers();
                     
-                    // 预先创建用户名称到用户ID的映射，用于快速匹配
-                    const userNameMap = {};
-                    allUsers.forEach(user => {
-                        if (user.name) userNameMap[user.name] = user.id;
-                        if (user.username) userNameMap[user.username] = user.id;
-                        if (user.email) userNameMap[user.email] = user.id;
-                    });
-                    
-                    // 优化筛选逻辑，减少重复计算
-                    const filteredHistory = [];
-                    for (let i = 0; i < history.length; i++) {
-                        const task = history[i];
+                    const filteredHistory = history.filter(task => {
                         const taskDate = new Date(task.completedAt || task.createdAt);
                         
                         // 检查日期范围
-                        if (taskDate < startDate || taskDate >= endDate) continue;
+                        const dateInRange = taskDate >= startDate && taskDate < endDate;
+                        if (!dateInRange) return false;
                         
                         // 获取任务创建者信息
                         const taskCreator = task.creator_name || task.creatorName || task.creator;
                         
                         // 如果指定了特定用户ID，则只显示该用户的数据
                         if (userId && userId !== 'all') {
-                            // 使用预建的映射快速查找
-                            const targetUser = userIdMap[userId];
+                            // 查找指定用户ID对应的用户信息
+                            const targetUser = allUsers.find(u => u.id === userId);
                             if (targetUser) {
                                 // 比较任务创建者与目标用户的名称或ID
-                                if (taskCreator === targetUser.name || 
-                                    taskCreator === targetUser.username ||
-                                    taskCreator === targetUser.email) {
-                                    filteredHistory.push(task);
-                                }
+                                return taskCreator === targetUser.name || 
+                                       taskCreator === targetUser.username ||
+                                       taskCreator === targetUser.email;
                             } else {
                                 // 如果没找到目标用户，尝试直接比较userId与任务创建者名称
                                 // 这是为了处理可能传入用户名而非用户ID的情况
-                                if (taskCreator === userId) {
-                                    filteredHistory.push(task);
-                                }
+                                return taskCreator === userId;
                             }
-                            continue;
                         }
                         
                         // 对于非管理员用户，只处理他们自己创建的任务
                         if (currentUser && currentUser.role !== 'admin') {
                             // 检查任务创建者是否与当前用户匹配（考虑多种可能的标识符）
-                            if (taskCreator === currentUser.name || 
-                                taskCreator === currentUser.username || 
-                                taskCreator === currentUser.email) {
-                                filteredHistory.push(task);
-                            }
+                            return taskCreator === currentUser.name || 
+                                   taskCreator === currentUser.username || 
+                                   taskCreator === currentUser.email;
                         } else {
-                            // 管理员可以看到所有数据
-                            filteredHistory.push(task);
+                            return true; // 管理员可以看到所有数据
                         }
-                    }
+                    });
                     
 
                     
@@ -5407,9 +5202,9 @@
                             }
                             
                             if (product) {
-                                // 修正价格字段名称 - 根据数据库结构，产品表使用的是 sale_price 和 purchase_price
-                                const salePrice = parseFloat(item.salePrice || product.sale_price || product.salePrice) || 0;
-                                const purchasePrice = parseFloat(product.purchase_price || product.purchasePrice) || 0;
+                                // 确保价格是有效数值
+                                const salePrice = parseFloat(item.salePrice || product.salePrice) || 0;
+                                const purchasePrice = parseFloat(product.purchasePrice) || 0;
                                 
                                 const itemSales = salePrice * quantity;
                                 const itemCost = purchasePrice * quantity;
@@ -5422,9 +5217,9 @@
                                 const productId = product.id || item.productId;
                                 if (!productStats[productId]) {
                                     productStats[productId] = {
-                                        name: item.productName || product.product_name || product.name,
-                                        code: product.product_code || product.code,
-                                        supplier: product.product_supplier || product.supplier || '',  // 确保供应商信息不为undefined
+                                        name: item.productName || product.name,
+                                        code: product.code,
+                                        supplier: product.supplier || '',  // 确保供应商信息不为undefined
                                         quantity: 0,
                                         sales: 0,
                                         profit: 0,
@@ -5461,41 +5256,6 @@
                                     // 由于没有成本信息，利润暂时设为0
                                 } else {
                                     console.warn('在历史记录中找不到对应产品，也无法从item中获取价格信息:', item.productId || item.product_id, '产品列表长度:', products.length);
-                                    
-                                    // 尝试使用产品ID直接从products数组中查找
-                                    const productId = item.productId || item.product_id;
-                                    if (productId) {
-                                        const fallbackProduct = products.find(p => p.id == productId);
-                                        if (fallbackProduct) {
-                                            // 使用备用产品信息计算销售额
-                                            const salePrice = parseFloat(fallbackProduct.sale_price || fallbackProduct.salePrice) || 0;
-                                            const purchasePrice = parseFloat(fallbackProduct.purchase_price || fallbackProduct.purchasePrice) || 0;
-                                            
-                                            const itemSales = salePrice * quantity;
-                                            const itemCost = purchasePrice * quantity;
-                                            const itemProfit = itemSales - itemCost;
-                                            
-                                            totalSales += itemSales;
-                                            totalCost += itemCost;
-                                            totalProfit += itemProfit;
-                                            
-                                            if (!productStats[productId]) {
-                                                productStats[productId] = {
-                                                    name: fallbackProduct.product_name || fallbackProduct.name,
-                                                    code: fallbackProduct.product_code || fallbackProduct.code,
-                                                    supplier: fallbackProduct.product_supplier || fallbackProduct.supplier || '',
-                                                    quantity: 0,
-                                                    sales: 0,
-                                                    profit: 0,
-                                                    profitMargin: 0
-                                                };
-                                            }
-                                            
-                                            productStats[productId].quantity += quantity;
-                                            productStats[productId].sales += itemSales;
-                                            productStats[productId].profit += itemProfit;
-                                        }
-                                    }
                                 }
                             }
                         });
@@ -5526,8 +5286,7 @@
                         monthlySales,
                         monthlyShipments,
                         monthlyProfit,
-                        filteredHistory,
-                        allProducts: products
+                        filteredHistory
                     };
                 } catch (error) {
                     console.error('获取统计数据失败:', error);
@@ -5613,17 +5372,6 @@
                                 const quantity = parseInt(item.quantity) || 0;
                                 const salePrice = parseFloat(product.sale_price || product.salePrice) || 0;
                                 monthlyData[key] += salePrice * quantity;
-                            } else {
-                                // 如果在产品查找中失败，尝试使用item中的productId直接查找
-                                const productId = item.productId || item.product_id;
-                                if (productId) {
-                                    const fallbackProduct = products.find(p => p.id == productId);
-                                    if (fallbackProduct) {
-                                        const quantity = parseInt(item.quantity) || 0;
-                                        const salePrice = parseFloat(fallbackProduct.sale_price || fallbackProduct.salePrice) || 0;
-                                        monthlyData[key] += salePrice * quantity;
-                                    }
-                                }
                             }
                         });
                     }
@@ -5760,19 +5508,6 @@
                                 const purchasePrice = parseFloat(product.purchase_price || product.purchasePrice) || 0;
                                 const profit = (salePrice - purchasePrice) * quantity;
                                 monthlyData[key] += profit;
-                            } else {
-                                // 如果在产品查找中失败，尝试使用item中的productId直接查找
-                                const productId = item.productId || item.product_id;
-                                if (productId) {
-                                    const fallbackProduct = products.find(p => p.id == productId);
-                                    if (fallbackProduct) {
-                                        const quantity = parseInt(item.quantity) || 0;
-                                        const salePrice = parseFloat(fallbackProduct.sale_price || fallbackProduct.salePrice) || 0;
-                                        const purchasePrice = parseFloat(fallbackProduct.purchase_price || fallbackProduct.purchasePrice) || 0;
-                                        const profit = (salePrice - purchasePrice) * quantity;
-                                        monthlyData[key] += profit;
-                                    }
-                                }
                             }
                         });
                     }
@@ -5961,26 +5696,6 @@
                     return [];
                 }
             }
-            
-            // 清除缓存的方法
-            static clearCache() {
-                this.cachedHistory = null;
-                this.cachedProducts = null;
-                this.cachedUsers = null;
-            }
-            
-            // 在数据更新时清除相关缓存
-            static clearHistoryCache() {
-                this.cachedHistory = null;
-            }
-            
-            static clearProductsCache() {
-                this.cachedProducts = null;
-            }
-            
-            static clearUsersCache() {
-                this.cachedUsers = null;
-            }
         }
         
         // ============================================
@@ -6113,16 +5828,6 @@
                         }
                     });
                     
-                    // 检查响应是否为JSON格式
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        console.error('服务器响应格式错误，清除本地存储');
-                        DataManager.logout();
-                        return;
-                    }
-                    
-                    const userData = await response.json();
-                    
                     if (response.ok) {
                         // 令牌有效，直接进入主系统
                         document.getElementById('loginPage').style.display = 'none';
@@ -6130,7 +5835,6 @@
                         initMainSystem();
                     } else {
                         // 令牌无效，清除本地存储
-                        console.error('令牌验证失败:', userData.error || '未知错误');
                         DataManager.logout();
                     }
                 } catch (error) {
@@ -6145,10 +5849,6 @@
 
         async function authenticateUser(email, password) {
             try {
-                console.log('尝试登录:', email);
-                console.log('API基础地址:', DataManager.API_BASE);
-                console.log('完整请求URL:', `${DataManager.API_BASE}/api/auth/login`);
-                
                 const response = await fetch(`${DataManager.API_BASE}/api/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -6156,15 +5856,6 @@
                     },
                     body: JSON.stringify({ email, password })
                 });
-                
-                console.log('响应状态:', response.status);
-                console.log('响应头:', [...response.headers.entries()]);
-                
-                // 检查响应是否为JSON格式
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('服务器响应格式错误');
-                }
                 
                 const data = await response.json();
                 
@@ -6227,12 +5918,6 @@
                         body: JSON.stringify({ name, email, password, role })
                     });
                     
-                    // 检查响应是否为JSON格式
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('服务器响应格式错误');
-                    }
-                    
                     const data = await response.json();
                     
                     if (!response.ok) {
@@ -6294,91 +5979,53 @@
             });
             const user = DataManager.getCurrentUser();
             
-            // 检查用户是否有效
-            if (!user) {
-                console.error('无效的用户信息，跳转到登录页面');
-                DataManager.logout();
-                return;
-            }
-            
             // 设置用户信息
-            try {
-                const currentUserEl = document.getElementById('currentUser');
-                if (currentUserEl) {
-                    currentUserEl.textContent = user.name;
-                }
-            } catch (error) {
-                console.error('设置当前用户名失败:', error);
-            }
-            
-            try {
-                const currentRoleEl = document.getElementById('currentRole');
-                if (currentRoleEl) {
-                    currentRoleEl.textContent = user.role;
-                }
-            } catch (error) {
-                console.error('设置当前用户角色失败:', error);
-            }
+            document.getElementById('currentUser').textContent = user.name;
+            document.getElementById('currentRole').textContent = user.role;
             
             // 根据用户角色预设统计分析模块的可见性（仅设置内容可见性，不直接显示模块）
-            try {
-                const statisticsAnalysisModule = document.getElementById('statistics-analysis');
-                if (statisticsAnalysisModule) {
-                    // 管理员可以看到完整统计分析页面
-                    if (user.role === 'admin') {
-                        
-                        // 确保管理员能看到所有统计部分
-                        const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
-                            '#salesRanking, #profitRanking, .time-filter'
-                        );
-                        advancedStatsElements.forEach(el => {
-                            if (el) el.style.display = 'block';
-                        });
-                    } else {
-                        // 非管理员用户（如销售运营）只能看到自己的统计信息
-                                        
-                        // 隐藏高级统计部分，但保留时间筛选器
-                        const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
-                            '#salesRanking, #profitRanking'
-                        );
-                        advancedStatsElements.forEach(el => {
-                            if (el) el.style.display = 'none';
-                        });
-                                        
-                        // 确保时间筛选器对所有用户都可见
-                        const timeFilterElements = statisticsAnalysisModule.querySelectorAll('.time-filter');
-                        timeFilterElements.forEach(el => {
-                            if (el) el.style.display = 'flex';
-                        });
-                        
-                        // 确保销售运营统计网格是可见的
-                        try {
-                            const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
-                            if (salespersonStatsGrid) {
-                                salespersonStatsGrid.style.display = 'grid';
-                            }
-                        } catch (error) {
-                            console.error('设置销售员统计网格显示失败:', error);
-                        }
+            const statisticsAnalysisModule = document.getElementById('statistics-analysis');
+            if (statisticsAnalysisModule) {
+                // 管理员可以看到完整统计分析页面
+                if (user.role === 'admin') {
+                    
+                    // 确保管理员能看到所有统计部分
+                    const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
+                        '#salesRanking, #profitRanking, .time-filter'
+                    );
+                    advancedStatsElements.forEach(el => {
+                        if (el) el.style.display = 'block';
+                    });
+                } else {
+                    // 非管理员用户（如销售运营）只能看到自己的统计信息
+                                    
+                    // 隐藏高级统计部分，但保留时间筛选器
+                    const advancedStatsElements = statisticsAnalysisModule.querySelectorAll(
+                        '#salesRanking, #profitRanking'
+                    );
+                    advancedStatsElements.forEach(el => {
+                        if (el) el.style.display = 'none';
+                    });
+                                    
+                    // 确保时间筛选器对所有用户都可见
+                    const timeFilterElements = statisticsAnalysisModule.querySelectorAll('.time-filter');
+                    timeFilterElements.forEach(el => {
+                        if (el) el.style.display = 'flex';
+                    });
+                    
+                    // 确保销售运营统计网格是可见的
+                    const salespersonStatsGrid = document.getElementById('salesperson-stats-grid');
+                    if (salespersonStatsGrid) {
+                        salespersonStatsGrid.style.display = 'grid';
                     }
                 }
-            } catch (error) {
-                console.error('设置统计分析模块可见性失败:', error);
             }
             
             // 生成侧边栏菜单
-            try {
-                generateSidebarMenu();
-            } catch (error) {
-                console.error('生成侧边栏菜单失败:', error);
-            }
+            generateSidebarMenu();
             
             // 绑定菜单切换事件
-            try {
-                bindMenuEvents();
-            } catch (error) {
-                console.error('绑定菜单事件失败:', error);
-            }
+            bindMenuEvents();
             
             // 绑定退出登录事件
             document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -6386,18 +6033,10 @@
             });
             
             // 初始化各模块
-            try {
-                initDashboard();
-            } catch (error) {
-                console.error('初始化仪表板失败:', error);
-            }
+            initDashboard();
             
             // 默认显示总览页面
-            try {
-                switchModule('dashboard');
-            } catch (error) {
-                console.error('切换到仪表板模块失败:', error);
-            }
+            switchModule('dashboard');
             
             // 响应式菜单切换 - 支持移动端滑出和桌面端折叠
             document.getElementById('menuToggle').addEventListener('click', function() {
@@ -6430,19 +6069,15 @@
             
             // 添加一些初始数据（如果从未初始化过）
             (async () => {
-                try {
-                    // 检查是否是首次运行系统
-                    const hasProductsInitialized = localStorage.getItem('products_initialized');
-                    if (!hasProductsInitialized) {
-                        const products = await DataManager.getAllProducts();
-                        if (products.length === 0) {
-                            initializeSampleData();
-                            // 标记产品数据已初始化
-                            localStorage.setItem('products_initialized', 'true');
-                        }
+                // 检查是否是首次运行系统
+                const hasProductsInitialized = localStorage.getItem('products_initialized');
+                if (!hasProductsInitialized) {
+                    const products = await DataManager.getAllProducts();
+                    if (products.length === 0) {
+                        initializeSampleData();
+                        // 标记产品数据已初始化
+                        localStorage.setItem('products_initialized', 'true');
                     }
-                } catch (error) {
-                    console.error('初始化示例数据失败:', error);
                 }
             })();
         }
@@ -6481,16 +6116,10 @@
                 if (moduleId === 'statistics-dashboard') icon = 'fa-chart-pie';
                 if (moduleId === 'user-management') icon = 'fa-users';
                 
-                // 确保模块存在
-                if (!module) {
-                    console.error(`模块 ${moduleId} 未定义`);
-                    return;
-                }
-                
                 const menuItem = document.createElement('li');
                 menuItem.className = 'menu-item';
                 menuItem.innerHTML = `
-                    <a href="#" class="menu-link" data-module="${moduleId}" data-icon="${icon}">
+                    <a href="#" class="menu-link" data-module="${moduleId}" data-icon="\\${icon}">
                         <span>${module.name}</span>
                     </a>
                 `;
@@ -8729,96 +8358,113 @@
                 // 获取创建人ID
                 const creatorId = task.creatorName || task.creator_name || '未知';
                 
-                // 构建任务卡片HTML
-                let taskCardHtml = '';
-                
-                // 构建正面内容
-                const frontContent = `
-                    <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
-                        <div class="task-gallery-img">
-                            ${firstProductImage ? 
-                                `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
-                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
-                            }
-                        </div>
-                        <div class="task-info-container">
-                            <div class="task-gallery-name">${firstProductName}</div>
-                            <div class="task-gallery-code" data-content="${firstProductCode}">货号: ${firstProductCode}</div>
-                            <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
-                            <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
-                        </div>
-                        <div class="task-gallery-actions d-flex align-items-center gap-2">
-                            <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
-                                ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
-                            </span>
-                            <button class="btn btn-sm btn-outline-primary task-flip-button" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
-                                <i class="fas fa-info-circle"></i> 详情
-                            </button>
-                        </div>
-                    </div>`;
-                
-                // 构建背面内容
-                const backContent = `
-                    <div class="task-back">
-                        <div class="task-back-content">
-                            <div class="task-files-container">
-                                ${generateFileItem('本体码', task.bodyCodeImage, task.bodyCodeType, task.bodyCodeFileName, task.id, 'bodyCode')}
-                                ${generateFileItem('条码', task.barcodeImage, task.barcodeType, task.barcodeFileName, task.id, 'barcode')}
-                                ${generateFileItem('警示码', task.warningCodeImage, task.warningCodeType, task.warningCodeFileName, task.id, 'warningCode')}
-                                ${generateFileItem('箱唛', task.labelImage, task.labelType, task.labelFileName, task.id, 'label')}
-                                ${generateFileItem('说明书', task.manualImage, task.manualType, task.manualFileName, task.id, 'manual')}
-                                ${generateFileItem('其他', task.otherImage, task.otherType, task.otherFileName, task.id, 'other')}
+                return `
+                    <div class="task-flip-container" onclick="toggleTaskCardFlip('${task.id}')">
+                        <!-- 卡片正面 -->
+                        <div class="task-front" id="task-${task.id}-front" data-task-id="${task.id}">
+                            <div class="task-gallery-img">
+                                ${firstProductImage ? 
+                                    `<img src="${firstProductImage}" alt="产品图片" onerror="Utils.onImageError(this)">` : 
+                                    '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                                }
                             </div>
-                            <div class="task-back-actions">
-                                <div class="back-action-buttons">
-                                    <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
-                                    <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
+                            <div class="task-info-container">
+                                <div class="task-gallery-name">${firstProductName}</div>
+                                <div class="task-gallery-code" data-content="${firstProductCode}">货号: ${firstProductCode}</div>
+                                <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
+                                <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
+                            </div>
+                            <div class="task-gallery-actions d-flex align-items-center gap-2">
+                                <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
+                                    ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
+                                </span>
+                                <button class="btn btn-sm btn-outline-primary" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
+                                    <i class="fas fa-info-circle"></i> 详情
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 卡片背面 -->
+                        <div class="task-back">
+                            <div class="task-back-content">
+                                <div class="task-files-container">
+                                    <div class="task-file-item">
+                                        <div class="file-label">本体码</div>
+                                        ${task.bodyCodeImage ? 
+                                            (task.bodyCodeType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'bodyCode')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'bodyCode')">`) : 
+                                            '<div class="no-file">未上传</div>'}
+                                    </div>
+                                    <div class="task-file-item">
+                                        <div class="file-label">条码</div>
+                                        ${task.barcodeImage ? 
+                                            (task.barcodeType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'barcode')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'barcode')">`) : 
+                                            '<div class="no-file">未上传</div>'}
+                                    </div>
+                                    <div class="task-file-item">
+                                        <div class="file-label">警示码</div>
+                                        ${task.warningCodeImage ? 
+                                            (task.warningCodeType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'warningCode')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'warningCode')">`) : 
+                                            '<div class="no-file">未上传</div>'}
+                                    </div>
+                                    <div class="task-file-item">
+                                        <div class="file-label">箱唛</div>
+                                        ${task.labelImage ? 
+                                            (task.labelType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'label')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'label')">`) : 
+                                            '<div class="no-file">未上传</div>'}
+                                    </div>
+                                    <div class="task-file-item">
+                                        <div class="file-label">说明书</div>
+                                        ${task.manualImage ? 
+                                            (task.manualType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'manual')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'manual')">`) : 
+                                            '<div class="no-file">未上传</div>'}
+                                    </div>
+                                    <div class="task-file-item">
+                                        <div class="file-label">其他</div>
+                                        ${task.otherImage ? 
+                                            (task.otherType === 'pdf' ? 
+                                                `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'other')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                </div>` : 
+                                                `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'other')">`) : 
+                                            '<div class="no-file">未上传</div>'}
+                                    </div>
+                                </div>
+                                <div class="task-back-actions">
+                                    <div class="back-action-buttons">
+                                        <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>`;
-                
-                // 组合完整卡片
-                taskCardHtml = `
-                    <div class="task-flip-container" data-task-id="${task.id}" onclick="toggleTaskCardFlip('${task.id}')">
-                        ${frontContent}
-                        ${backContent}
-                    </div>`;
-                
-                return taskCardHtml;
+                    </div>
+                `;
             }).join('');
-        }
-        
-        // 辅助函数：生成文件项HTML
-        function generateFileItem(label, imageUrl, fileType, fileName, taskId, fileTypeKey) {
-            let fileHtml = '';
-            
-            if (imageUrl) {
-                if (fileType === 'pdf') {
-                    fileHtml = `
-                        <div class="task-file-item">
-                            <div class="file-label">${label}</div>
-                            <div class="pdf-preview" title="${fileName || 'PDF文件'}" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}')" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
-                                <i class="fas fa-file-pdf"></i>
-                                <div class="pdf-filename">${fileName ? fileName.substring(0, 12) + (fileName.length > 12 ? '...' : '') : 'PDF'}</div>
-                            </div>
-                        </div>`;
-                } else {
-                    fileHtml = `
-                        <div class="task-file-item">
-                            <div class="file-label">${label}</div>
-                            <img src="${imageUrl}" alt="${label}" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}')" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
-                        </div>`;
-                }
-            } else {
-                fileHtml = `
-                    <div class="task-file-item">
-                        <div class="file-label">${label}</div>
-                        <div class="no-file">未上传</div>
-                    </div>`;
-            }
-            
-            return fileHtml;
         }
 
         function viewTaskDetail(taskId) {
@@ -9179,38 +8825,16 @@
         // 仓库发货模块
         // ============================================
         async function loadWarehouseTasksList() {
-            console.log('=== loadWarehouseTasksList 开始 ===');
             await updateWarehouseStats();
                     
             try {
                 const tasks = await DataManager.getAllTasks();
-                console.log('获取到所有任务:', tasks.length, '个');
-                
-                // 只显示pending状态的任务
-                const pendingTasks = tasks.filter(t => t.status === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                console.log('过滤后的待处理任务:', pendingTasks.length, '个');
-                
-                // 记录一些已完成任务的信息用于调试
-                const completedTasks = tasks.filter(t => t.status === 'completed');
-                console.log('已完成任务数量:', completedTasks.length);
-                if (completedTasks.length > 0) {
-                    console.log('最近3个已完成任务:', completedTasks.slice(0, 3).map(t => ({
-                        id: t.id,
-                        task_number: t.task_number,
-                        status: t.status,
-                        completed_at: t.completed_at
-                    })));
-                }
-                
+                const pendingTasks = tasks.filter(t => t.status === 'pending');
                 const container = document.getElementById('warehouseTasks');
                         
-                if (!container) {
-                    console.error('❌ 未找到仓库任务容器');
-                    return;
-                }
+                if (!container) return;
                         
                 if (pendingTasks.length === 0) {
-                    console.log('✅ 没有待处理任务');
                     container.innerHTML = `
                         <div class="text-center py-5 text-muted">
                             <i class="fas fa-check-circle fa-2x mb-3"></i>
@@ -9221,22 +8845,13 @@
                 }
                         
                 // 画廊视图
-                console.log('渲染', pendingTasks.length, '个待处理任务');
                 container.innerHTML = `
                     <div class="task-gallery warehouse-tasks-gallery">
-                        ${pendingTasks.map((task, index) => {
+                        ${pendingTasks.map(task => {
                             const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
                             const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
                             const creatorId = task.creatorName || task.creator_name || '未知';
-                            
-                            // 检查必需字段是否存在
-                            if (!task.items || !Array.isArray(task.items)) {
-                                console.error(`任务 ${task.id} 缺少有效的items数组`);
-                                return '';
-                            }
-                            
-                            console.log(`渲染任务 ${task.id}: ${task.task_number}, 状态: ${task.status}`);
-                            
+                                            
                             return `
                                 <div class="task-flip-container" data-task-id="${task.id}">
                                     <!-- 卡片正面 -->
@@ -9254,9 +8869,6 @@
                                             <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
                                         </div>
                                         <div class="task-gallery-actions">
-                                            <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip">
-                                                处理发货
-                                            </button>
                                         </div>
                                     </div>
                                     
@@ -9264,17 +8876,75 @@
                                     <div class="task-back">
                                         <div class="task-back-content">
                                             <div class="task-files-container">
-                                                ${generateFileItem('本体码', task.bodyCodeImage, task.bodyCodeType, task.bodyCodeFileName, task.id, 'bodyCode')}
-                                                ${generateFileItem('条码', task.barcodeImage, task.barcodeType, task.barcodeFileName, task.id, 'barcode')}
-                                                ${generateFileItem('警示码', task.warningCodeImage, task.warningCodeType, task.warningCodeFileName, task.id, 'warningCode')}
-                                                ${generateFileItem('箱唛', task.labelImage, task.labelType, task.labelFileName, task.id, 'label')}
-                                                ${generateFileItem('说明书', task.manualImage, task.manualType, task.manualFileName, task.id, 'manual')}
-                                                ${generateFileItem('其他', task.otherImage, task.otherType, task.otherFileName, task.id, 'other')}
-                                            </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">本体码</div>
+                                                    ${task.bodyCodeImage ? 
+                                                        (task.bodyCodeType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.bodyCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'bodyCode')">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.bodyCodeFileName ? task.bodyCodeFileName.substring(0, 12) + (task.bodyCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.bodyCodeImage}" alt="本体码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'bodyCode')">`) : 
+                                                        '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">条码</div>
+                                                    ${task.barcodeImage ? 
+                                                        (task.barcodeType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.barcodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'barcode')">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.barcodeFileName ? task.barcodeFileName.substring(0, 12) + (task.barcodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.barcodeImage}" alt="条码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'barcode')">`) : 
+                                                        '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">警示码</div>
+                                                    ${task.warningCodeImage ? 
+                                                        (task.warningCodeType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.warningCodeFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'warningCode')">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.warningCodeFileName ? task.warningCodeFileName.substring(0, 12) + (task.warningCodeFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.warningCodeImage}" alt="警示码" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'warningCode')">`) : 
+                                                        '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">箱唛</div>
+                                                    ${task.labelImage ? 
+                                                        (task.labelType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.labelFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'label')">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.labelFileName ? task.labelFileName.substring(0, 12) + (task.labelFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.labelImage}" alt="箱唛" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'label')">`) : 
+                                                        '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">说明书</div>
+                                                    ${task.manualImage ? 
+                                                        (task.manualType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.manualFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'manual')">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.manualFileName ? task.manualFileName.substring(0, 12) + (task.manualFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.manualImage}" alt="说明书" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'manual')">`) : 
+                                                        '<div class="no-file">未上传</div>'}
+                                                </div>
+                                                <div class="task-file-item">
+                                                    <div class="file-label">其他</div>
+                                                    ${task.otherImage ? 
+                                                        (task.otherType === 'pdf' ? 
+                                                            `<div class="pdf-preview" title="${task.otherFileName || 'PDF文件'}" onclick="previewTaskFile('${task.id}', 'other')">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                                <div class="pdf-filename">${task.otherFileName ? task.otherFileName.substring(0, 12) + (task.otherFileName.length > 12 ? '...' : '') : 'PDF'}</div>
+                                                            </div>` : 
+                                                            `<img src="${task.otherImage}" alt="其他" class="file-preview" onerror="Utils.onImageError(this)" onclick="previewTaskFile('${task.id}', 'other')">`) : 
+                                                        '<div class="no-file">未上传</div>'}
+                                                </div>
                                             </div>
                                             <div class="task-back-actions">
                                                 <div class="back-action-buttons">
-                                                    <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip">返回</button>
                                                     <button class="btn btn-sm btn-success" data-task-id="${task.id}" data-action="complete-shipment">确认发货</button>
                                                 </div>
                                             </div>
@@ -9282,37 +8952,19 @@
                                     </div>
                                 </div>
                             `;
-
                         }).join('')}
                     </div>
                 `;
                 
-                console.log('✅ 任务列表渲染完成');
-                
                 // 为新生成的内容绑定事件
+                console.log('🔄 为新渲染的任务列表绑定事件');
                 setTimeout(() => {
                     bindWarehouseTaskEvents();
-                    console.log('✅ 事件绑定完成');
-                    
-                    // 额外验证：检查事件监听器是否真的绑定成功
-                    const warehouseContainer = document.getElementById('warehouseTasks');
-                    if (warehouseContainer) {
-                        const listenerStatus = warehouseContainer.getAttribute('data-event-listener-bound');
-                        console.log('📊 事件监听器绑定状态验证:', listenerStatus ? '成功' : '失败');
-                        
-                        if (!listenerStatus) {
-                            console.error('❌ 事件监听器绑定失败，尝试重新绑定');
-                            // 再次尝试绑定
-                            setTimeout(() => bindWarehouseTaskEvents(), 200);
-                        }
-                    }
-                }, 50); // 稍微延迟确保DOM完全渲染
+                }, 0); // 使用setTimeout确保DOM完全更新后再绑定
             } catch (error) {
-                console.error('❌ 加载仓库任务列表失败:', error);
+                console.error('加载仓库任务列表失败:', error);
                 Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
             }
-            
-            console.log('=== loadWarehouseTasksList 结束 ===');
         }
                 
         // 仓库任务视图模式 - 固定画廊视图
@@ -9340,13 +8992,34 @@
                 }
             }
             
-            // 直接通过 data-task-id 属性查找翻转容器
-            const flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            // 多种方式查找翻转容器，增加容错性
+            let flipContainer = null;
+            
+            // 方法1: 通过前端元素ID查找
+            const frontElement = document.querySelector(`#task-${taskId}-front`);
+            if (frontElement) {
+                console.log('✅ 通过前端元素ID找到元素');
+                flipContainer = frontElement.closest('.task-flip-container');
+            }
+            
+            // 方法2: 直接通过data-task-id属性查找
+            if (!flipContainer) {
+                console.log('🔄 尝试通过data-task-id属性直接查找');
+                flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            }
+            
+            // 方法3: 通过按钮元素反向查找
+            if (!flipContainer) {
+                console.log('🔄 尝试通过按钮元素反向查找');
+                const flipButton = document.querySelector(`[data-task-id="${taskId}"][data-action="flip"]`);
+                if (flipButton) {
+                    flipContainer = flipButton.closest('.task-flip-container');
+                }
+            }
             
             if (!flipContainer) {
                 console.error(`❌ 未找到任务ID为 ${taskId} 的翻转容器`);
-                console.log('🔍 尝试查找所有翻转容器:', document.querySelectorAll('.task-flip-container'));
-                console.log('🔍 尝试查找特定ID元素:', document.querySelector(`#task-${taskId}-front`));
+                console.log('🔍 当前所有翻转容器:', document.querySelectorAll('.task-flip-container'));
                 
                 // 如果找不到容器，可能是DOM还未完全渲染，稍后重试
                 setTimeout(() => {
@@ -9368,129 +9041,77 @@
             console.log('=== toggleTaskCardFlip 调用结束 ===');
         }
         
-        // 抽离翻转操作逻辑，便于重试调用
+        // 提取翻转操作为独立函数，便于重试调用
         function performFlipOperation(flipContainer, taskId) {
             console.log('🔄 执行翻转操作');
             
+            // 切换翻转状态
             flipContainer.classList.toggle('flipped');
             
-            console.log('📊 翻转状态:', flipContainer.classList.contains('flipped') ? '已翻转到背面' : '已翻转到正面');
-            
             // 更新按钮文本以反映当前状态
-            // 遍历所有具有相同data-task-id和data-action="flip"属性的按钮
             const flipButtons = document.querySelectorAll(`[data-task-id="${taskId}"][data-action="flip"]`);
             
-            console.log(`🔍 找到 ${flipButtons.length} 个翻转按钮`);
-            
             flipButtons.forEach((button, index) => {
-                console.log(`🔧 处理按钮 ${index + 1}:`, button);
-                // 检查按钮当前状态，避免重复设置
+                console.log(`处理按钮 ${index + 1}:`, button);
                 const currentText = button.textContent.trim();
-                console.log('📝 当前按钮文本:', currentText);
                 
                 if (flipContainer.classList.contains('flipped')) {
-                    // 如果卡片已翻转到背面，将按钮文本改为"返回"
-                    if (currentText.includes('处理发货') || currentText.includes('详情') || currentText.includes('已发货')) {
+                    if (currentText.includes('处理发货') || currentText.includes('详情')) {
                         button.innerHTML = '<i class="fas fa-arrow-left"></i> 返回';
-                        console.log('✅ 按钮文本更新为: 返回');
+                        console.log('📝 按钮文本更新为: 返回');
                     }
                 } else {
-                    // 如果卡片翻转到正面，根据按钮原来的状态决定显示内容
                     if (currentText.includes('返回')) {
-                        // 检查按钮之前是否处于已发货状态
-                        const isPreviouslyShipped = button.textContent.trim().includes('已发货');
-                        const isInWarehouseModule = button.closest('.warehouse-tasks-gallery') !== null;
-                        if (isPreviouslyShipped) {
-                            // 如果之前是已发货状态，翻转回来后仍保持已发货状态
-                            button.innerHTML = '<i class="fas fa-check"></i> 已发货';
-                            console.log('✅ 按钮文本更新为: 已发货');
-                        } else if (isInWarehouseModule) {
-                            button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
-                            console.log('✅ 按钮文本更新为: 处理发货');
-                        } else {
-                            button.innerHTML = '<i class="fas fa-info-circle"></i> 详情';
-                            console.log('✅ 按钮文本更新为: 详情');
-                        }
+                        button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
+                        console.log('📝 按钮文本更新为: 处理发货');
                     }
                 }
             });
         }
         
         function bindWarehouseTaskEvents() {
-            console.log('=== bindWarehouseTaskEvents 开始 ===');
+            console.log('=== bindWarehouseTaskEvents 调用开始 ===');
             
             // 使用事件委托来处理仓库任务卡片的所有交互事件
             const container = document.getElementById('warehouseTasks');
             
             if (!container) {
-                console.error('❌ 未找到仓库任务容器');
+                console.error('❌ 未找到仓库任务容器 #warehouseTasks');
                 return;
             }
+            
+            console.log('✅ 找到仓库任务容器');
             
             // 移除之前可能存在的事件监听器
             const existingListener = container.getAttribute('data-event-listener-bound');
             if (existingListener) {
-                console.log('📤 移除已存在的事件监听器');
+                console.log('🔄 移除已存在的事件监听器');
                 container.removeEventListener('click', warehouseTaskEventHandler);
             }
             
             // 绑定新的事件监听器
             container.addEventListener('click', warehouseTaskEventHandler);
+            console.log('✅ 事件监听器已绑定');
             
             // 标记已经绑定了事件监听器
             container.setAttribute('data-event-listener-bound', 'true');
-            console.log('📥 成功绑定事件监听器');
             
-            // 额外的安全检查：确保所有已完成任务的按钮都被禁用
-            setTimeout(() => {
-                const allFlipContainers = container.querySelectorAll('.task-flip-container');
-                console.log('🔍 检查所有任务容器:', allFlipContainers.length, '个');
-                
-                allFlipContainers.forEach((flipContainer, index) => {
-                    const taskId = flipContainer.getAttribute('data-task-id');
-                    const frontCard = flipContainer.querySelector('.task-front');
-                    const backCard = flipContainer.querySelector('.task-back');
-                    
-                    if (frontCard) {
-                        const flipButton = frontCard.querySelector('button[data-action="flip"]');
-                        if (flipButton && flipButton.textContent.includes('已发货')) {
-                            console.log(`📦 任务 ${taskId} 的处理发货按钮已经是已发货状态`);
-                            // 确保按钮保持禁用状态
-                            flipButton.disabled = true;
-                            flipButton.style.opacity = '0.5';
-                            flipButton.style.cursor = 'not-allowed';
-                            flipButton.style.backgroundColor = '#28a745';
-                            flipButton.style.borderColor = '#28a745';
-                            flipButton.style.color = 'white';
-                        }
-                    }
-                    
-                    if (backCard) {
-                        const confirmButton = backCard.querySelector('button[data-action="complete-shipment"]');
-                        if (confirmButton && confirmButton.textContent.includes('已发货')) {
-                            console.log(`📦 任务 ${taskId} 的确认发货按钮已经是已发货状态`);
-                            // 确保按钮保持禁用状态
-                            confirmButton.disabled = true;
-                            confirmButton.style.opacity = '0.5';
-                            confirmButton.style.cursor = 'not-allowed';
-                            confirmButton.style.backgroundColor = '#28a745';
-                            confirmButton.style.borderColor = '#28a745';
-                            confirmButton.style.color = 'white';
-                        }
-                    }
-                });
-            }, 100);
-            
-            console.log('=== bindWarehouseTaskEvents 结束 ===');
+            console.log('=== bindWarehouseTaskEvents 调用结束 ===');
         }
         
         // 定义事件处理函数
         function warehouseTaskEventHandler(e) {
+            console.log('=== warehouseTaskEventHandler 被触发 ===');
+            console.log('🎯 事件类型:', e.type);
+            console.log('📍 事件目标:', e.target);
+            console.log('📦 事件委托目标:', e.currentTarget);
+            
             // 处理翻转卡片事件
             if (e.target.closest('[data-action="flip"]')) {
                 e.stopPropagation();
                 const button = e.target.closest('[data-action="flip"]');
                 const taskId = button.getAttribute('data-task-id');
+                console.log(`🖱️ 检测到翻转按钮点击，任务ID: ${taskId}`);
                 toggleTaskCardFlip(taskId);
             }
             // 处理确认发货事件
@@ -9498,6 +9119,7 @@
                 e.stopPropagation();
                 const button = e.target.closest('[data-action="complete-shipment"]');
                 const taskId = button.getAttribute('data-task-id');
+                console.log(`✅ 检测到确认发货按钮点击，任务ID: ${taskId}`);
                 completeShipment(taskId);
             }
             // 处理整个翻转容器的点击事件（也可以翻转卡片）
@@ -9505,9 +9127,12 @@
                 const container = e.target.closest('.task-flip-container');
                 const taskId = container.getAttribute('data-task-id');
                 if (taskId) {
+                    console.log(`📦 检测到容器点击，任务ID: ${taskId}`);
                     toggleTaskCardFlip(taskId);
                 }
             }
+            
+            console.log('=== warehouseTaskEventHandler 处理结束 ===');
         }
         
         function handleFileSelect(e, uploadAreaId) {
@@ -9640,7 +9265,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group mb-3">
-                                        <label for="editBodyCodeFile">上传本体码</label>
+                                        <label>上传本体码</label>
                                         <div class="upload-area" id="editBodyCodeUpload" ondrop="handleFileDrop(event, 'editBodyCodeUpload')" ondragover="handleDragOver(event)">
                                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                                             <div class="upload-text">拖拽文件到此处或点击上传</div>
@@ -9651,7 +9276,7 @@
                                     </div>
                                     
                                     <div class="form-group mb-3">
-                                        <label for="editBarcodeFile">上传条码</label>
+                                        <label>上传条码</label>
                                         <div class="upload-area" id="editBarcodeUpload" ondrop="handleFileDrop(event, 'editBarcodeUpload')" ondragover="handleDragOver(event)">
                                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                                             <div class="upload-text">拖拽文件到此处或点击上传</div>
@@ -9662,7 +9287,7 @@
                                     </div>
                                     
                                     <div class="form-group mb-3">
-                                        <label for="editWarningCodeFile">上传警示码</label>
+                                        <label>上传警示码</label>
                                         <div class="upload-area" id="editWarningCodeUpload" ondrop="handleFileDrop(event, 'editWarningCodeUpload')" ondragover="handleDragOver(event)">
                                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                                             <div class="upload-text">拖拽文件到此处或点击上传</div>
@@ -9673,7 +9298,7 @@
                                     </div>
                                     
                                     <div class="form-group mb-3">
-                                        <label for="editLabelFile">上传箱唛</label>
+                                        <label>上传箱唛</label>
                                         <div class="upload-area" id="editLabelUpload" ondrop="handleFileDrop(event, 'editLabelUpload')" ondragover="handleDragOver(event)">
                                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                                             <div class="upload-text">拖拽文件到此处或点击上传</div>
@@ -9684,7 +9309,7 @@
                                     </div>
                                     
                                     <div class="form-group mb-3">
-                                        <label for="editManualFile">上传说明书</label>
+                                        <label>上传说明书</label>
                                         <div class="upload-area" id="editManualUpload" ondrop="handleFileDrop(event, 'editManualUpload')" ondragover="handleDragOver(event)">
                                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                                             <div class="upload-text">拖拽文件到此处或点击上传</div>
@@ -9927,61 +9552,63 @@
         }
 
         async function completeShipment(taskId) {
-            console.log('=== completeShipment 调用开始 ===');
-            console.log('任务ID:', taskId);
-                    
             // 防止重复点击，检查任务是否已经在处理中
             const processShipmentBtn = document.querySelector(`[data-task-id="${taskId}"][data-action="flip"]`);
             const confirmShipmentBtn = document.querySelector(`[data-task-id="${taskId}"][data-action="complete-shipment"]`);
-                    
-            console.log('找到处理发货按钮:', processShipmentBtn);
-            console.log('找到确认发货按钮:', confirmShipmentBtn);
-                    
+            
             if ((processShipmentBtn && processShipmentBtn.disabled) || 
                 (confirmShipmentBtn && confirmShipmentBtn.disabled)) {
-                console.log('❌ 按钮已被禁用，正在处理中，直接返回');
+                // 如果任一按钮已经被禁用，说明正在处理中，直接返回
                 return;
             }
-                    
+            
             // 在处理开始前，先禁用按钮以防止重复点击
             if (processShipmentBtn) {
                 processShipmentBtn.disabled = true;
                 processShipmentBtn.style.opacity = "0.5";
                 processShipmentBtn.style.cursor = "not-allowed";
                 processShipmentBtn.textContent = "处理中...";
-                console.log('✅ 处理发货按钮已禁用');
             }
-                    
-            // 同时也禁用确认发货按钮
-            if (confirmShipmentBtn) {
-                confirmShipmentBtn.disabled = true;
-                confirmShipmentBtn.style.opacity = "0.5";
-                confirmShipmentBtn.style.cursor = "not-allowed";
-                confirmShipmentBtn.textContent = "处理中...";
-                console.log('✅ 确认发货按钮已禁用');
-            }
-                    
+            
             // 使用原生confirm替代损坏的alertify.confirm调用
             if (!confirm('确定要标记此任务为"已发货"吗？')) {
-                console.log('❌ 用户取消操作');
                 // 用户取消操作，恢复按钮状态
-                restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
+                if (processShipmentBtn) {
+                    processShipmentBtn.disabled = false;
+                    processShipmentBtn.style.opacity = "1";
+                    processShipmentBtn.style.cursor = "pointer";
+                    processShipmentBtn.textContent = "处理发货";
+                }
+                if (confirmShipmentBtn) {
+                    confirmShipmentBtn.disabled = false;
+                    confirmShipmentBtn.style.opacity = "1";
+                    confirmShipmentBtn.style.cursor = "pointer";
+                    confirmShipmentBtn.textContent = "确认发货";
+                }
                 return;
             }
-                    
+            
             try {
-                console.log('🔄 开始处理发货请求');
-                        
                 // 先获取任务详情，因为后续会更新和删除任务
                 const task = await DataManager.getTaskById(taskId);
                 if (!task) {
-                    console.error('❌ 任务不存在');
                     Utils.showAlert('任务不存在！', 'error');
                     // 恢复按钮状态
-                    restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
+                    if (processShipmentBtn) {
+                        processShipmentBtn.disabled = false;
+                        processShipmentBtn.style.opacity = "1";
+                        processShipmentBtn.style.cursor = "pointer";
+                        processShipmentBtn.textContent = "处理发货";
+                    }
+                    if (confirmShipmentBtn) {
+                        confirmShipmentBtn.disabled = false;
+                        confirmShipmentBtn.style.opacity = "1";
+                        confirmShipmentBtn.style.cursor = "pointer";
+                        confirmShipmentBtn.textContent = "确认发货";
+                    }
                     return;
                 }
-                        
+
                 // 直接调用完成任务的API，这会将任务移动到历史表
                 const response = await fetch(`${DataManager.API_BASE}/api/tasks/${taskId}/complete`, {
                     method: 'POST',
@@ -9990,10 +9617,8 @@
                         'Authorization': `Bearer ${localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN)}`
                     }
                 });
-                        
+
                 if (response.ok) {
-                    console.log('✅ 服务器响应成功');
-                            
                     const products = await DataManager.getAllProducts();
                     const taskWithPrice = {
                         ...task,
@@ -10006,111 +9631,93 @@
                             };
                         })
                     };
-                            
+
                     // 更新销售运营端任务卡片上的状态标签，而不是移除元素
                     // 先尝试查找仓库任务元素（id为task-）
                     let taskElement = document.getElementById(`task-${taskId}-front`);
-                            
+
                     // 如果没找到仓库任务，则尝试查找销售发布的任务元素（data-task-id属性）
                     if (!taskElement) {
                         taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
                     }
-                            
+
                     if (taskElement) {
-                        console.log('✅ 找到任务元素，更新UI状态');
-                                
                         // 查找并更新状态标签
                         const statusBadge = taskElement.querySelector('.badge.badge-warning.flex-fill.text-center');
                         if (statusBadge) {
                             statusBadge.textContent = '已发货';
                             statusBadge.classList.remove('badge-warning');
                             statusBadge.classList.add('badge-success');
-                            console.log('✅ 状态标签已更新为已发货');
                         }
-                                
-                        // 彻底禁用处理发货按钮
+
+                        // 禁用处理发货按钮
                         const processShipmentBtn = taskElement.querySelector('button[data-action="flip"]');
                         if (processShipmentBtn) {
                             processShipmentBtn.disabled = true;
                             processShipmentBtn.style.opacity = '0.5';
                             processShipmentBtn.style.cursor = 'not-allowed';
                             processShipmentBtn.textContent = '已发货';
-                            processShipmentBtn.style.backgroundColor = '#28a745';
-                            processShipmentBtn.style.borderColor = '#28a745';
-                            processShipmentBtn.style.color = 'white';
-                            console.log('✅ 处理发货按钮已永久禁用');
                         }
-                                
-                        // 彻底禁用确认发货按钮（如果在背面）
+
+                        // 禁用确认发货按钮（如果在背面）
                         const confirmShipmentBtn = taskElement.querySelector('button[data-action="complete-shipment"]');
                         if (confirmShipmentBtn) {
                             confirmShipmentBtn.disabled = true;
                             confirmShipmentBtn.style.opacity = '0.5';
                             confirmShipmentBtn.style.cursor = 'not-allowed';
                             confirmShipmentBtn.textContent = '已发货';
-                            confirmShipmentBtn.style.backgroundColor = '#28a745';
-                            confirmShipmentBtn.style.borderColor = '#28a745';
-                            confirmShipmentBtn.style.color = 'white';
-                            console.log('✅ 确认发货按钮已永久禁用');
                         }
                     }
-                            
+
                     Utils.showAlert('任务已完成发货！', 'success', function() {
-                        console.log('✅ 显示成功消息');
                         // 立即更新UI状态，提供即时反馈
                         expandedTaskId = null;
-                                
+
                         // 并行更新仪表板和任务列表，提高效率
                         updateDashboard();
                         loadWarehouseTasksList().then(() => {
                             // 重新绑定仓库任务事件，确保新渲染的元素有正确的事件处理
                             bindWarehouseTaskEvents();
-                            console.log('✅ 任务列表已重新加载并绑定事件');
                         });
                         loadSalesPublishedTasks();
                     });
                 } else {
                     // 如果响应不是ok状态，显示错误信息
                     const errorData = await response.text();
-                    console.error('❌ 完成发货任务失败:', response.status, errorData);
+                    console.error('完成发货任务失败:', response.status, errorData);
                     Utils.showAlert(`完成发货任务失败: ${response.status}`, 'error');
-                            
+                    
                     // 恢复按钮状态
-                    restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
+                    if (processShipmentBtn) {
+                        processShipmentBtn.disabled = false;
+                        processShipmentBtn.style.opacity = "1";
+                        processShipmentBtn.style.cursor = "pointer";
+                        processShipmentBtn.textContent = "处理发货";
+                    }
+                    if (confirmShipmentBtn) {
+                        confirmShipmentBtn.disabled = false;
+                        confirmShipmentBtn.style.opacity = "1";
+                        confirmShipmentBtn.style.cursor = "pointer";
+                        confirmShipmentBtn.textContent = "确认发货";
+                    }
                 }
             } catch (error) {
-                console.error('❌ 完成发货任务失败:', error);
+                console.error('完成发货任务失败:', error);
                 Utils.showAlert('完成发货任务失败，请稍后重试', 'error');
-                        
+
                 // 恢复按钮状态
-                restoreButtonStates(processShipmentBtn, confirmShipmentBtn);
-            }
-                    
-            console.log('=== completeShipment 调用结束 ===');
-        }
-                
-        // 辅助函数：恢复按钮状态
-        function restoreButtonStates(processBtn, confirmBtn) {
-            console.log('🔄 恢复按钮状态');
-                    
-            if (processBtn) {
-                processBtn.disabled = false;
-                processBtn.style.opacity = "1";
-                processBtn.style.cursor = "pointer";
-                processBtn.textContent = "处理发货";
-                processBtn.style.backgroundColor = '';
-                processBtn.style.borderColor = '';
-                processBtn.style.color = '';
-            }
-                    
-            if (confirmBtn) {
-                confirmBtn.disabled = false;
-                confirmBtn.style.opacity = "1";
-                confirmBtn.style.cursor = "pointer";
-                confirmBtn.textContent = "确认发货";
-                confirmBtn.style.backgroundColor = '';
-                confirmBtn.style.borderColor = '';
-                confirmBtn.style.color = '';
+                if (processShipmentBtn) {
+                    processShipmentBtn.disabled = false;
+                    processShipmentBtn.style.opacity = "1";
+                    processShipmentBtn.style.cursor = "pointer";
+                    processShipmentBtn.textContent = "处理发货";
+                }
+                if (confirmShipmentBtn) {
+                    confirmShipmentBtn.disabled = false;
+                    confirmShipmentBtn.style.opacity = "1";
+                    confirmShipmentBtn.style.cursor = "pointer";
+                    confirmShipmentBtn.textContent = "确认发货";
+                }
             }
         }
         // 预览任务本体码
@@ -10474,24 +10081,10 @@
                             <div class="pdf-info">
                                 <h3>${fileName || fileTitle}</h3>
                                 <p>任务号: ${task.taskNumber}</p>
-                                <p><small>右键点击上方文档可替换文件</small></p>
                             </div>
                         </body>
                         </html>
                     `);
-                    
-                    // 添加右键菜单功能
-                    printWindow.addEventListener('load', function() {
-                        const pdfFrame = printWindow.document.querySelector('iframe');
-                        if (pdfFrame) {
-                            pdfFrame.addEventListener('contextmenu', function(e) {
-                                e.preventDefault();
-                                if (confirm('是否要替换当前文件?')) {
-                                    replaceTaskFile(taskId, fileType);
-                                }
-                            });
-                        }
-                    });
                 } else {
                     printWindow.document.write(`
                         <!DOCTYPE html>
@@ -10500,16 +10093,15 @@
                             <title>任务${fileTitle}预览 - ${task.taskNumber}</title>
                             <style>
                                 body { font-family: Arial; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
-                                img { max-width: 100%; max-height: 90vh; cursor: pointer; }
+                                img { max-width: 100%; max-height: 90vh; }
                                 .image-info { margin-top: 20px; text-align: center; }
                             </style>
                         </head>
                         <body>
-                            <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)" oncontextmenu="handleFilePreviewRightClick(event, '${taskId}', '${fileType}'); return false;">
+                            <img src="${fileUrl}" alt="任务${fileTitle}" onerror="Utils.onImageError(this)">
                             <div class="image-info">
                                 <h3>任务${fileTitle}</h3>
                                 <p>任务号: ${task.taskNumber}</p>
-                                <p><small>右键点击上方图片可替换文件</small></p>
                             </div>
                         </body>
                         </html>
@@ -10520,110 +10112,6 @@
                 console.error('获取任务数据失败:', error);
                 Utils.showAlert('获取任务数据失败，请刷新页面重试', 'error');
             }
-        }
-        
-        // 处理文件预览右键点击事件
-        function handleFilePreviewRightClick(event, taskId, fileType) {
-            event.preventDefault();
-            if (confirm('是否要替换当前文件?')) {
-                replaceTaskFile(taskId, fileType);
-            }
-        }
-                    
-        // 处理文件预览点击下载事件
-        function handleFilePreviewClick(taskId, fileType) {
-            downloadTaskFile(taskId, fileType);
-        }
-                    
-        // 下载任务文件
-        async function downloadTaskFile(taskId, fileType) {
-            try {
-                const task = await DataManager.getTaskById(taskId);
-                if (!task) {
-                    Utils.showAlert('任务不存在', 'error');
-                    return;
-                }
-                            
-                const fieldName = fileType + 'Image';
-                const fileNameField = fileType + 'FileName';
-                            
-                const fileData = task[fieldName];
-                const fileName = task[fileNameField] || `${fileType}_file`;
-                            
-                if (!fileData) {
-                    Utils.showAlert('文件未上传', 'warning');
-                    return;
-                }
-                            
-                // 创建临时链接下载文件
-                const link = document.createElement('a');
-                link.href = fileData;
-                link.download = fileName;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                console.error('下载文件失败:', error);
-                Utils.showAlert('下载文件失败', 'error');
-            }
-        }
-        
-        // 替换任务文件
-        async function replaceTaskFile(taskId, fileType) {
-            // 创建隐藏的文件输入元素
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*,.pdf';
-            
-            fileInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                // 验证文件类型
-                if (!file.type.match('image.*') && !file.type.match(/pdf/)) {
-                    if (!file.name.toLowerCase().endsWith('.pdf')) {
-                        Utils.showAlert('请选择图片或PDF文件', 'warning');
-                        return;
-                    }
-                }
-                
-                // 检查文件大小（3M限制）
-                if (file.size > 3 * 1024 * 1024) { // 3MB
-                    Utils.showAlert('文件大小不能超过3MB', 'warning');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        // 准备更新数据
-                        const updateData = {};
-                        const fieldName = fileType + 'Image';
-                        const fileNameField = fileType + 'FileName';
-                        const typeField = fileType + 'Type';
-                        
-                        updateData[fieldName] = e.target.result;
-                        updateData[fileNameField] = file.name;
-                        updateData[typeField] = file.type.includes('pdf') ? 'pdf' : 'image';
-                        
-                        // 更新任务数据
-                        await DataManager.updateTask(taskId, updateData);
-                        
-                        // 刷新任务卡片显示
-                        await loadSalesPublishedTasks();
-                        
-                        Utils.showAlert('文件替换成功', 'success');
-                    } catch (error) {
-                        console.error('替换文件失败:', error);
-                        Utils.showAlert('替换文件失败', 'error');
-                    }
-                };
-                reader.readAsDataURL(file);
-            };
-            
-            // 触发文件选择对话框
-            fileInput.click();
         }
 
         // ============================================
@@ -11759,238 +11247,96 @@
         
 // 更新商品明细表格
         function updateProductDetailTable(stats) {
-            console.log('=== updateProductDetailTable 调用开始 ===');
-            console.log('传入的stats对象:', stats);
-            
             const tableBody = document.getElementById('productDetailList');
             if (!tableBody) {
-                console.error('❌ 未找到商品明细表格元素');
+                console.error('未找到商品明细表格');
                 return;
             }
             
             // 清空现有数据
             tableBody.innerHTML = '';
             
-            // 数据验证
-            if (!stats) {
-                console.error('❌ stats参数为空');
-                showErrorRow(tableBody, '数据加载失败：stats对象为空');
+            if (!stats || !stats.filteredHistory || stats.filteredHistory.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = '<td colspan="4" class="text-center text-muted py-4">暂无商品数据</td>';
+                tableBody.appendChild(noDataRow);
                 return;
             }
-            
-            if (!stats.filteredHistory || stats.filteredHistory.length === 0) {
-                console.warn('⚠️ filteredHistory为空或未定义');
-                showInfoRow(tableBody, '暂无发货任务数据');
-                return;
-            }
-            
-            // 检查产品数据源
-            let allProducts = [];
-            let dataSource = 'unknown';
-            
-            if (stats.allProducts && Array.isArray(stats.allProducts) && stats.allProducts.length > 0) {
-                allProducts = stats.allProducts;
-                dataSource = 'allProducts';
-                console.log('✅ 使用stats.allProducts作为数据源，共', allProducts.length, '个产品');
-            } else if (stats.productStats) {
-                // 从productStats中提取产品信息
-                allProducts = Object.values(stats.productStats).map(p => ({
-                    id: p.id,
-                    product_code: p.code,
-                    product_name: p.name,
-                    product_supplier: p.supplier,
-                    purchase_price: p.purchasePrice,
-                    sale_price: p.salePrice
-                }));
-                dataSource = 'productStats';
-                console.log('✅ 使用stats.productStats作为数据源，共', allProducts.length, '个产品');
-            } else {
-                console.warn('⚠️ 未找到有效的产品数据源');
-                console.log('stats对象结构:', Object.keys(stats));
-                showWarningRow(tableBody, '缺少产品价格信息，无法计算明细数据');
-                return;
-            }
-            
-            console.log('数据源详情:', {
-                source: dataSource,
-                productCount: allProducts.length,
-                sampleProduct: allProducts[0],
-                taskCount: stats.filteredHistory.length
-            });
             
             // 处理商品数据
             const productMap = {};
-            
-            console.log('开始处理任务数据，任务总数:', stats.filteredHistory.length);
-            
-            let processedItemCount = 0;
-            let missingProductCount = 0;
-            
-            stats.filteredHistory.forEach((task, taskIndex) => {
-                console.log(`处理任务 ${taskIndex + 1}/${stats.filteredHistory.length}:`, task.taskNumber || task.id);
-                
+            stats.filteredHistory.forEach(task => {
                 if (task.items && Array.isArray(task.items)) {
-                    task.items.forEach((item, itemIndex) => {
-                        processedItemCount++;
-                        const productId = item.productId || item.product_id;
-                        
-                        if (!productId) {
-                            console.warn(`⚠️ 任务${taskIndex + 1}的第${itemIndex + 1}个商品缺少productId:`, item);
-                            return;
-                        }
-                        
-                        // 查找完整的产品信息
-                        const fullProduct = allProducts.find(p => p.id == productId);
-                        
-                        if (!fullProduct) {
-                            missingProductCount++;
-                            console.warn(`⚠️ 未找到productId=${productId}的产品信息`);
-                            console.log('  可用产品ID列表(前10个):', allProducts.slice(0, 10).map(p => p.id));
-                        }
+                    task.items.forEach(item => {
+                        const product = item.product || {};
+                        const productId = item.productId || item.product_id || product.id;
                         
                         if (!productMap[productId]) {
-                            // 获取供应商信息
+                            // 从多个可能的字段获取供应商信息
                             let supplier = '未知供应商';
                             if (item.productSupplier) {
                                 supplier = item.productSupplier;
+                            } else if (product.supplier) {
+                                supplier = product.supplier;
                             } else if (item.supplier) {
                                 supplier = item.supplier;
-                            } else if (fullProduct && fullProduct.product_supplier) {
-                                supplier = fullProduct.product_supplier;
-                            } else if (fullProduct && fullProduct.supplier) {
-                                supplier = fullProduct.supplier;
+                            } else if (product.product_supplier) {  // 兼容不同字段名
+                                supplier = product.product_supplier;
+                            } else if (item.product_supplier) {
+                                supplier = item.product_supplier;
+                            } else if (item.product && item.product.supplier) {  // 尝试从item.product中获取
+                                supplier = item.product.supplier;
+                            } else if (item.product && item.product.product_supplier) {
+                                supplier = item.product.product_supplier;
+                            } else if (item.product && item.product.productSupplier) {
+                                supplier = item.product.productSupplier;
+                            } else if (product.supplier) {  // 从productStats中传递的供应商信息
+                                supplier = product.supplier;
                             }
                             
-                            // 获取价格信息
-                            const purchasePrice = fullProduct ? 
-                                (parseFloat(fullProduct.purchase_price) || parseFloat(fullProduct.purchasePrice) || 0) : 0;
-                            const salePrice = fullProduct ? 
-                                (parseFloat(fullProduct.sale_price) || parseFloat(fullProduct.salePrice) || 0) : 
-                                (parseFloat(item.salePrice) || parseFloat(item.sale_price) || 0);
-                            
                             productMap[productId] = {
-                                name: item.productName || (fullProduct ? (fullProduct.product_name || fullProduct.name) : '未知商品'),
-                                code: item.productCode || (fullProduct ? (fullProduct.product_code || fullProduct.code) : 'N/A'),
+                                name: item.productName || product.name || '未知商品',
+                                code: item.productCode || product.code || 'N/A',
                                 supplier: supplier,
                                 quantity: 0,
-                                purchasePrice: purchasePrice,
-                                salePrice: salePrice,
                                 sales: 0,
                                 profit: 0
                             };
-                            
-                            console.log(`  创建商品映射: ${productMap[productId].name}(ID:${productId})`);
-                            console.log(`    价格信息: 进货价=${purchasePrice}, 销售价=${salePrice}`);
                         }
                         
-                        const quantity = parseInt(item.quantity) || 0;
-                        const purchasePrice = productMap[productId].purchasePrice;
-                        const salePrice = productMap[productId].salePrice;
+                        const quantity = item.quantity || 0;
+                        const salePrice = item.salePrice || product.salePrice || 0;
+                        const purchasePrice = product.purchasePrice || 0;
                         
                         productMap[productId].quantity += quantity;
                         productMap[productId].sales += salePrice * quantity;
                         productMap[productId].profit += (salePrice - purchasePrice) * quantity;
-                        
-                        if (quantity > 0) {
-                            console.log(`  累计商品: ${productMap[productId].name} x${quantity}, 销售额: ${(salePrice * quantity).toFixed(2)}`);
-                        }
                     });
-                } else {
-                    console.warn(`⚠️ 任务${taskIndex + 1}缺少有效的items数据:`, task.items);
                 }
             });
             
-            console.log('数据处理完成:', {
-                processedItems: processedItemCount,
-                missingProducts: missingProductCount,
-                uniqueProducts: Object.keys(productMap).length
+            // 生成表格行
+            const sortedProducts = Object.values(productMap).sort((a, b) => b.quantity - a.quantity);
+            
+            sortedProducts.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.name || '未知商品'}</td>
+                    <td>${product.code || 'N/A'}</td>
+                    <td>${product.supplier || '未知供应商'}</td>
+                    <td>${product.quantity || 0}</td>
+                    <td>${Utils.formatCurrency(product.sales || 0)}</td>
+                    <td>${Utils.formatCurrency(product.profit || 0)}</td>
+                `;
+                tableBody.appendChild(row);
             });
             
-            // 生成表格行
-            const sortedProducts = Object.values(productMap)
-                .filter(p => p.quantity > 0) // 只显示有数量的商品
-                .sort((a, b) => b.quantity - a.quantity);
-            
-            console.log('准备渲染表格，有效商品数量:', sortedProducts.length);
-            
-            if (sortedProducts.length > 0) {
-                sortedProducts.forEach((product, index) => {
-                    console.log(`渲染商品 ${index + 1}:`, {
-                        name: product.name,
-                        quantity: product.quantity,
-                        purchasePrice: product.purchasePrice,
-                        salePrice: product.salePrice,
-                        sales: product.sales,
-                        profit: product.profit
-                    });
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${escapeHtml(product.name || '未知商品')}</td>
-                        <td>${escapeHtml(product.code || 'N/A')}</td>
-                        <td>${escapeHtml(product.supplier || '未知供应商')}</td>
-                        <td>${product.quantity || 0}</td>
-                        <td>${Utils.formatCurrency(product.purchasePrice || 0)}</td>
-                        <td>${Utils.formatCurrency(product.salePrice || 0)}</td>
-                        <td>${Utils.formatCurrency(product.sales || 0)}</td>
-                        <td>${Utils.formatCurrency(product.profit || 0)}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-                
-                // 添加汇总行
-                const totalQuantity = sortedProducts.reduce((sum, p) => sum + (p.quantity || 0), 0);
-                const totalSales = sortedProducts.reduce((sum, p) => sum + (p.sales || 0), 0);
-                const totalProfit = sortedProducts.reduce((sum, p) => sum + (p.profit || 0), 0);
-                
-                const summaryRow = document.createElement('tr');
-                summaryRow.className = 'table-summary';
-                summaryRow.innerHTML = `
-                    <td><strong>总计</strong></td>
-                    <td colspan="2"></td>
-                    <td><strong>${totalQuantity}</strong></td>
-                    <td></td>
-                    <td></td>
-                    <td><strong>${Utils.formatCurrency(totalSales)}</strong></td>
-                    <td><strong>${Utils.formatCurrency(totalProfit)}</strong></td>
-                `;
-                tableBody.appendChild(summaryRow);
-                
-                console.log('✅ 表格渲染完成，共', sortedProducts.length, '个商品');
-            } else {
-                console.warn('⚠️ 没有有效商品数据可显示');
-                showInfoRow(tableBody, '暂无有效的商品明细数据');
+            // 如果没有数据，显示提示
+            if (sortedProducts.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = '<td colspan="6" class="text-center text-muted py-4">暂无商品数据</td>';
+                tableBody.appendChild(noDataRow);
             }
-            
-            console.log('=== updateProductDetailTable 调用结束 ===');
-        }
-        
-        // 辅助函数：显示错误行
-        function showErrorRow(tableBody, message) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="8" class="text-center text-danger py-4"><i class="fas fa-exclamation-circle"></i> ${message}</td>`;
-            tableBody.appendChild(row);
-        }
-        
-        // 辅助函数：显示警告行
-        function showWarningRow(tableBody, message) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="8" class="text-center text-warning py-4"><i class="fas fa-exclamation-triangle"></i> ${message}</td>`;
-            tableBody.appendChild(row);
-        }
-        
-        // 辅助函数：显示信息行
-        function showInfoRow(tableBody, message) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="8" class="text-center text-muted py-4"><i class="fas fa-info-circle"></i> ${message}</td>`;
-            tableBody.appendChild(row);
-        }
-        
-        // 辅助函数：HTML转义
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
         
         // 时间筛选函数
@@ -12022,66 +11368,6 @@
         window.loadStatisticsDashboardData = loadStatisticsDashboardData;
         window.filterStatistics = filterStatistics;
         window.filterByUser = filterByUser;
-        
-        // CSV下载功能
-        function downloadProductDetailsCSV() {
-            const tableBody = document.getElementById('productDetailList');
-            if (!tableBody) {
-                alert('未找到商品明细表格');
-                return;
-            }
-            
-            // 获取表格数据
-            const rows = tableBody.querySelectorAll('tr');
-            if (rows.length === 0 || (rows.length === 1 && rows[0].querySelector('td[colspan]'))) {
-                alert('暂无商品数据可导出');
-                return;
-            }
-            
-            // 构建CSV内容
-            let csvContent = '\uFEFF'; // 添加BOM以支持中文
-            
-            // 添加表头
-            csvContent += '商品名称,商品编码,供应商,数量,进货价,销售价,销售额,利润\n';
-            
-            // 添加数据行
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 8) { // 确保有足够的列
-                    const rowData = [
-                        cells[0].textContent.trim(),
-                        cells[1].textContent.trim(),
-                        cells[2].textContent.trim(),
-                        cells[3].textContent.trim(),
-                        cells[4].textContent.trim().replace('¥', ''),
-                        cells[5].textContent.trim().replace('¥', ''),
-                        cells[6].textContent.trim().replace('¥', ''),
-                        cells[7].textContent.trim().replace('¥', '')
-                    ];
-                    csvContent += rowData.join(',') + '\n';
-                }
-            });
-            
-            // 生成文件名（带当前日期）
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const filename = `商品明细_${year}${month}${day}.csv`;
-            
-            // 创建并下载文件
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        window.downloadProductDetailsCSV = downloadProductDetailsCSV;
     </script>
 </body>
 </html>
