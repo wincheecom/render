@@ -1762,6 +1762,53 @@ app.post('/api/clear-demo-data', async (req, res) => {
   }
 });
 
+// API endpoint to clear statistics data (统计分析数据清空接口)
+app.post('/api/clear-statistics-data', requireRole(['admin']), async (req, res) => {
+  try {
+    await db.query('BEGIN');
+    
+    // 记录清空前的数据量
+    const tasksCount = await db.query('SELECT COUNT(*) as count FROM tasks');
+    const historyCount = await db.query('SELECT COUNT(*) as count FROM history');
+    const activitiesCount = await db.query('SELECT COUNT(*) as count FROM activities');
+    
+    // 清空统计分析相关数据
+    await db.query('DELETE FROM activities');
+    await db.query('DELETE FROM history');
+    await db.query('DELETE FROM tasks');
+    
+    await db.query('COMMIT');
+    
+    const clearedData = {
+      tasks: parseInt(tasksCount.rows[0].count),
+      history: parseInt(historyCount.rows[0].count),
+      activities: parseInt(activitiesCount.rows[0].count)
+    };
+    
+    console.log('统计分析数据已清空:', clearedData);
+    
+    res.json({ 
+      message: '统计分析数据清空成功',
+      clearedData: clearedData,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('清空统计分析数据失败:', err);
+    
+    // 尝试回滚事务
+    try {
+      await db.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('事务回滚失败:', rollbackErr);
+    }
+    
+    res.status(500).json({ 
+      error: '清空统计分析数据失败', 
+      message: sanitizeErrorMessage(err.message) 
+    });
+  }
+});
+
 let attempts = 0;
 const maxAttempts = 10;
 const startServer = (port) => {
