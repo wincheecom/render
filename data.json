@@ -4,11 +4,30 @@
       "id": "1768958410413",
       "product_code": "小恐龙",
       "product_name": "泛趣",
-      "product_supplier": 555,
+      "product_supplier": "泛趣玩具供应商",
       "quantity": 11,
       "purchase_price": 33,
       "sale_price": 49.5,
-      "created_at": "2026-01-21T01:20:10.413Z"
+      "created_at": "2026-01-21T01:20:10.413Z",
+      "name": "泛趣",
+      "code": "小恐龙",
+      "supplier": "泛趣玩具供应商"
+    },
+    {
+      "id": "1768286272455",
+      "product_code": "WCQ",
+      "product_name": "完场前",
+      "product_supplier": "完场前供应商",
+      "purchase_price": 50,
+      "sale_price": 80
+    },
+    {
+      "id": "1768312481040",
+      "product_code": "YC",
+      "product_name": "以诚玩具",
+      "product_supplier": "以诚玩具供应商",
+      "purchase_price": 30,
+      "sale_price": 50
     }
   ],
   "tasks": [
