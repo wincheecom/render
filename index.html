@@ -9066,8 +9066,18 @@
                     }
                 } else {
                     if (currentText.includes('返回')) {
-                        button.innerHTML = '<i class="fas fa-info-circle"></i> 处理发货';
-                        console.log('📝 按钮文本更新为: 处理发货');
+                        // 检查按钮之前是否处于已发货状态
+                        const isPreviouslyShipped = button.textContent.trim().includes('已发货');
+                        const isInWarehouseModule = button.closest('.warehouse-tasks-gallery') !== null;
+                        if (isPreviouslyShipped) {
+                            // 如果之前是已发货状态，翻转回来后仍保持已发货状态
+                            button.innerHTML = '<i class="fas fa-check"></i> 已发货';
+                        } else if (isInWarehouseModule) {
+                            // 仓库模块的发货按钮已被移除，无需设置文本
+                            // 保留空白或其他处理
+                        } else {
+                            button.innerHTML = '<i class="fas fa-info-circle"></i> 详情';
+                        }
                     }
                 }
             });
