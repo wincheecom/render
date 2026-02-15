@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库任务卡布局状态诊断</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .diagnosis-container { max-width: 1200px; margin: 0 auto; }
+        .test-section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-success { background-color: #4cc9f0; }
+        .status-error { background-color: #ef233c; }
+        .status-warning { background-color: #f72585; }
+        
+        /* 模拟当前系统的CSS */
+        .task-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .task-gallery.warehouse-tasks-gallery {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+            margin-top: 8px !important;
+            align-content: start !important;
+            width: 100% !important;
+            grid-auto-rows: minmax(220px, auto) !important;
+        }
+        
+        .task-flip-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .task-gallery-img {
+            width: 100%;
+            height: 120px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-info-container {
+            text-align: center;
+        }
+        
+        .task-gallery-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        
+        .task-gallery-code {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .task-gallery-qty {
+            font-size: 0.85rem;
+            color: #4361ee;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnosis-container">
+        <h1 class="text-center mb-4">🔍 仓库任务卡布局状态诊断</h1>
+        
+        <div class="test-section">
+            <h3>📋 当前系统状态分析</h3>
+            <div id="systemStatus">
+                <p><i class="fas fa-spinner fa-spin"></i> 正在分析系统状态...</p>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>✅ 当前布局效果演示</h3>
+            <div class="task-gallery warehouse-tasks-gallery" id="currentLayout">
+                <!-- 这里将动态插入测试任务卡片 -->
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 详细诊断结果</h3>
+            <div id="detailedDiagnosis">
+                <pre id="cssRules" style="background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 300px; overflow-y: auto;">
+正在获取CSS规则...
+                </pre>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🛠️ 修复建议</h3>
+            <div id="fixSuggestions">
+                <p>分析完成后将显示修复建议...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 测试数据
+        const testTasks = [
+            { id: 'DIAG001', name: '诊断测试商品A', code: 'DIAG001', qty: 3, creator: '系统诊断' },
+            { id: 'DIAG002', name: '诊断测试商品B', code: 'DIAG002', qty: 1, creator: '系统诊断' },
+            { id: 'DIAG003', name: '诊断测试商品C', code: 'DIAG003', qty: 5, creator: '系统诊断' },
+            { id: 'DIAG004', name: '诊断测试商品D', code: 'DIAG004', qty: 2, creator: '系统诊断' },
+            { id: 'DIAG005', name: '诊断测试商品E', code: 'DIAG005', qty: 7, creator: '系统诊断' },
+            { id: 'DIAG006', name: '诊断测试商品F', code: 'DIAG006', qty: 1, creator: '系统诊断' }
+        ];
+
+        // 生成任务卡片
+        function generateTaskCard(task) {
+            return `
+                <div class="task-flip-container" data-task-id="${task.id}">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">${task.name}</div>
+                            <div class="task-gallery-code">货号: ${task.code}</div>
+                            <div class="task-gallery-qty">数量: ${task.qty} | ${task.creator}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 系统状态分析
+        function analyzeSystemStatus() {
+            const statusDiv = document.getElementById('systemStatus');
+            let result = '<div class="row">';
+            
+            // 检查基本元素
+            const hasTaskGallery = !!document.querySelector('.task-gallery');
+            const hasWarehouseTasksCombo = !!document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            const hasGridStyles = getComputedStyle(document.querySelector('.task-gallery.warehouse-tasks-gallery') || {}).display === 'grid';
+            
+            result += `
+                <div class="col-md-4">
+                    <p><span class="status-indicator ${hasTaskGallery ? 'status-success' : 'status-error'}"></span> 基础.task-gallery: ${hasTaskGallery ? '✅ 存在' : '❌ 缺失'}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><span class="status-indicator ${hasWarehouseTasksCombo ? 'status-success' : 'status-error'}"></span> 组合选择器: ${hasWarehouseTasksCombo ? '✅ 存在' : '❌ 缺失'}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><span class="status-indicator ${hasGridStyles ? 'status-success' : 'status-error'}"></span> 网格布局: ${hasGridStyles ? '✅ 启用' : '❌ 未启用'}</p>
+                </div>
+            `;
+            
+            result += '</div>';
+            statusDiv.innerHTML = result;
+        }
+
+        // 获取CSS规则详情
+        function getCSSRulesDetails() {
+            const cssRulesDiv = document.getElementById('cssRules');
+            const galleryElement = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            
+            if (!galleryElement) {
+                cssRulesDiv.textContent = '未找到目标元素';
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(galleryElement);
+            let rulesInfo = '=== 当前计算样式 ===\n';
+            
+            rulesInfo += `display: ${computedStyle.display}\n`;
+            rulesInfo += `grid-template-columns: ${computedStyle.gridTemplateColumns}\n`;
+            rulesInfo += `gap: ${computedStyle.gap}\n`;
+            rulesInfo += `width: ${computedStyle.width}\n`;
+            rulesInfo += `align-content: ${computedStyle.alignContent}\n`;
+            rulesInfo += `grid-auto-rows: ${computedStyle.gridAutoRows}\n\n`;
+            
+            // 检查具体的CSS规则来源
+            rulesInfo += '=== 匹配的CSS规则 ===\n';
+            const sheets = document.styleSheets;
+            for (let i = 0; i < sheets.length; i++) {
+                try {
+                    const rules = sheets[i].cssRules || sheets[i].rules;
+                    for (let j = 0; j < rules.length; j++) {
+                        const rule = rules[j];
+                        if (rule.selectorText && (
+                            rule.selectorText.includes('.task-gallery.warehouse-tasks-gallery') ||
+                            rule.selectorText.includes('.warehouse-tasks-gallery')
+                        )) {
+                            rulesInfo += `${rule.selectorText} {\n`;
+                            rulesInfo += `  ${rule.style.cssText.replace(/;/g, ';\n  ')}\n`;
+                            rulesInfo += `}\n\n`;
+                        }
+                    }
+                } catch (e) {
+                    // 跨域样式表无法访问，跳过
+                }
+            }
+            
+            cssRulesDiv.textContent = rulesInfo;
+        }
+
+        // 诊断布局问题
+        function diagnoseLayoutIssues() {
+            const suggestionsDiv = document.getElementById('fixSuggestions');
+            const galleryElement = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            
+            if (!galleryElement) {
+                suggestionsDiv.innerHTML = '<p class="text-danger">❌ 严重问题：未找到仓库任务容器</p>';
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(galleryElement);
+            let suggestions = '<div class="alert alert-info">';
+            suggestions += '<h5>诊断结果：</h5><ul>';
+            
+            // 检查网格布局
+            if (computedStyle.display !== 'grid') {
+                suggestions += '<li class="text-danger">❌ display属性不是grid - 需要强制设置为grid</li>';
+            } else {
+                suggestions += '<li class="text-success">✅ display属性正确设置为grid</li>';
+            }
+            
+            // 检查列数
+            if (computedStyle.gridTemplateColumns !== 'repeat(3, 1fr)') {
+                suggestions += '<li class="text-warning">⚠️ 列数设置可能不正确</li>';
+            } else {
+                suggestions += '<li class="text-success">✅ 列数设置正确(3列)</li>';
+            }
+            
+            // 检查间距
+            if (computedStyle.gap !== '8px') {
+                suggestions += '<li class="text-warning">⚠️ 间距设置可能不正确</li>';
+            } else {
+                suggestions += '<li class="text-success">✅ 间距设置正确(8px)</li>';
+            }
+            
+            // 检查子元素排列
+            const taskCards = galleryElement.querySelectorAll('.task-flip-container');
+            if (taskCards.length > 0) {
+                const firstCardRect = taskCards[0].getBoundingClientRect();
+                const secondCardRect = taskCards[1]?.getBoundingClientRect();
+                
+                if (secondCardRect && Math.abs(firstCardRect.top - secondCardRect.top) < 10) {
+                    suggestions += '<li class="text-success">✅ 任务卡片正确横向排列</li>';
+                } else {
+                    suggestions += '<li class="text-danger">❌ 任务卡片未正确横向排列</li>';
+                }
+            }
+            
+            suggestions += '</ul></div>';
+            suggestionsDiv.innerHTML = suggestions;
+        }
+
+        // 渲染测试布局
+        function renderTestLayout() {
+            const container = document.getElementById('currentLayout');
+            container.innerHTML = '';
+            
+            testTasks.forEach(task => {
+                container.innerHTML += generateTaskCard(task);
+            });
+        }
+
+        // 页面加载完成后执行诊断
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 开始仓库任务卡布局诊断...');
+            
+            // 渲染测试内容
+            renderTestLayout();
+            
+            // 延迟执行各项诊断
+            setTimeout(() => {
+                analyzeSystemStatus();
+                getCSSRulesDetails();
+                diagnoseLayoutIssues();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

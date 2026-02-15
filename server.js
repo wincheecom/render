@@ -845,7 +845,7 @@ app.delete('/api/users/:id', authenticateToken, requireRole(['admin']), async (r
 app.get('/api/products', requireRole(['admin', 'sales']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM products ORDER BY "created_at" DESC');
-    res.json(result.rows);
+    res.json(Array.isArray(result.rows) ? result.rows : (result.rows || []));
   } catch (err) {
     console.error(err);
     
@@ -891,7 +891,7 @@ app.post('/api/products', requireRole(['admin']), async (req, res) => {
 app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM tasks ORDER BY "created_at" DESC');
-    res.json(result.rows);
+    res.json(Array.isArray(result.rows) ? result.rows : (result.rows || []));
   } catch (err) { 
     console.error(err);
     res.status(500).json({ 
@@ -1392,7 +1392,20 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
       return fixedRecord;
     });
     
-    res.json(fixedRows);
+    res.json((function() {
+    const rows = fixedRows || {};
+    return rows.map(row => {
+        // 确保items字段正确解析
+        if (typeof row.items === 'string') {
+            try {
+                row.items = JSON.parse(row.items);
+            } catch (e) {
+                row.items = [];
+            }
+        }
+        return row;
+    });
+})());
   } catch (err) {
     console.error(err);
     
@@ -1817,7 +1830,41 @@ const startServer = (port) => {
     process.exit(1);
   }
   
-  const server = app.listen(port, () => {
+  const server = 
+// 全局错误处理中间件 - 确保所有错误响应格式一致
+app.use((err, req, res, next) => {
+    console.error('服务器错误:', err);
+    
+    // 确保响应是有效的JSON格式
+    const errorResponse = {
+        error: err.message || '服务器内部错误',
+        message: err.message || '未知错误',
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    };
+    
+    res.status(err.status || 500).json(errorResponse);
+});
+
+// 响应格式验证中间件
+app.use((req, res, next) => {
+    const originalJson = res.json;
+    res.json = function(data) {
+        try {
+            // 验证数据可以被JSON序列化
+            JSON.stringify(data);
+            return originalJson.call(this, data);
+        } catch (serializationError) {
+            console.error('响应数据序列化失败:', serializationError);
+            return originalJson.call(this, {
+                error: '服务器内部错误',
+                message: '响应数据格式无效'
+            });
+        }
+    };
+    next();
+});
+
+app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     console.log(`Visit http://localhost:${port} to access the application`);
   });

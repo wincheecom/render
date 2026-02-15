@@ -1912,66 +1912,92 @@
             transform: translateY(-2px);
         }
         
-        /* 仓库任务画廊网格布局 - 最高优先级强制网格显示 */
-        .warehouse-tasks-gallery,
-        .task-gallery.warehouse-tasks-gallery,
-        #warehouseTasks .task-gallery,
-        #warehouseTasks .warehouse-tasks-gallery {
+        /* 仓库任务画廊 - 最高优先级网格布局 */
+        .task-gallery.warehouse-tasks-gallery {
             display: grid !important;
             grid-template-columns: repeat(3, 1fr) !important;
-            gap: 8px !important;
-            margin-top: 8px !important;
-            align-content: start !important;
+            gap: 15px !important;
+            margin-top: 15px !important;
             width: 100% !important;
-            /* 确保新任务卡正确并排显示 */
-            grid-auto-rows: minmax(220px, auto) !important;
+            align-content: start !important;
+            justify-content: stretch !important;
+            grid-auto-rows: minmax(250px, auto) !important;
         }
         
-        /* 特定任务卡片位置调整 */
-        #task-83-front.task-front {
-            grid-column: 1;
-            grid-row: 1;
-        }
-        
-        #task-80-front.task-front {
-            grid-column: 2;
-            grid-row: 1;
-        }
-        
-        /* 确保统计卡片和任务卡片垂直对齐 */
-        .card.stat-card,
-        .warehouse-tasks-gallery .task-flip-container {
-            align-self: start;
-        }
-        
-        /* 确保任务翻转容器在网格中正确显示 - 更强优先级 */
-        .warehouse-tasks-gallery .task-flip-container,
-        #warehouseTasks .task-flip-container {
+        /* 强制覆盖所有子元素样式 */
+        .task-gallery.warehouse-tasks-gallery .task-flip-container {
             display: block !important;
             width: 100% !important;
             height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
+            min-height: 250px !important;
             grid-column: auto !important;
             grid-row: auto !important;
-            /* 确保最小高度以维持布局 */
-            min-height: 220px !important;
         }
         
-        /* 响应式布局 */
-        @media (max-width: 768px) {
-            .warehouse-tasks-gallery,
+        /* 强制卡片正面样式 */
+        .task-gallery.warehouse-tasks-gallery .task-front {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+            justify-content: space-between !important;
+            padding: 15px !important;
+            background-color: white !important;
+            border-radius: 10px !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+            min-height: 250px !important;
+            width: 100% !important;
+        }
+        
+        /* 任务翻转容器 */
+        .task-gallery.warehouse-tasks-gallery .task-flip-container {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            min-height: 250px;
+        }
+        
+        /* 任务卡片正面样式 */
+        .task-gallery.warehouse-tasks-gallery .task-front {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            min-height: 250px;
+            width: 100%;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
             .task-gallery.warehouse-tasks-gallery {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 8px !important;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .task-gallery.warehouse-tasks-gallery .task-front {
+                min-height: 230px;
+                padding: 12px;
             }
         }
         
-        @media (max-width: 576px) {
-            .warehouse-tasks-gallery,
+        @media (max-width: 768px) {
             .task-gallery.warehouse-tasks-gallery {
-                grid-template-columns: repeat(1, 1fr) !important;
-                gap: 8px !important;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .task-gallery.warehouse-tasks-gallery .task-front {
+                min-height: 220px;
+                padding: 10px;
             }
         }
         
@@ -2204,6 +2230,251 @@
         }
         
         /* 针对翻转卡片的样式 */
+
+        /* === 任务卡片布局调整 === */
+        /* 调整任务操作栏宽度为40px */
+        .task-gallery-actions {
+            width: 40px !important;
+            min-width: 40px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* 确保任务卡片内容区域充分利用剩余空间 */
+        .task-card-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+        
+        /* 商品信息容器样式调整 */
+        .task-info-inline {
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            flex: 1 !important;
+            justify-content: space-around !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+        
+        /* 单个信息项样式 */
+        .task-gallery-name,
+        .task-gallery-qty,
+        .task-gallery-creator {
+            flex: 1 !important;
+            text-align: center !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            min-width: 0 !important;
+        }
+        
+        /* 商品名称特殊样式 */
+        .task-gallery-name {
+            font-weight: 600 !important;
+            color: #333 !important;
+        }
+        
+        /* 数量和创建人样式 */
+        .task-gallery-qty,
+        .task-gallery-creator {
+            font-size: 0.75rem !important;
+            color: #666 !important;
+        }
+        
+        /* 针对不同屏幕尺寸的响应式调整 */
+        @media (max-width: 768px) {
+            .task-info-inline {
+                gap: 8px !important;
+            }
+            
+            .task-gallery-name,
+            .task-gallery-qty,
+            .task-gallery-creator {
+                font-size: 0.7rem !important;
+                max-width: 80px !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .task-info-inline {
+                gap: 6px !important;
+            }
+            
+            .task-gallery-name,
+            .task-gallery-qty,
+            .task-gallery-creator {
+                font-size: 0.65rem !important;
+                max-width: 60px !important;
+            }
+        }
+        
+        /* 确保在已发布任务画廊中的样式也生效 */
+        .published-tasks-gallery .task-gallery-actions {
+            width: 40px !important;
+            min-width: 40px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .published-tasks-gallery .task-card-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+        
+        .published-tasks-gallery .task-info-inline {
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            flex: 1 !important;
+            justify-content: space-around !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+        /* === 任务卡片布局调整结束 === */
+
+/* === 仓库任务保护补丁 === */
+/* 确保仓库发货任务卡片不受通用样式影响 */
+.warehouse-tasks-gallery .task-gallery-actions {
+    width: auto !important;
+    min-width: auto !important;
+}
+
+.warehouse-tasks-gallery .task-card-content {
+    /* 保持仓库任务原有的布局 */
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+}
+
+.warehouse-tasks-gallery .task-info-inline {
+    /* 保持仓库任务信息的原有布局 */
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex: 1 !important;
+    justify-content: flex-start !important;
+}
+
+/* 确保仓库任务的网格布局不受影响 */
+.warehouse-tasks-gallery {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15px !important;
+}
+/* === 仓库任务保护补丁结束 === */
+
+
+
+        /* === 任务卡片布局调整 === */
+        /* 调整任务操作栏宽度为40px */
+        .task-gallery-actions {
+            width: 40px !important;
+            min-width: 40px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* 确保任务卡片内容区域充分利用剩余空间 */
+        .task-card-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+        
+        /* 商品信息容器样式调整 */
+        .task-info-inline {
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            flex: 1 !important;
+            justify-content: space-around !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+        
+        /* 单个信息项样式 */
+        .task-gallery-name,
+        .task-gallery-qty,
+        .task-gallery-creator {
+            flex: 1 !important;
+            text-align: center !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            min-width: 0 !important;
+        }
+        
+        /* 商品名称特殊样式 */
+        .task-gallery-name {
+            font-weight: 600 !important;
+            color: #333 !important;
+        }
+        
+        /* 数量和创建人样式 */
+        .task-gallery-qty,
+        .task-gallery-creator {
+            font-size: 0.75rem !important;
+            color: #666 !important;
+        }
+        
+        /* 针对不同屏幕尺寸的响应式调整 */
+        @media (max-width: 768px) {
+            .task-info-inline {
+                gap: 8px !important;
+            }
+            
+            .task-gallery-name,
+            .task-gallery-qty,
+            .task-gallery-creator {
+                font-size: 0.7rem !important;
+                max-width: 80px !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .task-info-inline {
+                gap: 6px !important;
+            }
+            
+            .task-gallery-name,
+            .task-gallery-qty,
+            .task-gallery-creator {
+                font-size: 0.65rem !important;
+                max-width: 60px !important;
+            }
+        }
+        
+        /* 确保在已发布任务画廊中的样式也生效 */
+        .published-tasks-gallery .task-gallery-actions {
+            width: 40px !important;
+            min-width: 40px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .published-tasks-gallery .task-card-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+        
+        .published-tasks-gallery .task-info-inline {
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            flex: 1 !important;
+            justify-content: space-around !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+        /* === 任务卡片布局调整结束 === */
+
         .task-flip-container .task-info-container .task-gallery-code {
             color: #666;
         }
@@ -2211,7 +2482,16 @@
         .task-gallery-actions {
             display: flex;
             gap: 6px;
-            width: 100%;
+            width: auto;
+            flex-shrink: 0;
+        }
+        
+        .task-info-inline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            margin-left: auto;
         }
         
         .task-gallery-actions .btn {
@@ -3159,6 +3439,25 @@
             justify-content: center;
         }
     </style>
+
+<!-- 仓库任务卡警告徽章保护规则 -->
+<style>
+/* 隐藏仓库任务卡中的警告徽章 */
+.warehouse-tasks-gallery span.badge.badge-warning.flex-fill.text-center,
+.warehouse-tasks-gallery span.badge.bg-warning,
+.warehouse-tasks-gallery .status-badge.warning,
+.task-flip-container[data-task-type="warehouse"] span.badge.warning {
+    display: none !important;
+}
+
+/* 隐藏包含特定文本的徽章 */
+.warehouse-tasks-gallery span.badge:contains("待处理"),
+.warehouse-tasks-gallery span.badge:contains("待发货"),
+.warehouse-tasks-gallery .status-badge:contains("待处理") {
+    display: none !important;
+}
+</style>
+
 </head>
 <body>
     <!-- 登录页面 -->
@@ -8727,19 +9026,17 @@
                                 '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
                             }
                         </div>
-                        <div class="task-info-container">
-                            <div class="task-gallery-name">${firstProductName}</div>
-                            <div class="task-gallery-code" data-content="${firstProductCode}">货号: ${firstProductCode}</div>
-                            <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
-                            <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
-                        </div>
-                        <div class="task-gallery-actions d-flex align-items-center gap-2">
-                            <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'} flex-fill text-center">
-                                ${task.status === 'pending' ? '待处理' : task.status === 'processing' ? '处理中' : '已完成'}
-                            </span>
-                            <button class="btn btn-sm btn-outline-primary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();" title="查看详情">
-                                <i class="fas fa-info-circle"></i> 详情
-                            </button>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge ${task.status === 'pending' ? 'badge-warning' : task.status === 'processing' ? 'badge-primary' : 'badge-success'}" style="padding: 2px 6px; font-size: 0.7rem; min-width: 40px; text-align: center;">
+                                    ${task.status === 'pending' ? '待发' : task.status === 'processing' ? '处理中' : '已完成'}
+                                </span>
+                            </div>
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">${firstProductName}</div>
+                                <div class="task-gallery-qty" data-content="${itemCount}" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">数量: ${itemCount}</div>
+                                <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">创建人: ${creatorId}</div>
+                            </div>
                         </div>
                     </div>`;
                 
@@ -8757,7 +9054,7 @@
                             </div>
                             <div class="task-back-actions">
                                 <div class="back-action-buttons">
-                                    <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip" onclick="toggleTaskCardFlip('${task.id}'); event.stopPropagation();">返回</button>
+                                    <!-- 返回按钮已移除 -->
                                     <button class="btn btn-sm btn-danger" onclick="event.preventDefault(); event.stopPropagation(); setTimeout(() => deleteTaskWithConfirmation('${task.id}', event), 0);">删除</button>
                                 </div>
                             </div>
@@ -9208,14 +9505,14 @@
                                                 '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
                                             }
                                         </div>
-                                        <div class="task-info-container">
-                                            <div class="task-gallery-name">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
-                                            <div class="task-gallery-code" data-content="${task.items.length > 0 ? task.items[0].productCode : '无'}">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
-                                            <div class="task-gallery-qty" data-content="${itemCount}">数量: ${itemCount} | ${creatorId}</div>
-                                            <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #888; margin-top: 4px;">创建人: ${creatorId}</div>
-                                        </div>
-                                        <div class="task-gallery-actions">
-                                            <!-- 仓库发货按钮已移除，保留卡片翻转功能 -->
+                                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                                            
+                                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                                <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">${task.items.length > 0 ? task.items[0].productName : '无'}</div>
+                                                <div class="task-gallery-code" data-content="${task.items.length > 0 ? task.items[0].productCode : '无'}" style="font-size: 0.75rem; color: #666; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">货号: ${task.items.length > 0 ? task.items[0].productCode : '无'}</div>
+                                                <div class="task-gallery-qty" data-content="${itemCount}" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">数量: ${itemCount}</div>
+                                                <div class="task-gallery-creator" data-content="${creatorId}" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">创建人: ${creatorId}</div>
+                                            </div>
                                         </div>
                                     </div>
                                     
@@ -9233,7 +9530,7 @@
                                             </div>
                                             <div class="task-back-actions">
                                                 <div class="back-action-buttons">
-                                                    <button class="btn btn-sm btn-outline-secondary" data-task-id="${task.id}" data-action="flip">返回</button>
+                                                    <!-- 返回按钮已移除 -->
                                                     <button class="btn btn-sm btn-success" data-task-id="${task.id}" data-action="complete-shipment">确认发货</button>
                                                 </div>
                                             </div>
@@ -11944,5 +12241,8 @@
         
         window.downloadProductDetailsCSV = downloadProductDetailsCSV;
     </script>
+    
+    <!-- 仓库任务卡延迟修复脚本 -->
+    <script src="delayed_warehouse_fix.js"></script>
 </body>
 </html>

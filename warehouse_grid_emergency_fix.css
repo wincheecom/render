@@ -1,0 +1,83 @@
+/* 仓库任务网格布局紧急修复 */
+/* 专门解决任务卡片垂直堆叠问题 */
+
+/* 强制重置仓库任务画廊容器 */
+.warehouse-tasks-gallery {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+    align-content: start !important;
+    width: 100% !important;
+    grid-auto-rows: minmax(220px, auto) !important;
+    height: auto !important;
+    min-height: 300px !important;
+}
+
+/* 修复任务翻转容器的网格行为 */
+.warehouse-tasks-gallery .task-flip-container {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: 220px !important;
+    max-width: 100% !important;
+    flex: none !important;
+    align-self: start !important;
+}
+
+/* 修复任务卡片样式 */
+.warehouse-tasks-gallery .task-front,
+.warehouse-tasks-gallery .task-back {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    text-align: center !important;
+    background-color: white !important;
+    border-radius: var(--card-radius) !important;
+    box-shadow: var(--shadow) !important;
+    padding: 15px !important;
+    transition: var(--transition) !important;
+    align-items: center !important;
+    overflow: auto !important;
+    position: relative !important;
+    perspective: 1500px !important;
+    min-height: 220px !important;
+}
+
+/* 特别处理正面卡片的定位问题 */
+div[id^="task-"][id$="-front"].task-front {
+    position: static !important;
+    z-index: auto !important;
+}
+
+/* 确保网格项目的正确排列 */
+.warehouse-tasks-gallery > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .warehouse-tasks-gallery {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .warehouse-tasks-gallery {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* 调试辅助 - 可选启用 */
+/*
+.warehouse-tasks-gallery .task-flip-container:nth-child(1) { outline: 2px solid red !important; }
+.warehouse-tasks-gallery .task-flip-container:nth-child(2) { outline: 2px solid blue !important; }
+.warehouse-tasks-gallery .task-flip-container:nth-child(3) { outline: 2px solid green !important; }
+*/

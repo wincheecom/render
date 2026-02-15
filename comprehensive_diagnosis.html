@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库任务卡布局详细诊断</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 仓库任务画廊网格布局 - 简化版本确保横向显示 */
+        .task-gallery.warehouse-tasks-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+            width: 100%;
+            align-content: start;
+        }
+        
+        /* 任务翻转容器 */
+        .task-gallery.warehouse-tasks-gallery .task-flip-container {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            min-height: 250px;
+        }
+        
+        /* 任务卡片正面样式 */
+        .task-gallery.warehouse-tasks-gallery .task-front {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            min-height: 250px;
+            width: 100%;
+        }
+        
+        .task-gallery-img {
+            width: 100%;
+            height: 120px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-info-container {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .task-gallery-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .task-gallery-code {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .task-gallery-qty {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .diagnosis-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .debug-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .highlight-grid {
+            outline: 2px solid #007bff !important;
+            background: linear-gradient(45deg, rgba(0,123,255,0.1) 25%, transparent 25%, transparent 75%, rgba(0,123,255,0.1) 75%);
+        }
+        
+        .highlight-item {
+            outline: 2px solid #28a745 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnosis-container">
+        <h1 class="mb-4">仓库任务卡布局详细诊断</h1>
+        
+        <div class="debug-panel">
+            <h5>诊断控制面板</h5>
+            <button class="btn btn-primary me-2" onclick="runComprehensiveDiagnosis()">运行完整诊断</button>
+            <button class="btn btn-success me-2" onclick="toggleGridHighlight()">切换网格高亮</button>
+            <button class="btn btn-info me-2" onclick="showComputedStyles()">显示计算样式</button>
+            <button class="btn btn-warning" onclick="forceApplyStyles()">强制应用样式</button>
+        </div>
+        
+        <div class="debug-panel" id="diagnosis-results">
+            点击"运行完整诊断"开始检查...
+        </div>
+        
+        <div class="warehouse-tasks-container">
+            <div class="task-gallery warehouse-tasks-gallery" id="test-gallery">
+                <!-- 测试任务卡 1 -->
+                <div class="task-flip-container" data-task-id="1">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">测试商品1</div>
+                            <div class="task-gallery-code">货号: TEST-001</div>
+                            <div class="task-gallery-qty">数量: 5 | 管理员1</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试任务卡 2 -->
+                <div class="task-flip-container" data-task-id="2">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">测试商品2</div>
+                            <div class="task-gallery-code">货号: TEST-002</div>
+                            <div class="task-gallery-qty">数量: 3 | 管理员2</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试任务卡 3 -->
+                <div class="task-flip-container" data-task-id="3">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">测试商品3</div>
+                            <div class="task-gallery-code">货号: TEST-003</div>
+                            <div class="task-gallery-qty">数量: 8 | 管理员3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试任务卡 4 -->
+                <div class="task-flip-container" data-task-id="4">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">测试商品4</div>
+                            <div class="task-gallery-code">货号: TEST-004</div>
+                            <div class="task-gallery-qty">数量: 2 | 管理员1</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试任务卡 5 -->
+                <div class="task-flip-container" data-task-id="5">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">测试商品5</div>
+                            <div class="task-gallery-code">货号: TEST-005</div>
+                            <div class="task-gallery-qty">数量: 7 | 管理员2</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试任务卡 6 -->
+                <div class="task-flip-container" data-task-id="6">
+                    <div class="task-front">
+                        <div class="task-gallery-img">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                        <div class="task-info-container">
+                            <div class="task-gallery-name">测试商品6</div>
+                            <div class="task-gallery-code">货号: TEST-006</div>
+                            <div class="task-gallery-qty">数量: 4 | 管理员3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gridHighlighted = false;
+        
+        function runComprehensiveDiagnosis() {
+            const results = [];
+            const gallery = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            
+            if (!gallery) {
+                updateResults('❌ 未找到任务画廊容器', 'error');
+                return;
+            }
+            
+            // 检查基本元素
+            results.push('=== 基本元素检查 ===');
+            results.push(`✅ 找到画廊容器: ${gallery.tagName}`);
+            results.push(`✅ 子元素数量: ${gallery.children.length}`);
+            
+            // 检查计算样式
+            const computedStyle = window.getComputedStyle(gallery);
+            results.push('\n=== CSS样式检查 ===');
+            results.push(`display: ${computedStyle.display}`);
+            results.push(`grid-template-columns: ${computedStyle.gridTemplateColumns}`);
+            results.push(`gap: ${computedStyle.gap}`);
+            results.push(`width: ${computedStyle.width}`);
+            
+            // 检查是否有其他CSS规则覆盖
+            results.push('\n=== 样式冲突检查 ===');
+            const allStylesheets = document.styleSheets;
+            let conflictingRules = 0;
+            
+            for (let i = 0; i < allStylesheets.length; i++) {
+                try {
+                    const rules = allStylesheets[i].cssRules || allStylesheets[i].rules;
+                    for (let j = 0; j < rules.length; j++) {
+                        const rule = rules[j];
+                        if (rule.selectorText && rule.selectorText.includes('task-gallery')) {
+                            if (rule.style.display && rule.style.display !== 'grid') {
+                                results.push(`⚠️ 冲突规则: ${rule.selectorText} -> display: ${rule.style.display}`);
+                                conflictingRules++;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // 跨域样式表无法访问
+                }
+            }
+            
+            results.push(`发现 ${conflictingRules} 个潜在冲突规则`);
+            
+            // 检查布局实际效果
+            results.push('\n=== 布局效果检查 ===');
+            const rect = gallery.getBoundingClientRect();
+            results.push(`容器宽度: ${rect.width}px`);
+            results.push(`容器高度: ${rect.height}px`);
+            
+            // 检查第一个子元素的位置
+            if (gallery.children.length > 0) {
+                const firstChildRect = gallery.children[0].getBoundingClientRect();
+                results.push(`第一个卡片宽度: ${firstChildRect.width}px`);
+                results.push(`第一个卡片左侧位置: ${firstChildRect.left}px`);
+            }
+            
+            // 判断布局是否正确
+            results.push('\n=== 结论 ===');
+            const isGrid = computedStyle.display === 'grid';
+            const hasThreeColumns = computedStyle.gridTemplateColumns.includes('1fr 1fr 1fr') || 
+                                  computedStyle.gridTemplateColumns.includes('repeat(3');
+            
+            if (isGrid && hasThreeColumns) {
+                results.push('✅ 布局设置正确：网格显示，3列');
+            } else {
+                results.push('❌ 布局设置有问题');
+                if (!isGrid) results.push('  - display不是grid');
+                if (!hasThreeColumns) results.push('  - 列数设置不正确');
+            }
+            
+            updateResults(results.join('<br>'), 'info');
+        }
+        
+        function toggleGridHighlight() {
+            const gallery = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            if (!gallery) return;
+            
+            gridHighlighted = !gridHighlighted;
+            
+            if (gridHighlighted) {
+                gallery.classList.add('highlight-grid');
+                Array.from(gallery.children).forEach(child => {
+                    child.classList.add('highlight-item');
+                });
+            } else {
+                gallery.classList.remove('highlight-grid');
+                Array.from(gallery.children).forEach(child => {
+                    child.classList.remove('highlight-item');
+                });
+            }
+        }
+        
+        function showComputedStyles() {
+            const gallery = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            if (!gallery) {
+                updateResults('❌ 未找到画廊容器', 'error');
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(gallery);
+            const styles = [];
+            
+            styles.push('<h5>计算样式详情:</h5>');
+            styles.push(`<div style="background:#f8f9fa;padding:10px;border-radius:5px;">`);
+            styles.push(`<strong>display:</strong> ${computedStyle.display}<br>`);
+            styles.push(`<strong>grid-template-columns:</strong> ${computedStyle.gridTemplateColumns}<br>`);
+            styles.push(`<strong>gap:</strong> ${computedStyle.gap}<br>`);
+            styles.push(`<strong>width:</strong> ${computedStyle.width}<br>`);
+            styles.push(`<strong>height:</strong> ${computedStyle.height}<br>`);
+            styles.push(`<strong>margin:</strong> ${computedStyle.margin}<br>`);
+            styles.push(`<strong>padding:</strong> ${computedStyle.padding}<br>`);
+            styles.push(`</div>`);
+            
+            updateResults(styles.join(''), 'info');
+        }
+        
+        function forceApplyStyles() {
+            const gallery = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            if (!gallery) {
+                updateResults('❌ 未找到画廊容器', 'error');
+                return;
+            }
+            
+            // 强制应用样式
+            gallery.style.display = 'grid';
+            gallery.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            gallery.style.gap = '15px';
+            gallery.style.marginTop = '15px';
+            gallery.style.width = '100%';
+            gallery.style.alignContent = 'start';
+            
+            // 强制应用到子元素
+            Array.from(gallery.children).forEach(child => {
+                child.style.display = 'block';
+                child.style.width = '100%';
+                child.style.minHeight = '250px';
+            });
+            
+            updateResults('✅ 已强制应用网格样式', 'success');
+            setTimeout(runComprehensiveDiagnosis, 500);
+        }
+        
+        function updateResults(content, type) {
+            const resultsDiv = document.getElementById('diagnosis-results');
+            let className = 'alert ';
+            
+            switch(type) {
+                case 'success':
+                    className += 'alert-success';
+                    break;
+                case 'error':
+                    className += 'alert-danger';
+                    break;
+                case 'info':
+                    className += 'alert-info';
+                    break;
+                default:
+                    className += 'alert-secondary';
+            }
+            
+            resultsDiv.innerHTML = `<div class="${className}">${content}</div>`;
+        }
+        
+        // 页面加载后自动运行诊断
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runComprehensiveDiagnosis, 1000);
+        });
+    </script>
+</body>
+</html>

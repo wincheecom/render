@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库任务卡最终验证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .verification-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-area {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        /* 最终修复的CSS规则 */
+        .task-gallery.warehouse-tasks-gallery {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 15px !important;
+            margin-top: 15px !important;
+            width: 100% !important;
+            align-content: start !important;
+            justify-content: stretch !important;
+            grid-auto-rows: minmax(250px, auto) !important;
+        }
+        
+        .task-gallery.warehouse-tasks-gallery .task-flip-container {
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 250px !important;
+        }
+        
+        .task-gallery.warehouse-tasks-gallery .task-front {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+            justify-content: space-between !important;
+            padding: 15px !important;
+            background-color: white !important;
+            border-radius: 10px !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+            min-height: 250px !important;
+            width: 100% !important;
+        }
+        
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .status-indicator {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .verification-steps {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <h1>✅ 仓库任务卡最终验证</h1>
+        
+        <div class="verification-steps">
+            <h3>验证步骤：</h3>
+            <ol>
+                <li>观察下方测试区域的任务卡排列</li>
+                <li>确认是否每行显示3个任务卡</li>
+                <li>检查卡片间是否有适当间距</li>
+                <li>验证在不同窗口大小下的响应式表现</li>
+            </ol>
+        </div>
+        
+        <div class="test-area">
+            <h3>🧪 布局测试区域</h3>
+            <div class="task-gallery warehouse-tasks-gallery" id="verification-layout">
+                <div class="task-flip-container">
+                    <div class="task-front">
+                        <div class="task-card">
+                            <h4>任务卡 1</h4>
+                            <p>货号: PROD-001</p>
+                            <p>数量: 5件</p>
+                            <p>创建人: 管理员A</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-flip-container">
+                    <div class="task-front">
+                        <div class="task-card">
+                            <h4>任务卡 2</h4>
+                            <p>货号: PROD-002</p>
+                            <p>数量: 3件</p>
+                            <p>创建人: 管理员B</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-flip-container">
+                    <div class="task-front">
+                        <div class="task-card">
+                            <h4>任务卡 3</h4>
+                            <p>货号: PROD-003</p>
+                            <p>数量: 8件</p>
+                            <p>创建人: 管理员C</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-flip-container">
+                    <div class="task-front">
+                        <div class="task-card">
+                            <h4>任务卡 4</h4>
+                            <p>货号: PROD-004</p>
+                            <p>数量: 2件</p>
+                            <p>创建人: 管理员A</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-flip-container">
+                    <div class="task-front">
+                        <div class="task-card">
+                            <h4>任务卡 5</h4>
+                            <p>货号: PROD-005</p>
+                            <p>数量: 7件</p>
+                            <p>创建人: 管理员B</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-flip-container">
+                    <div class="task-front">
+                        <div class="task-card">
+                            <h4>任务卡 6</h4>
+                            <p>货号: PROD-006</p>
+                            <p>数量: 4件</p>
+                            <p>创建人: 管理员C</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="verification-result" class="status-indicator info">
+            正在验证布局效果...
+        </div>
+        
+        <div class="verification-steps">
+            <h3>预期结果：</h3>
+            <ul>
+                <li>✅ 第一行显示任务卡1、2、3（横向排列）</li>
+                <li>✅ 第二行显示任务卡4、5、6（横向排列）</li>
+                <li>✅ 卡片间有15px间距</li>
+                <li>✅ 所有卡片高度一致（至少250px）</li>
+                <li>✅ 响应式：小屏幕时自动调整为1-2列</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function verifyLayout() {
+            const resultDiv = document.getElementById('verification-result');
+            const gallery = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            const containers = gallery.querySelectorAll('.task-flip-container');
+            
+            if (containers.length < 3) {
+                resultDiv.className = 'status-indicator error';
+                resultDiv.innerHTML = '❌ 任务卡数量不足，无法验证布局';
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(gallery);
+            const containerRect = gallery.getBoundingClientRect();
+            
+            // 检查基本布局属性
+            const isGrid = computedStyle.display === 'grid';
+            const hasThreeColumns = computedStyle.gridTemplateColumns.includes('1fr 1fr 1fr') || 
+                                  computedStyle.gridTemplateColumns.includes('repeat(3');
+            const hasGap = computedStyle.gap === '15px';
+            
+            // 检查实际排列效果
+            const firstThreeCards = Array.from(containers).slice(0, 3);
+            const positions = firstThreeCards.map(card => card.getBoundingClientRect());
+            
+            const sameRow = positions.every((pos, index) => {
+                if (index === 0) return true;
+                return Math.abs(pos.top - positions[0].top) < 20; // 允许20px的误差
+            });
+            
+            // 生成结果
+            const results = [];
+            if (isGrid && hasThreeColumns && sameRow) {
+                resultDiv.className = 'status-indicator success';
+                results.push('✅ 布局验证通过！');
+                results.push('✅ 网格显示正常');
+                results.push('✅ 三列布局正确');
+                results.push('✅ 任务卡横向排列');
+                results.push(`📊 容器宽度: ${Math.round(containerRect.width)}px`);
+                results.push(`📊 卡片间距: ${computedStyle.gap}`);
+            } else {
+                resultDiv.className = 'status-indicator error';
+                results.push('❌ 布局验证失败');
+                if (!isGrid) results.push('  - display不是grid');
+                if (!hasThreeColumns) results.push('  - 列数设置不正确');
+                if (!sameRow) results.push('  - 任务卡未横向排列');
+                results.push(`当前display: ${computedStyle.display}`);
+                results.push(`当前列数: ${computedStyle.gridTemplateColumns}`);
+            }
+            
+            resultDiv.innerHTML = results.join('<br>');
+        }
+        
+        // 页面加载后验证
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(verifyLayout, 1000);
+        });
+        
+        // 窗口大小改变时重新验证
+        window.addEventListener('resize', function() {
+            setTimeout(verifyLayout, 500);
+        });
+    </script>
+</body>
+</html>

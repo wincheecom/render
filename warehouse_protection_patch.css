@@ -1,0 +1,32 @@
+
+/* === 仓库任务保护补丁 === */
+/* 确保仓库发货任务卡片不受通用样式影响 */
+.warehouse-tasks-gallery .task-gallery-actions {
+    width: auto !important;
+    min-width: auto !important;
+}
+
+.warehouse-tasks-gallery .task-card-content {
+    /* 保持仓库任务原有的布局 */
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+}
+
+.warehouse-tasks-gallery .task-info-inline {
+    /* 保持仓库任务信息的原有布局 */
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex: 1 !important;
+    justify-content: flex-start !important;
+}
+
+/* 确保仓库任务的网格布局不受影响 */
+.warehouse-tasks-gallery {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15px !important;
+}
+/* === 仓库任务保护补丁结束 === */
