@@ -67,7 +67,7 @@
     function handleContainerRemoval() {
         if (containerRestoreAttempts >= MAX_RESTORE_ATTEMPTS) {
             console.error('❌ 达到最大恢复尝试次数，停止自动恢复');
-            showUserNotification('仓库任务显示异常，请刷新页面重试', 'error');
+            Utils.showAlert('仓库任务显示异常，请刷新页面重试', 'error');
             return;
         }
         
@@ -141,7 +141,7 @@
         if (currentContainer) {
             console.log('✅ 容器已成功恢复');
             originalGalleryContainer = currentContainer;
-            showUserNotification('任务列表已恢复显示', 'success');
+            Utils.showAlert('任务列表已恢复显示', 'success');
         } else {
             console.warn('⚠️ 容器恢复验证失败');
             setTimeout(handleContainerRemoval, 2000);
@@ -235,7 +235,7 @@
             
         } catch (error) {
             console.error('❌ 初始化过程中出现错误:', error);
-            showUserNotification('稳定性修复启动失败', 'error');
+            Utils.showAlert('稳定性修复启动失败', 'error');
         }
     }
     

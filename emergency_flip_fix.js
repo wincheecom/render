@@ -12,46 +12,99 @@
     function fixSpecificTaskCard(taskId) {
         console.log(`🔧 正在修复任务卡片: ${taskId}`);
         
-        // 多种选择器尝试查找元素
+        // 更广泛的选择器尝试查找元素
         const selectors = [
             `#task-${taskId}-front.task-front`,
             `div[id='task-${taskId}-front'].task-front`,
             `[data-task-id='${taskId}'].task-front`,
-            `.task-front[data-task-id='${taskId}']`
+            `.task-front[data-task-id='${taskId}']`,
+            `#task-${taskId}`,
+            `[data-task-id='${taskId}']`,
+            `[id*='${taskId}']`
         ];
         
         let frontElement = null;
+        let usedSelector = '';
         
         // 尝试不同的选择器
         for (const selector of selectors) {
             frontElement = document.querySelector(selector);
             if (frontElement) {
+                usedSelector = selector;
                 console.log(`✅ 使用选择器 '${selector}' 找到元素`);
                 break;
             }
         }
         
-        // 如果还找不到，尝试模糊查找
+        // 如果还找不到，尝试更广泛的模糊查找
         if (!frontElement) {
-            console.log('🔍 尝试模糊查找...');
-            const allFrontElements = document.querySelectorAll('.task-front');
-            for (const element of allFrontElements) {
-                const elementId = element.id || element.getAttribute('data-task-id');
-                if (elementId && elementId.includes(taskId)) {
-                    frontElement = element;
-                    console.log(`✅ 通过模糊匹配找到元素: ${elementId}`);
-                    break;
+            console.log('🔍 尝试更广泛的模糊查找...');
+            
+            // 查找所有可能的任务相关元素
+            const allPossibleElements = document.querySelectorAll('[data-task-id], [id*="task"], .task-card, .task-item');
+            
+            for (const element of allPossibleElements) {
+                const elementId = element.id || 
+                                 element.getAttribute('data-task-id') || 
+                                 element.getAttribute('data-id') ||
+                                 '';
+                
+                if (elementId.toString().includes(taskId)) {
+                    // 如果是容器元素，查找其内部的.front元素
+                    if (element.classList.contains('task-front')) {
+                        frontElement = element;
+                        console.log(`✅ 通过模糊匹配找到 .task-front 元素: ${elementId}`);
+                        break;
+                    } else if (element.querySelector('.task-front')) {
+                        frontElement = element.querySelector('.task-front');
+                        console.log(`✅ 在容器中找到 .task-front 元素: ${elementId}`);
+                        break;
+                    } else {
+                        // 如果没有.front子元素，将此元素视为front元素
+                        frontElement = element;
+                        console.log(`✅ 将元素视为 .task-front: ${elementId}`);
+                        // 确保元素有正确的类名
+                        frontElement.classList.add('task-front');
+                        break;
+                    }
                 }
             }
         }
         
         if (!frontElement) {
-            console.error(`❌ 未找到任务元素，尝试过的选择器:`, selectors);
-            console.log('📊 当前页面中的所有 .task-front 元素:');
-            const allTaskFronts = document.querySelectorAll('.task-front');
-            allTaskFronts.forEach((el, index) => {
-                console.log(`  ${index + 1}. ID: ${el.id}, data-task-id: ${el.dataset.taskId}, class: ${el.className}`);
+            console.error(`❌ 未找到任务 ${taskId} 的元素`);
+            console.log('📋 尝试过的选择器:', selectors);
+            
+            // 详细的诊断信息
+            console.log('\n📊 当前页面元素诊断:');
+            
+            // 检查所有可能相关的元素
+            const allTaskElements = document.querySelectorAll('[data-task-id], [id*="task"]');
+            console.log(`  找到 ${allTaskElements.length} 个包含任务ID的元素:`);
+            allTaskElements.forEach((el, index) => {
+                console.log(`    ${index + 1}. ID: ${el.id || '无'}, data-task-id: ${el.dataset.taskId || '无'}, tag: ${el.tagName}, class: ${el.className}`);
             });
+            
+            // 检查.task-front元素
+            const allTaskFronts = document.querySelectorAll('.task-front');
+            console.log(`\n  找到 ${allTaskFronts.length} 个 .task-front 元素:`);
+            allTaskFronts.forEach((el, index) => {
+                console.log(`    ${index + 1}. ID: ${el.id || '无'}, data-task-id: ${el.dataset.taskId || '无'}, parent: ${el.parentElement?.className || '无'}`);
+            });
+            
+            // 检查页面状态
+            console.log('\n  页面状态检查:');
+            console.log(`    仓库任务区域: ${document.getElementById('warehouseTasks') ? '存在' : '不存在'}`);
+            console.log(`    销售运营区域: ${document.querySelector('.sales-operations-container') ? '存在' : '不存在'}`);
+            console.log(`    激活标签页: ${document.querySelector('.nav-link.active')?.textContent?.trim() || '未知'}`);
+            
+            // 建议解决方案
+            console.log('\n💡 解决方案建议:');
+            console.log('  1. 确认是否在正确的页面模块（仓库任务/销售运营）');
+            console.log('  2. 确认任务数据是否已加载');
+            console.log('  3. 可以执行 diagnoseCurrentTasks() 获取详细诊断信息');
+            console.log('  4. 如果任务确实不存在，可以选择其他任务ID进行测试');
+            
             return false;
         }
         

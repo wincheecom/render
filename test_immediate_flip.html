@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>立即翻转功能测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="immediate_flip_fix.js"></script>
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .result-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .result-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="mb-4">⚡ 立即翻转功能测试</h1>
+        
+        <!-- 控制面板 -->
+        <div class="test-section">
+            <h3>🎮 控制面板</h3>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary" onclick="executeTest()">
+                    <i class="fas fa-play me-1"></i>执行完整测试
+                </button>
+                <button class="btn btn-success" onclick="testTask96Flip()">
+                    <i class="fas fa-sync me-1"></i>测试任务#96翻转
+                </button>
+                <button class="btn btn-info" onclick="diagnoseCurrentState()">
+                    <i class="fas fa-stethoscope me-1"></i>诊断当前状态
+                </button>
+                <button class="btn btn-warning" onclick="resetAll()">
+                    <i class="fas fa-undo me-1"></i>重置所有状态
+                </button>
+            </div>
+        </div>
+        
+        <!-- 测试结果 -->
+        <div class="test-section">
+            <h3>📊 测试结果</h3>
+            <div id="testResults">
+                <p class="text-muted">点击上方按钮开始测试...</p>
+            </div>
+        </div>
+        
+        <!-- 任务卡片展示区 -->
+        <div class="test-section">
+            <h3>📋 任务卡片展示</h3>
+            <div class="published-tasks-gallery" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(282.66px, 1fr)); gap: 15px; margin-top: 15px;">
+                <!-- 任务卡片 96 - 立体拼图交通 -->
+                <div class="task-flip-container" data-task-id="96">
+                    <div class="task-front" id="task-96-front" data-task-id="96">
+                        <div class="task-gallery-img" style="width: 262.66px; height: 259.06px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; background-color: rgb(248, 249, 250); display: flex; align-items: center; justify-content: center; min-height: 259.06px; max-height: 259.06px;" data-original-style="width: 262.66px; height: 259.06px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; background-color: rgb(248, 249, 250); display: flex; align-items: center; justify-content: center;">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-car fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge badge-warning" style="padding: 2px 6px; font-size: 0.7rem; min-width: 40px; text-align: center;">
+                                    待发
+                                </span>
+                            </div>
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">立体拼图交通</div>
+                                <div class="task-gallery-qty" data-content="1" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">数量: 1</div>
+                                <div class="task-gallery-creator" data-content="管理员" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">创建人: 管理员</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-back">
+                        <div style="padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h5 style="margin-bottom: 15px; color: #495057;">📦 任务文件清单</h5>
+                                <div class="task-files-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-barcode fa-2x mb-2" style="color: #0d6efd;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">本体码</div>
+                                        <div style="font-size: 11px; color: #6c757d;">主产品标识</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-qrcode fa-2x mb-2" style="color: #198754;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">条码</div>
+                                        <div style="font-size: 11px; color: #6c757d;">物流追踪码</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #ffc107;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">警示码</div>
+                                        <div style="font-size: 11px; color: #6c757d;">安全提醒</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-box-open fa-2x mb-2" style="color: #dc3545;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">箱唛</div>
+                                        <div style="font-size: 11px; color: #6c757d;">包装标识</div>
+                                    </div>
+                                </div>
+                                <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-book fa-2x mb-2" style="color: #6f42c1;"></i>
+                                    <div style="font-size: 12px; font-weight: bold;">说明书</div>
+                                    <div style="font-size: 11px; color: #6c757d;">产品使用指南</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="window.toggleTaskCardFlip('96')" style="flex: 1;">
+                                    <i class="fas fa-arrow-left me-1"></i>返回
+                                </button>
+                                <button class="btn btn-success btn-sm" style="flex: 1;">
+                                    <i class="fas fa-paper-plane me-1"></i>确认发货
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 任务卡片 97 - 示例任务 -->
+                <div class="task-flip-container" data-task-id="97">
+                    <div class="task-front" id="task-97-front" data-task-id="97">
+                        <div class="task-gallery-img" style="width: 262.66px; height: 259.06px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; background-color: rgb(248, 249, 250); display: flex; align-items: center; justify-content: center; min-height: 259.06px; max-height: 259.06px;">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-cube fa-2x text-success"></i>
+                            </div>
+                        </div>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge bg-primary">处理中</span>
+                            </div>
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">积木玩具系列</div>
+                                <div class="task-gallery-qty" data-content="2" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">数量: 2</div>
+                                <div class="task-gallery-creator" data-content="销售员A" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">创建人: 销售员A</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-back">
+                        <div style="padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h5 style="margin-bottom: 15px; color: #495057;">📦 任务文件清单</h5>
+                                <div class="task-files-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-barcode fa-2x mb-2" style="color: #0d6efd;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">本体码</div>
+                                        <div style="font-size: 11px; color: #6c757d;">主产品标识</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-qrcode fa-2x mb-2" style="color: #198754;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">条码</div>
+                                        <div style="font-size: 11px; color: #6c757d;">物流追踪码</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #ffc107;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">警示码</div>
+                                        <div style="font-size: 11px; color: #6c757d;">安全提醒</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fas fa-box-open fa-2x mb-2" style="color: #dc3545;"></i>
+                                        <div style="font-size: 12px; font-weight: bold;">箱唛</div>
+                                        <div style="font-size: 11px; color: #6c757d;">包装标识</div>
+                                    </div>
+                                </div>
+                                <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-book fa-2x mb-2" style="color: #6f42c1;"></i>
+                                    <div style="font-size: 12px; font-weight: bold;">说明书</div>
+                                    <div style="font-size: 11px; color: #6c757d;">产品使用指南</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="window.toggleTaskCardFlip('97')" style="flex: 1;">
+                                    <i class="fas fa-arrow-left me-1"></i>返回
+                                </button>
+                                <button class="btn btn-success btn-sm" style="flex: 1;">
+                                    <i class="fas fa-paper-plane me-1"></i>确认发货
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        
+        function addTestResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const resultItem = document.createElement('div');
+            resultItem.className = `result-item result-${type}`;
+            resultItem.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            resultsDiv.appendChild(resultItem);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function executeTest() {
+            addTestResult('🚀 开始执行完整翻转功能测试...', 'info');
+            
+            // 测试1: 检查基础环境
+            setTimeout(() => {
+                const hasStyles = !!document.getElementById('immediate-flip-fix-styles');
+                const hasFunction = typeof window.toggleTaskCardFlip === 'function';
+                
+                if (hasStyles) {
+                    addTestResult('✅ 翻转样式已加载', 'success');
+                } else {
+                    addTestResult('❌ 翻转样式缺失', 'error');
+                }
+                
+                if (hasFunction) {
+                    addTestResult('✅ 翻转函数可用', 'success');
+                } else {
+                    addTestResult('❌ 翻转函数不可用', 'error');
+                }
+            }, 500);
+            
+            // 测试2: 检查任务卡片结构
+            setTimeout(() => {
+                const containers = document.querySelectorAll('.task-flip-container');
+                const fronts = document.querySelectorAll('.task-front');
+                const backs = document.querySelectorAll('.task-back');
+                
+                addTestResult(`📊 结构统计: ${containers.length}个容器, ${fronts.length}个正面, ${backs.length}个背面`, 'info');
+                
+                if (containers.length > 0 && fronts.length > 0 && backs.length > 0) {
+                    addTestResult('✅ 任务卡片结构完整', 'success');
+                } else {
+                    addTestResult('❌ 任务卡片结构不完整', 'error');
+                }
+            }, 1000);
+            
+            // 测试3: 执行翻转测试
+            setTimeout(() => {
+                const task96Container = document.querySelector('.task-flip-container[data-task-id="96"]');
+                if (task96Container) {
+                    addTestResult('🔄 开始测试任务#96翻转...', 'info');
+                    window.toggleTaskCardFlip('96');
+                    
+                    setTimeout(() => {
+                        const isFlipped = task96Container.classList.contains('flipped');
+                        if (isFlipped) {
+                            addTestResult('✅ 任务#96翻转成功 - 现在显示背面', 'success');
+                            
+                            // 再次翻转回来
+                            setTimeout(() => {
+                                window.toggleTaskCardFlip('96');
+                                setTimeout(() => {
+                                    const isBack = task96Container.classList.contains('flipped');
+                                    if (!isBack) {
+                                        addTestResult('✅ 任务#96翻转回正面成功', 'success');
+                                        addTestResult('🎉 完整翻转功能测试通过！', 'success');
+                                    }
+                                }, 600);
+                            }, 1000);
+                        } else {
+                            addTestResult('❌ 任务#96翻转失败', 'error');
+                        }
+                    }, 600);
+                } else {
+                    addTestResult('❌ 未找到任务#96容器', 'error');
+                }
+            }, 1500);
+        }
+        
+        function testTask96Flip() {
+            addTestResult('🔄 手动测试任务#96翻转...', 'info');
+            if (typeof window.testTask96Flip === 'function') {
+                window.testTask96Flip();
+            } else if (typeof window.toggleTaskCardFlip === 'function') {
+                window.toggleTaskCardFlip('96');
+            } else {
+                addTestResult('❌ 翻转功能不可用', 'error');
+            }
+        }
+        
+        function diagnoseCurrentState() {
+            addTestResult('🔍 诊断当前状态...', 'info');
+            
+            // 检查各种元素
+            const containers = document.querySelectorAll('.task-flip-container');
+            const flippedContainers = document.querySelectorAll('.task-flip-container.flipped');
+            const styles = document.getElementById('immediate-flip-fix-styles');
+            const flipFunction = typeof window.toggleTaskCardFlip === 'function';
+            
+            addTestResult(`📊 当前状态诊断:`, 'info');
+            addTestResult(`   - 翻转容器总数: ${containers.length}`, 'info');
+            addTestResult(`   - 已翻转容器数: ${flippedContainers.length}`, 'info');
+            addTestResult(`   - 样式表加载: ${styles ? '✅' : '❌'}`, styles ? 'success' : 'error');
+            addTestResult(`   - 翻转函数可用: ${flipFunction ? '✅' : '❌'}`, flipFunction ? 'success' : 'error');
+            
+            // 检查具体任务状态
+            const task96 = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (task96) {
+                const isFlipped = task96.classList.contains('flipped');
+                addTestResult(`   - 任务#96状态: ${isFlipped ? '背面' : '正面'}`, 'info');
+            }
+        }
+        
+        function resetAll() {
+            addTestResult('↩️ 重置所有翻转状态...', 'info');
+            
+            const containers = document.querySelectorAll('.task-flip-container');
+            containers.forEach(container => {
+                container.classList.remove('flipped');
+            });
+            
+            addTestResult('✅ 所有卡片已重置到正面', 'success');
+        }
+        
+        // 页面加载完成后自动执行一次诊断
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                addTestResult('监听页面加载完成，准备测试...', 'info');
+                diagnoseCurrentState();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

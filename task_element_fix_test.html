@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务元素修复测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .task-sample {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .log-output {
+            background: #2d2d2d;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        .status-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="mb-4">🔧 任务元素修复测试</h1>
+        
+        <div class="alert alert-info">
+            <h4>🎯 测试目标</h4>
+            <p>验证紧急翻转功能修复脚本能否正确识别和修复任务元素</p>
+        </div>
+
+        <!-- 测试控制面板 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>🎛️ 测试控制面板</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="taskIdInput" class="form-label">任务ID:</label>
+                            <input type="text" class="form-control" id="taskIdInput" value="95" placeholder="输入任务ID">
+                        </div>
+                        <button class="btn btn-primary me-2" onclick="testFixFunction()">
+                            <i class="fas fa-wrench me-1"></i>测试修复功能
+                        </button>
+                        <button class="btn btn-secondary me-2" onclick="runDiagnostics()">
+                            <i class="fas fa-search me-1"></i>运行诊断
+                        </button>
+                        <button class="btn btn-info" onclick="clearLogs()">
+                            <i class="fas fa-trash me-1"></i>清空日志
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">快速测试:</label>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm me-1" onclick="setTaskId('95')">任务95</button>
+                                <button class="btn btn-outline-primary btn-sm me-1" onclick="setTaskId('1')">任务1</button>
+                                <button class="btn btn-outline-primary btn-sm me-1" onclick="setTaskId('100')">任务100</button>
+                            </div>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="autoRunCheckbox">
+                            <label class="form-check-label" for="autoRunCheckbox">
+                                页面加载后自动运行诊断
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态指示器 -->
+        <div id="statusIndicator" class="status-indicator info">
+            💡 准备就绪 - 输入任务ID并点击测试按钮开始
+        </div>
+
+        <!-- 测试样本区域 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>📋 测试样本区域</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="task-sample">
+                            <h6>样本1: 标准任务卡片</h6>
+                            <div id="task-95" class="task-card" data-task-id="95">
+                                <div class="task-front" id="task-95-front" data-task-id="95">
+                                    <h6>任务 #95</h6>
+                                    <p>这是一个标准的任务卡片示例</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="task-sample">
+                            <h6>样本2: 简化任务卡片</h6>
+                            <div id="task-1" data-task-id="1">
+                                <h6>任务 #1</h6>
+                                <p>这是一个简化的任务卡片示例</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="task-sample">
+                            <h6>样本3: 容器式任务卡片</h6>
+                            <div class="task-container" data-task-id="100">
+                                <div class="task-front">
+                                    <h6>任务 #100</h6>
+                                    <p>这是容器式的任务卡片示例</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="task-sample">
+                            <h6>样本4: 无ID任务卡片</h6>
+                            <div class="task-item">
+                                <div class="task-front">
+                                    <h6>未指定ID的任务</h6>
+                                    <p>这是一个没有明确ID的任务卡片</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日志输出 -->
+        <div class="card">
+            <div class="card-header">
+                <h5>📝 执行日志</h5>
+            </div>
+            <div class="card-body">
+                <div id="logOutput" class="log-output">
+                    等待执行测试...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入修复脚本 -->
+    <script src="emergency_flip_fix.js"></script>
+    <script src="debug_task_elements.js"></script>
+
+    <script>
+        // 日志记录拦截
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        const logOutput = document.getElementById('logOutput');
+        
+        function addToLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const typeIcon = type === 'error' ? '❌' : type === 'warn' ? '⚠️' : 'ℹ️';
+            const logEntry = `<div>[${timestamp}] ${typeIcon} ${message}</div>`;
+            
+            logOutput.innerHTML += logEntry;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToLog(args.join(' '), 'warn');
+        };
+        
+        // 更新状态指示器
+        function updateStatus(message, type = 'info') {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.className = `status-indicator ${type}`;
+            indicator.innerHTML = message;
+        }
+        
+        // 设置任务ID
+        function setTaskId(taskId) {
+            document.getElementById('taskIdInput').value = taskId;
+        }
+        
+        // 测试修复功能
+        function testFixFunction() {
+            const taskId = document.getElementById('taskIdInput').value;
+            if (!taskId) {
+                updateStatus('❌ 请输入有效的任务ID', 'error');
+                return;
+            }
+            
+            updateStatus('🔧 正在测试修复功能...', 'warning');
+            addToLog(`开始测试任务 ${taskId} 的修复功能...`);
+            
+            try {
+                if (typeof window.fixSpecificTaskCard === 'function') {
+                    const result = window.fixSpecificTaskCard(taskId);
+                    if (result) {
+                        updateStatus(`✅ 任务 ${taskId} 修复成功!`, 'success');
+                        addToLog(`任务 ${taskId} 修复完成`);
+                    } else {
+                        updateStatus(`❌ 任务 ${taskId} 修复失败`, 'error');
+                        addToLog(`任务 ${taskId} 修复失败`);
+                    }
+                } else {
+                    updateStatus('❌ 修复函数不可用', 'error');
+                    addToLog('错误: fixSpecificTaskCard 函数未定义');
+                }
+            } catch (error) {
+                updateStatus('❌ 执行过程中出现错误', 'error');
+                addToLog(`执行错误: ${error.message}`);
+                console.error('测试执行错误:', error);
+            }
+        }
+        
+        // 运行诊断
+        function runDiagnostics() {
+            updateStatus('🔍 正在运行诊断...', 'warning');
+            addToLog('开始运行任务元素诊断...');
+            
+            try {
+                if (typeof window.diagnoseCurrentTasks === 'function') {
+                    window.diagnoseCurrentTasks();
+                    updateStatus('✅ 诊断完成', 'success');
+                } else {
+                    addToLog('诊断函数不可用，尝试手动诊断...');
+                    // 手动执行诊断逻辑
+                    manualDiagnosis();
+                }
+            } catch (error) {
+                updateStatus('❌ 诊断过程中出现错误', 'error');
+                addToLog(`诊断错误: ${error.message}`);
+            }
+        }
+        
+        // 手动诊断函数
+        function manualDiagnosis() {
+            console.log('🔍 手动诊断开始...');
+            
+            // 检查各种元素
+            const taskFronts = document.querySelectorAll('.task-front');
+            const taskContainers = document.querySelectorAll('[data-task-id]');
+            const allTasks = document.querySelectorAll('[id*="task"]');
+            
+            console.log(`📊 诊断结果:`);
+            console.log(`   - .task-front 元素: ${taskFronts.length} 个`);
+            console.log(`   - data-task-id 元素: ${taskContainers.length} 个`);
+            console.log(`   - ID包含task的元素: ${allTasks.length} 个`);
+            
+            // 检查修复函数
+            console.log(`⚡ 函数检查:`);
+            console.log(`   - fixSpecificTaskCard: ${typeof window.fixSpecificTaskCard === 'function' ? '✅ 可用' : '❌ 不可用'}`);
+            console.log(`   - performEmergencyFlipFix: ${typeof window.performEmergencyFlipFix === 'function' ? '✅ 可用' : '❌ 不可用'}`);
+            
+            updateStatus('✅ 手动诊断完成', 'success');
+        }
+        
+        // 清空日志
+        function clearLogs() {
+            logOutput.innerHTML = '日志已清空...';
+            updateStatus('💡 日志已清空', 'info');
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 任务元素修复测试页面已加载');
+            updateStatus('✅ 页面加载完成，准备测试', 'success');
+            
+            // 检查是否自动运行诊断
+            const autoRun = document.getElementById('autoRunCheckbox');
+            if (autoRun.checked) {
+                setTimeout(runDiagnostics, 1000);
+            }
+        });
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch(event.key) {
+                    case 'Enter':
+                        event.preventDefault();
+                        testFixFunction();
+                        break;
+                    case 'd':
+                        event.preventDefault();
+                        runDiagnostics();
+                        break;
+                    case 'l':
+                        event.preventDefault();
+                        clearLogs();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

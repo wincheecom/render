@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库容器协调系统测试平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .status-indicator {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .dot-green { background-color: #28a745; }
+        .dot-yellow { background-color: #ffc107; }
+        .dot-red { background-color: #dc3545; }
+        .dot-blue { background-color: #17a2b8; }
+        
+        .log-console {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        
+        .metrics-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .metrics-value {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .simulation-area {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+        }
+        
+        .conflict-scenario {
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .resolution-scenario {
+            border-left: 4px solid #28a745;
+            background: #f0fff4;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1 class="mb-4">🔄 仓库容器协调系统测试平台</h1>
+        
+        <div class="alert alert-info">
+            <h4>🎯 系统目标</h4>
+            <p>统一管理所有仓库任务容器相关的监控和修复脚本，避免多个脚本同时操作DOM导致的冲突和重复日志问题。</p>
+        </div>
+
+        <!-- 系统状态概览 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metrics-card">
+                    <div class="card-body text-center">
+                        <div class="metrics-value" id="containerCount">-</div>
+                        <div>活跃容器</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metrics-card">
+                    <div class="card-body text-center">
+                        <div class="metrics-value" id="taskCount">-</div>
+                        <div>任务卡片</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metrics-card">
+                    <div class="card-body text-center">
+                        <div class="metrics-value" id="recoveryAttempts">0</div>
+                        <div>恢复尝试</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metrics-card">
+                    <div class="card-body text-center">
+                        <div class="metrics-value" id="conflictPrevented">0</div>
+                        <div>冲突预防</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统状态监控 -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-heartbeat me-2"></i>系统状态</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="systemStatus" class="status-indicator">
+                            <span class="indicator-dot dot-blue"></span>
+                            <span>初始化中...</span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>组件状态:</h6>
+                            <div class="small">
+                                <div id="coordinationStatus">协调系统: 未初始化</div>
+                                <div id="monitoringStatus">统一监控: 未启动</div>
+                                <div id="conflictDetection">冲突检测: 未激活</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history me-2"></i>最近活动</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentActivities" class="small">
+                            等待系统活动...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 冲突场景模拟 -->
+        <div class="card my-4">
+            <div class="card-header">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>冲突场景模拟</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="conflict-scenario">
+                            <h6>🚨 典型冲突场景</h6>
+                            <ul class="mb-0">
+                                <li>多个脚本同时检测到容器缺失</li>
+                                <li>并发执行恢复操作</li>
+                                <li>重复的日志输出</li>
+                                <li>DOM操作相互干扰</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="resolution-scenario">
+                            <h6>✅ 协调解决方案</h6>
+                            <ul class="mb-0">
+                                <li>统一的容器状态管理</li>
+                                <li>单一的监控入口</li>
+                                <li>操作频率控制</li>
+                                <li>智能冲突预防</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button class="btn btn-outline-warning me-2" onclick="simulateConflictScenario()">
+                        <i class="fas fa-bug me-1"></i>模拟冲突场景
+                    </button>
+                    <button class="btn btn-outline-success me-2" onclick="testCoordination()">
+                        <i class="fas fa-check-circle me-1"></i>测试协调效果
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showSystemDiagnostics()">
+                        <i class="fas fa-stethoscope me-1"></i>系统诊断
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 仓库任务模拟区 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-warehouse me-2"></i>仓库任务模拟环境</h5>
+            </div>
+            <div class="card-body">
+                <div class="simulation-area">
+                    <h6>仓库任务容器</h6>
+                    <div id="warehouseTasks" class="published-tasks-gallery task-gallery">
+                        <div class="task-gallery warehouse-tasks-gallery" id="simulatedGallery">
+                            <!-- 任务卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary" onclick="generateSimulatedTasks()">
+                        <i class="fas fa-plus me-1"></i>生成任务
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="removeSimulatedContainer()">
+                        <i class="fas fa-trash me-1"></i>移除容器
+                    </button>
+                    <button class="btn btn-outline-success" onclick="restoreSimulatedContainer()">
+                        <i class="fas fa-redo me-1"></i>恢复容器
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="clearSimulation()">
+                        <i class="fas fa-broom me-1"></i>清空模拟
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统日志 -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-terminal me-2"></i>系统日志监控</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="clearSystemLogs()">
+                        <i class="fas fa-trash me-1"></i>清空日志
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportSystemLogs()">
+                        <i class="fas fa-download me-1"></i>导出日志
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="systemLogConsole" class="log-console">
+                    系统日志监控启动中...
+                </div>
+                
+                <div class="mt-3">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="enableAutoRecovery" checked>
+                        <label class="form-check-label" for="enableAutoRecovery">
+                            启用自动恢复
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="preventConflicts" checked>
+                        <label class="form-check-label" for="preventConflicts">
+                            冲突预防模式
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="detailedLogging" checked>
+                        <label class="form-check-label" for="detailedLogging">
+                            详细日志
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入相关脚本 -->
+    <script src="warehouse_gallery_stability_fix.js"></script>
+    <script src="warehouse_container_diagnosis.js"></script>
+    <script src="container_coordination_system.js"></script>
+
+    <script>
+        // 全局变量
+        let systemLogs = [];
+        let conflictCount = 0;
+        let recoveryCount = 0;
+        
+        // 日志系统
+        function addToSystemLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const typeIcons = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'warning': '⚠️',
+                'error': '❌',
+                'conflict': '⚔️'
+            };
+            
+            const logEntry = {
+                time: timestamp,
+                type: type,
+                message: message,
+                icon: typeIcons[type] || 'ℹ️'
+            };
+            
+            systemLogs.push(logEntry);
+            
+            // 限制日志数量
+            if (systemLogs.length > 300) {
+                systemLogs.shift();
+            }
+            
+            updateLogDisplay();
+            
+            // 更新指标
+            if (type === 'conflict') {
+                conflictCount++;
+                document.getElementById('conflictPrevented').textContent = conflictCount;
+            }
+            if (type === 'success' && message.includes('恢复')) {
+                recoveryCount++;
+                document.getElementById('recoveryAttempts').textContent = recoveryCount;
+            }
+        }
+        
+        function updateLogDisplay() {
+            const logConsole = document.getElementById('systemLogConsole');
+            logConsole.innerHTML = systemLogs.map(entry => 
+                `<div>[${entry.time}] ${entry.icon} ${entry.message}</div>`
+            ).join('');
+            logConsole.scrollTop = logConsole.scrollHeight;
+        }
+        
+        // 系统状态更新
+        function updateSystemStatus(status, message) {
+            const statusElement = document.getElementById('systemStatus');
+            const indicator = statusElement.querySelector('.indicator-dot');
+            const text = statusElement.querySelector('span:not(.indicator-dot)');
+            
+            indicator.className = `indicator-dot dot-${status}`;
+            text.textContent = message;
+        }
+        
+        // 更新组件状态
+        function updateComponentStatus() {
+            const coordinationActive = !!window.ContainerCoordinationActive;
+            const managerExists = typeof window.ContainerManager !== 'undefined';
+            const monitoringActive = managerExists && window.ContainerManager.activeMonitors?.size > 0;
+            
+            document.getElementById('coordinationStatus').innerHTML = 
+                `协调系统: ${coordinationActive ? '✅ 活跃' : '❌ 未启动'}`;
+            document.getElementById('monitoringStatus').innerHTML = 
+                `统一监控: ${monitoringActive ? '✅ 运行中' : '❌ 未启动'}`;
+            document.getElementById('conflictDetection').innerHTML = 
+                `冲突检测: ${managerExists ? '✅ 激活' : '❌ 未激活'}`;
+        }
+        
+        // 更新指标
+        function updateMetrics() {
+            if (typeof window.ContainerManager !== 'undefined') {
+                const manager = window.ContainerManager;
+                document.getElementById('containerCount').textContent = manager.containers.size;
+                
+                let totalTasks = 0;
+                manager.containers.forEach(container => {
+                    totalTasks += container.taskCount || 0;
+                });
+                document.getElementById('taskCount').textContent = totalTasks;
+            }
+        }
+        
+        // 模拟冲突场景
+        function simulateConflictScenario() {
+            addToSystemLog('⚔️ 开始模拟冲突场景...', 'conflict');
+            
+            // 模拟多个脚本同时检测到问题
+            setTimeout(() => {
+                if (typeof window.checkAndRestoreContainer === 'function') {
+                    window.checkAndRestoreContainer();
+                    addToSystemLog('🔄 脚本1尝试恢复容器', 'warning');
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                if (typeof window.performDeepClean === 'function') {
+                    window.performDeepClean();
+                    addToSystemLog('🔄 脚本2尝试深度清理', 'warning');
+                }
+            }, 200);
+            
+            setTimeout(() => {
+                if (typeof window.removeWarehouseContainerLayer === 'function') {
+                    window.removeWarehouseContainerLayer();
+                    addToSystemLog('🔄 脚本3尝试移除容器层', 'warning');
+                }
+            }, 300);
+            
+            // 观察协调系统如何处理
+            setTimeout(() => {
+                addToSystemLog('✅ 协调系统已拦截重复操作', 'success');
+            }, 1000);
+        }
+        
+        // 测试协调效果
+        function testCoordination() {
+            addToSystemLog('🧪 开始测试协调效果...', 'info');
+            
+            // 执行统一诊断
+            if (typeof window.diagnoseContainers === 'function') {
+                window.diagnoseContainers();
+                addToSystemLog('✅ 执行统一容器诊断', 'success');
+            }
+            
+            // 检查系统状态
+            updateMetrics();
+            updateComponentStatus();
+            
+            addToSystemLog('📊 系统状态检查完成', 'info');
+        }
+        
+        // 系统诊断
+        function showSystemDiagnostics() {
+            addToSystemLog('🔍 执行系统全面诊断...', 'info');
+            
+            console.group('🔧 系统诊断报告');
+            console.log('容器协调系统状态:', window.ContainerCoordinationActive);
+            console.log('容器管理器状态:', typeof window.ContainerManager !== 'undefined');
+            console.log('活跃监控器数量:', window.ContainerManager?.activeMonitors?.size || 0);
+            console.log('当前容器数量:', window.ContainerManager?.containers?.size || 0);
+            console.log('恢复尝试记录:', window.ContainerManager?.restoreAttempts || {});
+            console.groupEnd();
+            
+            addToSystemLog('📋 诊断报告已输出到控制台', 'success');
+        }
+        
+        // 仓库任务模拟
+        function generateSimulatedTasks() {
+            const gallery = document.getElementById('simulatedGallery');
+            gallery.innerHTML = '';
+            
+            for (let i = 1; i <= 8; i++) {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-flip-container m-2';
+                taskCard.dataset.taskId = `sim-${i}`;
+                taskCard.style.cssText = `
+                    background: white;
+                    border-radius: 8px;
+                    padding: 15px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    min-height: 150px;
+                    display: inline-block;
+                    width: calc(33.333% - 1rem);
+                `;
+                taskCard.innerHTML = `
+                    <h6>模拟任务 #${i}</h6>
+                    <p class="small">这是一个测试用的任务卡片</p>
+                    <div class="text-muted small">状态: 进行中</div>
+                `;
+                gallery.appendChild(taskCard);
+            }
+            
+            addToSystemLog('✅ 生成了8个模拟任务', 'success');
+            updateMetrics();
+        }
+        
+        function removeSimulatedContainer() {
+            const container = document.querySelector('.task-gallery.warehouse-tasks-gallery');
+            if (container) {
+                container.remove();
+                addToSystemLog('🗑️ 移除了模拟容器', 'warning');
+                updateMetrics();
+            }
+        }
+        
+        function restoreSimulatedContainer() {
+            const warehouseContainer = document.getElementById('warehouseTasks');
+            if (warehouseContainer) {
+                const existingContainer = warehouseContainer.querySelector('.task-gallery.warehouse-tasks-gallery');
+                if (!existingContainer) {
+                    const newContainer = document.createElement('div');
+                    newContainer.className = 'task-gallery warehouse-tasks-gallery';
+                    newContainer.id = 'restoredGallery';
+                    newContainer.innerHTML = '<div class="text-center p-3 text-muted">恢复的容器</div>';
+                    warehouseContainer.appendChild(newContainer);
+                    addToSystemLog('✅ 恢复了模拟容器', 'success');
+                    updateMetrics();
+                }
+            }
+        }
+        
+        function clearSimulation() {
+            const gallery = document.getElementById('simulatedGallery');
+            gallery.innerHTML = '<div class="text-center p-3 text-muted">模拟环境已清空</div>';
+            addToSystemLog('🧹 清空了模拟环境', 'info');
+            updateMetrics();
+        }
+        
+        // 日志管理
+        function clearSystemLogs() {
+            systemLogs = [];
+            updateLogDisplay();
+            addToSystemLog('🗑️ 系统日志已清空', 'info');
+        }
+        
+        function exportSystemLogs() {
+            const logText = systemLogs.map(entry => 
+                `[${entry.time}] ${entry.icon} ${entry.message}`
+            ).join('\n');
+            
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `container-coordination-log-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addToSystemLog('📥 系统日志已导出', 'success');
+        }
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addToSystemLog('🚀 仓库容器协调测试平台启动', 'success');
+            updateSystemStatus('green', '系统运行正常');
+            
+            // 定期更新状态
+            setInterval(() => {
+                updateMetrics();
+                updateComponentStatus();
+                
+                // 更新活动记录
+                const recentActivities = document.getElementById('recentActivities');
+                recentActivities.innerHTML = `
+                    <div>最后更新: ${new Date().toLocaleTimeString()}</div>
+                    <div>容器数量: ${document.getElementById('containerCount').textContent}</div>
+                    <div>任务数量: ${document.getElementById('taskCount').textContent}</div>
+                `;
+            }, 3000);
+            
+            // 监听协调系统的日志
+            const originalLog = console.log;
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                if (args.some(arg => typeof arg === 'string' && arg.includes('协调'))) {
+                    addToSystemLog(args.join(' '), 'info');
+                }
+            };
+        });
+        
+        // 页面卸载清理
+        window.addEventListener('beforeunload', function() {
+            if (typeof window.ContainerManager !== 'undefined') {
+                window.ContainerManager.cleanup();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务卡片翻转功能诊断测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .diagnosis-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        
+        .task-flip-container {
+            perspective: 1500px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+            width: 300px;
+            height: 320px;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .task-front, .task-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .task-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            z-index: 2;
+        }
+        
+        .task-back {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
+        
+        .task-flip-container.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .test-card {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">🔍 任务卡片翻转功能诊断测试</h1>
+        
+        <!-- 诊断结果显示区 -->
+        <div id="diagnosisResults" class="mb-4">
+            <h3>诊断结果</h3>
+            <div id="resultsContainer"></div>
+        </div>
+        
+        <!-- 测试卡片 -->
+        <div class="test-card">
+            <h4>测试卡片 #96</h4>
+            <div class="task-flip-container" data-task-id="96" id="test-container-96">
+                <div class="task-front" id="task-96-front" data-task-id="96">
+                    <h5>任务卡片正面</h5>
+                    <p>这是任务 #96 的正面内容</p>
+                    <button class="btn btn-light" onclick="toggleTaskCardFlip('96')">
+                        <i class="fas fa-sync-alt"></i> 翻转测试
+                    </button>
+                </div>
+                <div class="task-back" data-task-id="96">
+                    <h5>任务卡片背面</h5>
+                    <p>这是任务 #96 的背面内容</p>
+                    <button class="btn btn-light" onclick="toggleTaskCardFlip('96')">
+                        <i class="fas fa-arrow-left"></i> 返回
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 控制面板 -->
+        <div class="test-card">
+            <h4>诊断控制面板</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-primary me-2 mb-2" onclick="runFullDiagnosis()">
+                        <i class="fas fa-stethoscope"></i> 运行完整诊断
+                    </button>
+                    <button class="btn btn-success me-2 mb-2" onclick="testFlipFunction()">
+                        <i class="fas fa-play"></i> 测试翻转功能
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-warning me-2 mb-2" onclick="resetTest()">
+                        <i class="fas fa-redo"></i> 重置测试
+                    </button>
+                    <button class="btn btn-info me-2 mb-2" onclick="showConsoleLog()">
+                        <i class="fas fa-terminal"></i> 查看控制台日志
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 状态监控 -->
+        <div class="test-card">
+            <h4>实时状态监控</h4>
+            <div id="statusMonitor">
+                <p><strong>翻转函数存在:</strong> <span id="functionStatus">检查中...</span></p>
+                <p><strong>容器状态:</strong> <span id="containerStatus">检查中...</span></p>
+                <p><strong>翻转状态:</strong> <span id="flipStatus">检查中...</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 翻转冷却控制
+        const flipCooldown = new Map();
+        
+        // 翻转函数实现
+        function toggleTaskCardFlip(taskId) {
+            console.log(`🔄 调用 toggleTaskCardFlip(${taskId})`);
+            
+            // 防抖控制
+            const now = Date.now();
+            const lastFlip = flipCooldown.get(taskId) || 0;
+            if (now - lastFlip < 300) {
+                console.log(`任务 ${taskId} 翻转冷却中，忽略此次点击`);
+                addResult(`任务 ${taskId} 翻转冷却中`, 'warning');
+                return;
+            }
+            flipCooldown.set(taskId, now);
+            
+            // 查找翻转容器
+            let flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+            if (!flipContainer) {
+                const frontElement = document.querySelector(`#task-${taskId}-front`);
+                if (frontElement) {
+                    flipContainer = frontElement.closest('.task-flip-container');
+                }
+            }
+            
+            if (!flipContainer) {
+                console.error(`未找到任务ID为 ${taskId} 的翻转容器`);
+                addResult(`❌ 未找到任务ID为 ${taskId} 的翻转容器`, 'error');
+                return;
+            }
+            
+            // 执行翻转
+            const wasFlipped = flipContainer.classList.contains('flipped');
+            flipContainer.classList.toggle('flipped');
+            const isNowFlipped = flipContainer.classList.contains('flipped');
+            
+            console.log(`翻转状态变化: ${wasFlipped} -> ${isNowFlipped}`);
+            addResult(`✅ 任务 ${taskId} 翻转成功: ${wasFlipped ? '正面' : '背面'} -> ${isNowFlipped ? '背面' : '正面'}`, 'success');
+            
+            // 更新状态显示
+            updateStatusDisplay();
+            
+            // 清理过期的冷却时间记录
+            const fiveSecondsAgo = Date.now() - 5000;
+            for (const [id, timestamp] of flipCooldown.entries()) {
+                if (timestamp < fiveSecondsAgo) {
+                    flipCooldown.delete(id);
+                }
+            }
+        }
+        
+        // 添加诊断结果
+        function addResult(message, type = 'info') {
+            const container = document.getElementById('resultsContainer');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `diagnosis-result ${type}`;
+            resultDiv.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            container.appendChild(resultDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // 更新状态显示
+        function updateStatusDisplay() {
+            // 检查函数是否存在
+            const functionExists = typeof window.toggleTaskCardFlip === 'function';
+            document.getElementById('functionStatus').textContent = functionExists ? '✅ 存在' : '❌ 不存在';
+            document.getElementById('functionStatus').className = functionExists ? 'text-success' : 'text-danger';
+            
+            // 检查容器状态
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (container) {
+                document.getElementById('containerStatus').textContent = '✅ 存在';
+                document.getElementById('containerStatus').className = 'text-success';
+                
+                // 检查翻转状态
+                const isFlipped = container.classList.contains('flipped');
+                document.getElementById('flipStatus').textContent = isFlipped ? '背面' : '正面';
+                document.getElementById('flipStatus').className = isFlipped ? 'text-warning' : 'text-primary';
+            } else {
+                document.getElementById('containerStatus').textContent = '❌ 不存在';
+                document.getElementById('containerStatus').className = 'text-danger';
+                document.getElementById('flipStatus').textContent = '未知';
+                document.getElementById('flipStatus').className = 'text-muted';
+            }
+        }
+        
+        // 运行完整诊断
+        function runFullDiagnosis() {
+            console.log('🚀 开始完整诊断...');
+            addResult('🔍 开始完整诊断...', 'info');
+            
+            // 诊断1: 函数存在性
+            const functionExists = typeof window.toggleTaskCardFlip === 'function';
+            if (functionExists) {
+                addResult('✅ toggleTaskCardFlip 函数存在', 'success');
+                console.log('函数源码:', window.toggleTaskCardFlip.toString());
+            } else {
+                addResult('❌ toggleTaskCardFlip 函数不存在', 'error');
+                return;
+            }
+            
+            // 诊断2: 元素结构
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            const front = document.querySelector('#task-96-front');
+            
+            if (container) {
+                addResult('✅ 翻转容器存在', 'success');
+                console.log('容器类名:', container.className);
+                console.log('容器dataset:', container.dataset);
+            } else {
+                addResult('❌ 翻转容器不存在', 'error');
+            }
+            
+            if (front) {
+                addResult('✅ 正面元素存在', 'success');
+                console.log('正面元素ID:', front.id);
+                console.log('正面元素父元素:', front.parentElement?.className);
+            } else {
+                addResult('❌ 正面元素不存在', 'error');
+            }
+            
+            // 诊断3: CSS样式
+            if (container) {
+                const style = window.getComputedStyle(container);
+                console.log('容器样式 - perspective:', style.perspective);
+                console.log('容器样式 - transform-style:', style.transformStyle);
+                console.log('容器样式 - transition:', style.transition);
+                addResult(`📊 容器样式检查完成`, 'info');
+            }
+            
+            // 诊断4: 功能测试
+            testFlipFunction();
+        }
+        
+        // 测试翻转功能
+        function testFlipFunction() {
+            console.log('🧪 开始翻转功能测试...');
+            addResult('🧪 开始翻转功能测试...', 'info');
+            
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (!container) {
+                addResult('❌ 无法测试 - 容器不存在', 'error');
+                return;
+            }
+            
+            const initialState = container.classList.contains('flipped');
+            addResult(`初始状态: ${initialState ? '背面' : '正面'}`, 'info');
+            
+            // 执行翻转
+            try {
+                toggleTaskCardFlip('96');
+                
+                setTimeout(() => {
+                    const newState = container.classList.contains('flipped');
+                    if (initialState !== newState) {
+                        addResult('✅ 翻转功能正常工作', 'success');
+                    } else {
+                        addResult('❌ 翻转状态未改变', 'error');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                addResult(`❌ 翻转测试出错: ${error.message}`, 'error');
+                console.error('翻转测试错误:', error);
+            }
+        }
+        
+        // 重置测试
+        function resetTest() {
+            console.log('🔄 重置测试...');
+            addResult('🔄 重置测试...', 'info');
+            
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (container) {
+                container.classList.remove('flipped');
+                addResult('✅ 测试状态已重置', 'success');
+            }
+            
+            // 清空结果
+            document.getElementById('resultsContainer').innerHTML = '';
+            
+            // 更新状态显示
+            updateStatusDisplay();
+        }
+        
+        // 显示控制台日志
+        function showConsoleLog() {
+            addResult('📋 请打开浏览器开发者工具查看详细日志', 'info');
+            console.log('=== 诊断日志 ===');
+            console.log('翻转函数:', typeof window.toggleTaskCardFlip);
+            console.log('容器元素:', document.querySelector('.task-flip-container[data-task-id="96"]'));
+            console.log('正面元素:', document.querySelector('#task-96-front'));
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 页面加载完成，初始化诊断工具...');
+            addResult('📄 页面加载完成', 'info');
+            updateStatusDisplay();
+            
+            // 定期更新状态
+            setInterval(updateStatusDisplay, 1000);
+        });
+    </script>
+</body>
+</html>
