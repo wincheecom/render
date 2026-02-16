@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售运营任务卡翻转功能测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="targeted_flip_fix.js"></script>
+    <style>
+        body {
+            background-color: #f5f7fb;
+            padding: 20px;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .control-panel {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .task-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(282.66px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .status-indicator {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .btn-test {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="mb-4">📋 销售运营任务卡翻转功能测试</h1>
+        
+        <!-- 测试说明 -->
+        <div class="alert alert-info">
+            <h4>🎯 测试目标</h4>
+            <ul>
+                <li>验证销售运营任务卡片的翻转功能</li>
+                <li>测试背面显示：本体码、条码、警示码、说明书、箱唛、其他文件</li>
+                <li>验证删除按钮功能</li>
+                <li>确认点击卡片可正反面切换</li>
+            </ul>
+        </div>
+        
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <h3>🎛️ 控制面板</h3>
+            <button class="btn btn-primary btn-test" onclick="testAllFlip()">
+                <i class="fas fa-sync-alt me-1"></i>测试全部翻转
+            </button>
+            <button class="btn btn-success btn-test" onclick="resetAllCards()">
+                <i class="fas fa-undo me-1"></i>重置所有卡片
+            </button>
+            <button class="btn btn-info btn-test" onclick="toggleDebugMode()">
+                <i class="fas fa-bug me-1"></i>调试模式
+            </button>
+            <button class="btn btn-warning btn-test" onclick="checkStatus()">
+                <i class="fas fa-info-circle me-1"></i>检查状态
+            </button>
+        </div>
+        
+        <!-- 测试结果 -->
+        <div id="test-results" class="mb-4">
+            <h3>📝 测试结果</h3>
+            <div id="results-content" class="status-indicator info">
+                等待测试开始...
+            </div>
+        </div>
+        
+        <!-- 任务卡片展示区 -->
+        <div>
+            <h3>📱 销售运营任务卡片</h3>
+            <div class="task-gallery" id="salesTasksGallery">
+                <!-- 任务卡片 1 - 完整文件 -->
+                <div class="task-flip-container" data-task-id="sales-001">
+                    <div class="task-front" id="task-sales-001-front">
+                        <div class="task-gallery-img">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-box-open fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge bg-warning text-dark">待发</span>
+                            </div>
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name">化妆品包</div>
+                                <div class="task-gallery-qty">数量: 1</div>
+                                <div class="task-gallery-creator">创建人: 销售A</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-back">
+                        <div class="task-back-content">
+                            <div class="task-files-container">
+                                <div class="task-file-item">
+                                    <div class="file-label">本体码</div>
+                                    <img src="https://placehold.co/80x80/4361ee/white?text=BODY" alt="本体码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">条码</div>
+                                    <img src="https://placehold.co/80x80/f72585/white?text=BAR" alt="条码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">警示码</div>
+                                    <img src="https://placehold.co/80x80/ef233c/white?text=WARN" alt="警示码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">箱唛</div>
+                                    <img src="https://placehold.co/80x80/4cc9f0/white?text=LABEL" alt="箱唛" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">说明书</div>
+                                    <div class="pdf-preview">
+                                        <i class="fas fa-file-pdf fa-2x"></i>
+                                        <div class="pdf-filename">manual.pdf</div>
+                                    </div>
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">其他</div>
+                                    <img src="https://placehold.co/80x80/7209b7/white?text=OTHER" alt="其他" class="file-preview">
+                                </div>
+                            </div>
+                            <div class="task-back-actions">
+                                <div class="back-action-buttons">
+                                    <button class="btn btn-danger" onclick="deleteTask('sales-001')">
+                                        <i class="fas fa-trash me-1"></i>删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 任务卡片 2 - 部分文件 -->
+                <div class="task-flip-container" data-task-id="sales-002">
+                    <div class="task-front" id="task-sales-002-front">
+                        <div class="task-gallery-img">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-mobile-alt fa-2x text-success"></i>
+                            </div>
+                        </div>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge bg-primary">处理中</span>
+                            </div>
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name">手机配件</div>
+                                <div class="task-gallery-qty">数量: 3</div>
+                                <div class="task-gallery-creator">创建人: 销售B</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-back">
+                        <div class="task-back-content">
+                            <div class="task-files-container">
+                                <div class="task-file-item">
+                                    <div class="file-label">本体码</div>
+                                    <div class="no-file">未上传</div>
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">条码</div>
+                                    <img src="https://placehold.co/80x80/2ecc71/white?text=BAR2" alt="条码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">警示码</div>
+                                    <div class="no-file">未上传</div>
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">箱唛</div>
+                                    <div class="no-file">未上传</div>
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">说明书</div>
+                                    <div class="no-file">未上传</div>
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">其他</div>
+                                    <div class="no-file">未上传</div>
+                                </div>
+                            </div>
+                            <div class="task-back-actions">
+                                <div class="back-action-buttons">
+                                    <button class="btn btn-danger" onclick="deleteTask('sales-002')">
+                                        <i class="fas fa-trash me-1"></i>删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 任务卡片 3 - 测试翻转 -->
+                <div class="task-flip-container" data-task-id="sales-003">
+                    <div class="task-front" id="task-sales-003-front">
+                        <div class="task-gallery-img">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-laptop fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge bg-success">已完成</span>
+                            </div>
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name">笔记本电脑</div>
+                                <div class="task-gallery-qty">数量: 2</div>
+                                <div class="task-gallery-creator">创建人: 销售C</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-back">
+                        <div class="task-back-content">
+                            <div class="task-files-container">
+                                <div class="task-file-item">
+                                    <div class="file-label">本体码</div>
+                                    <img src="https://placehold.co/80x80/e74c3c/white?text=BODY3" alt="本体码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">条码</div>
+                                    <img src="https://placehold.co/80x80/3498db/white?text=BAR3" alt="条码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">警示码</div>
+                                    <img src="https://placehold.co/80x80/f39c12/white?text=WARN3" alt="警示码" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">箱唛</div>
+                                    <img src="https://placehold.co/80x80/9b59b6/white?text=LABEL3" alt="箱唛" class="file-preview">
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">说明书</div>
+                                    <div class="pdf-preview">
+                                        <i class="fas fa-file-pdf fa-2x"></i>
+                                        <div class="pdf-filename">manual3.pdf</div>
+                                    </div>
+                                </div>
+                                <div class="task-file-item">
+                                    <div class="file-label">其他</div>
+                                    <img src="https://placehold.co/80x80/1abc9c/white?text=OTHER3" alt="其他" class="file-preview">
+                                </div>
+                            </div>
+                            <div class="task-back-actions">
+                                <div class="back-action-buttons">
+                                    <button class="btn btn-danger" onclick="deleteTask('sales-003')">
+                                        <i class="fas fa-trash me-1"></i>删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let debugMode = false;
+        let testResults = [];
+        
+        // 测试函数
+        function testAllFlip() {
+            addTestResult('🔄 开始测试全部翻转功能...', 'info');
+            
+            const containers = document.querySelectorAll('.task-flip-container');
+            let completed = 0;
+            
+            containers.forEach((container, index) => {
+                const taskId = container.dataset.taskId;
+                setTimeout(() => {
+                    if (window.toggleTaskCardFlip) {
+                        window.toggleTaskCardFlip(taskId);
+                        addTestResult(`✅ 任务 ${taskId} 翻转测试完成`, 'success');
+                        completed++;
+                        
+                        // 2秒后翻转回来
+                        setTimeout(() => {
+                            window.toggleTaskCardFlip(taskId);
+                            addTestResult(`↩️ 任务 ${taskId} 复位完成`, 'info');
+                            
+                            if (completed === containers.length) {
+                                addTestResult('🎉 全部翻转测试完成！', 'success');
+                            }
+                        }, 2000);
+                    } else {
+                        addTestResult(`❌ 任务 ${taskId} 翻转功能不可用`, 'error');
+                    }
+                }, index * 1000);
+            });
+        }
+        
+        function resetAllCards() {
+            const containers = document.querySelectorAll('.task-flip-container');
+            containers.forEach(container => {
+                container.classList.remove('flipped');
+            });
+            addTestResult('↩️ 所有卡片已重置到正面', 'success');
+        }
+        
+        function toggleDebugMode() {
+            debugMode = !debugMode;
+            const containers = document.querySelectorAll('.task-flip-container');
+            const fronts = document.querySelectorAll('.task-front');
+            const backs = document.querySelectorAll('.task-back');
+            
+            containers.forEach(el => el.classList.toggle('debug-mode', debugMode));
+            fronts.forEach(el => el.classList.toggle('debug-mode', debugMode));
+            backs.forEach(el => el.classList.toggle('debug-mode', debugMode));
+            
+            addTestResult(`🔍 调试模式: ${debugMode ? '开启' : '关闭'}`, 'info');
+        }
+        
+        function checkStatus() {
+            const status = window.SalesOperationsFlipFix ? 
+                window.SalesOperationsFlipFix.getStatus() : 
+                { initialized: false, taskCount: 0 };
+                
+            addTestResult(`📊 系统状态: ${status.initialized ? '已初始化' : '未初始化'}`, 'info');
+            addTestResult(`📊 任务卡片数: ${status.taskCount}`, 'info');
+            
+            if (status.flipStates && status.flipStates.length > 0) {
+                status.flipStates.forEach(([taskId, flipped]) => {
+                    addTestResult(`📊 任务 ${taskId}: ${flipped ? '背面' : '正面'}`, 'info');
+                });
+            }
+        }
+        
+        function deleteTask(taskId) {
+            if (confirm(`确定要删除任务 ${taskId} 吗？`)) {
+                addTestResult(`🗑️ 任务 ${taskId} 已删除`, 'warning');
+                const container = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+                if (container) {
+                    container.style.opacity = '0';
+                    container.style.transform = 'scale(0.8)';
+                    setTimeout(() => container.remove(), 300);
+                }
+            }
+        }
+        
+        function addTestResult(message, type = 'info') {
+            const resultsContent = document.getElementById('results-content');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `status-indicator ${type}`;
+            resultDiv.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            
+            if (resultsContent.innerHTML.includes('等待测试开始...')) {
+                resultsContent.innerHTML = '';
+            }
+            
+            resultsContent.appendChild(resultDiv);
+            resultsContent.scrollTop = resultsContent.scrollHeight;
+            
+            // 记录到数组
+            testResults.push({
+                time: new Date(),
+                message: message,
+                type: type
+            });
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('🚀 页面加载完成，翻转功能修复脚本已加载', 'success');
+            
+            // 检查修复脚本是否正确加载
+            setTimeout(() => {
+                if (window.SalesOperationsFlipFix) {
+                    addTestResult('✅ 销售运营翻转修复脚本加载成功', 'success');
+                } else {
+                    addTestResult('❌ 销售运营翻转修复脚本加载失败', 'error');
+                }
+            }, 1000);
+        });
+        
+        // 监听翻转事件
+        document.addEventListener('salesTaskCardFlipped', function(e) {
+            const { taskId, flipped } = e.detail;
+            addTestResult(`🔄 任务 ${taskId} 翻转到${flipped ? '背面' : '正面'}`, 'info');
+        });
+    </script>
+</body>
+</html>

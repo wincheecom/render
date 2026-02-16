@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库任务画廊诊断工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f7fb;
+        }
+        .diagnostic-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .log-entry {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .log-info { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
+        .log-warning { background-color: #fff3e0; border-left: 4px solid #ff9800; }
+        .log-error { background-color: #ffebee; border-left: 4px solid #f44336; }
+        .log-success { background-color: #e8f5e8; border-left: 4px solid #4caf50; }
+        .highlight { background-color: #ffeb3b; padding: 2px 4px; border-radius: 3px; }
+        .container-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .status-present { background-color: #d4edda; border: 2px solid #28a745; }
+        .status-missing { background-color: #f8d7da; border: 2px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">🔍 仓库任务画廊诊断工具</h1>
+        
+        <!-- 诊断控制面板 -->
+        <div class="diagnostic-panel">
+            <h3>🎛️ 诊断控制</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100 mb-2" onclick="startMonitoring()">
+                        <i class="fas fa-play me-2"></i>开始监控
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-warning w-100 mb-2" onclick="stopMonitoring()">
+                        <i class="fas fa-stop me-2"></i>停止监控
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-info w-100 mb-2" onclick="forceCheck()">
+                        <i class="fas fa-search me-2"></i>强制检查
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100 mb-2" onclick="clearLogs()">
+                        <i class="fas fa-trash me-2"></i>清空日志
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">监控间隔 (毫秒):</label>
+                    <input type="number" class="form-control" id="monitorInterval" value="1000" min="100" max="10000">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">自动恢复尝试次数:</label>
+                    <input type="number" class="form-control" id="restoreAttempts" value="3" min="1" max="10">
+                </div>
+            </div>
+        </div>
+
+        <!-- 容器状态显示 -->
+        <div class="diagnostic-panel">
+            <h3>📊 容器状态</h3>
+            <div id="containerStatus" class="container-status status-missing">
+                <i class="fas fa-question-circle me-2"></i>尚未检测到容器状态
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">容器数量</h5>
+                            <h2 id="containerCount" class="text-primary">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">监控状态</h5>
+                            <h2 id="monitorStatus" class="text-warning">停止</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">恢复尝试</h5>
+                            <h2 id="restoreCount" class="text-info">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 诊断日志 -->
+        <div class="diagnostic-panel">
+            <h3>📝 诊断日志</h3>
+            <div class="mb-3">
+                <button class="btn btn-sm btn-outline-secondary me-2" onclick="filterLogs('all')">全部</button>
+                <button class="btn btn-sm btn-outline-info me-2" onclick="filterLogs('info')">信息</button>
+                <button class="btn btn-sm btn-outline-warning me-2" onclick="filterLogs('warning')">警告</button>
+                <button class="btn btn-sm btn-outline-danger me-2" onclick="filterLogs('error')">错误</button>
+                <button class="btn btn-sm btn-outline-success me-2" onclick="filterLogs('success')">成功</button>
+            </div>
+            <div id="diagnosticLog" style="height: 400px; overflow-y: auto; background-color: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <div class="log-entry log-info">🚀 诊断工具已启动，等待开始监控...</div>
+            </div>
+        </div>
+
+        <!-- 可能的问题分析 -->
+        <div class="diagnostic-panel">
+            <h3>💡 可能问题分析</h3>
+            <div class="accordion" id="problemAnalysis">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                            🎯 常见原因分析
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+                            <ul>
+                                <li><strong>JavaScript重绘</strong>: 页面加载后某些函数重新渲染了整个容器</li>
+                                <li><strong>异步数据加载</strong>: 数据加载完成后替换了原有DOM结构</li>
+                                <li><strong>事件监听器冲突</strong>: 多个事件处理器互相干扰</li>
+                                <li><strong>内存回收</strong>: 浏览器垃圾回收机制移除了DOM引用</li>
+                                <li><strong>CSS样式冲突</strong>: 样式规则导致容器被隐藏或移除</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                            🔧 解决方案建议
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <ol>
+                                <li><strong>启用稳定性监控</strong>: 使用我们提供的监控脚本实时跟踪容器状态</li>
+                                <li><strong>检查事件绑定</strong>: 确保没有重复或冲突的事件监听器</li>
+                                <li><strong>审查CSS规则</strong>: 检查是否有隐藏或移除容器的样式</li>
+                                <li><strong>优化数据加载</strong>: 确保异步加载不会破坏现有DOM结构</li>
+                                <li><strong>添加错误处理</strong>: 为关键函数添加try-catch和恢复机制</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let monitoringActive = false;
+        let monitorIntervalId = null;
+        let restoreAttempts = 0;
+        let logEntries = [];
+        let currentFilter = 'all';
+
+        // 日志记录函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                time: timestamp,
+                message: message,
+                type: type
+            };
+            
+            logEntries.push(logEntry);
+            displayLogEntry(logEntry);
+            
+            // 限制日志数量
+            if (logEntries.length > 200) {
+                logEntries.shift();
+            }
+        }
+
+        // 显示单条日志
+        function displayLogEntry(entry) {
+            const logDiv = document.getElementById('diagnosticLog');
+            const entryDiv = document.createElement('div');
+            entryDiv.className = `log-entry log-${entry.type}`;
+            
+            if (currentFilter !== 'all' && currentFilter !== entry.type) {
+                entryDiv.style.display = 'none';
+            }
+            
+            entryDiv.innerHTML = `[${entry.time}] ${entry.message}`;
+            logDiv.appendChild(entryDiv);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // 更新容器状态显示
+        function updateContainerStatus() {
+            const containers = document.querySelectorAll('.task-gallery.warehouse-tasks-gallery');
+            const statusDiv = document.getElementById('containerStatus');
+            const countDiv = document.getElementById('containerCount');
+            
+            countDiv.textContent = containers.length;
+            
+            if (containers.length > 0) {
+                statusDiv.className = 'container-status status-present';
+                statusDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2 text-success"></i>
+                    找到 ${containers.length} 个仓库任务画廊容器
+                    ${Array.from(containers).map((c, i) => `<br><span class="highlight">#${i + 1}</span> ID: ${c.id || '无ID'} | Class: ${c.className}`).join('')}
+                `;
+                log(`✅ 检测到 ${containers.length} 个容器`, 'success');
+            } else {
+                statusDiv.className = 'container-status status-missing';
+                statusDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                    未找到仓库任务画廊容器
+                `;
+                log('❌ 未找到容器', 'error');
+            }
+        }
+
+        // 开始监控
+        function startMonitoring() {
+            if (monitoringActive) {
+                log('⚠️ 监控已在运行中', 'warning');
+                return;
+            }
+            
+            monitoringActive = true;
+            document.getElementById('monitorStatus').textContent = '运行中';
+            document.getElementById('monitorStatus').className = 'text-success';
+            
+            const interval = parseInt(document.getElementById('monitorInterval').value);
+            const maxAttempts = parseInt(document.getElementById('restoreAttempts').value);
+            
+            log(`🚀 开始监控，间隔: ${interval}ms，最大恢复尝试: ${maxAttempts}次`, 'info');
+            
+            // 立即执行一次检查
+            performCheck();
+            
+            // 设置定时检查
+            monitorIntervalId = setInterval(performCheck, interval);
+        }
+
+        // 停止监控
+        function stopMonitoring() {
+            if (!monitoringActive) {
+                log('⚠️ 监控未在运行', 'warning');
+                return;
+            }
+            
+            monitoringActive = false;
+            document.getElementById('monitorStatus').textContent = '停止';
+            document.getElementById('monitorStatus').className = 'text-warning';
+            
+            if (monitorIntervalId) {
+                clearInterval(monitorIntervalId);
+                monitorIntervalId = null;
+            }
+            
+            log('⏹️ 监控已停止', 'info');
+        }
+
+        // 执行检查
+        function performCheck() {
+            const previousContainers = document.querySelectorAll('.task-gallery.warehouse-tasks-gallery').length;
+            updateContainerStatus();
+            const currentContainers = document.querySelectorAll('.task-gallery.warehouse-tasks-gallery').length;
+            
+            // 检查容器数量变化
+            if (previousContainers > 0 && currentContainers === 0) {
+                log('🚨 检测到容器消失!', 'error');
+                attemptRestore();
+            } else if (previousContainers === 0 && currentContainers > 0) {
+                log('✨ 检测到容器恢复', 'success');
+                restoreAttempts = 0;
+            }
+        }
+
+        // 强制检查
+        function forceCheck() {
+            log('🔍 执行强制检查...', 'info');
+            performCheck();
+        }
+
+        // 尝试恢复容器
+        function attemptRestore() {
+            restoreAttempts++;
+            document.getElementById('restoreCount').textContent = restoreAttempts;
+            
+            const maxAttempts = parseInt(document.getElementById('restoreAttempts').value);
+            
+            if (restoreAttempts > maxAttempts) {
+                log(`❌ 达到最大恢复尝试次数 (${maxAttempts})`, 'error');
+                return;
+            }
+            
+            log(`🔄 尝试恢复容器 (第${restoreAttempts}次)`, 'warning');
+            
+            // 方法1: 调用仓库任务加载函数
+            if (typeof loadWarehouseTasks === 'function') {
+                log('🔁 调用 loadWarehouseTasks 函数', 'info');
+                try {
+                    loadWarehouseTasks();
+                    setTimeout(() => {
+                        const containers = document.querySelectorAll('.task-gallery.warehouse-tasks-gallery');
+                        if (containers.length > 0) {
+                            log('✅ 通过 loadWarehouseTasks 成功恢复', 'success');
+                            restoreAttempts = 0;
+                        }
+                    }, 2000);
+                } catch (error) {
+                    log(`❌ loadWarehouseTasks 执行失败: ${error.message}`, 'error');
+                }
+            }
+            
+            // 方法2: 手动创建容器
+            setTimeout(createContainerIfMissing, 1000);
+        }
+
+        // 如果缺少容器则创建
+        function createContainerIfMissing() {
+            const containers = document.querySelectorAll('.task-gallery.warehouse-tasks-gallery');
+            if (containers.length === 0) {
+                const parent = document.getElementById('warehouseTasks');
+                if (parent) {
+                    const newContainer = document.createElement('div');
+                    newContainer.className = 'task-gallery warehouse-tasks-gallery';
+                    newContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3 text-warning"></i>
+                            <p>容器已丢失，这是诊断模式显示</p>
+                        </div>
+                    `;
+                    parent.appendChild(newContainer);
+                    log('🔨 手动创建了临时容器', 'info');
+                } else {
+                    log('❌ 未找到父容器 #warehouseTasks', 'error');
+                }
+            }
+        }
+
+        // 清空日志
+        function clearLogs() {
+            logEntries = [];
+            document.getElementById('diagnosticLog').innerHTML = '';
+            log('🗑️ 日志已清空', 'info');
+        }
+
+        // 过滤日志
+        function filterLogs(filterType) {
+            currentFilter = filterType;
+            const entries = document.querySelectorAll('#diagnosticLog .log-entry');
+            
+            entries.forEach(entry => {
+                if (filterType === 'all' || entry.classList.contains(`log-${filterType}`)) {
+                    entry.style.display = 'block';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('✅ 诊断工具初始化完成', 'success');
+            updateContainerStatus();
+            
+            // 定期更新状态
+            setInterval(updateContainerStatus, 5000);
+        });
+
+        // 监听可能的相关事件
+        window.addEventListener('load', () => {
+            log('🌐 页面完全加载完成', 'info');
+        });
+
+        // 监听页面可见性变化
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                log('🌙 页面变为不可见', 'info');
+            } else {
+                log('☀️ 页面重新可见', 'info');
+                setTimeout(updateContainerStatus, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

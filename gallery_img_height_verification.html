@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务卡片图片容器高度调整验证</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f7fb;
+        }
+        .verification-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-area {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .size-display {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .status-indicator {
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        /* 任务卡片模拟样式 */
+        .task-flip-container {
+            width: 282.66px;
+            height: 307.46px;
+            perspective: 1000px;
+            margin: 10px;
+            display: inline-block;
+        }
+        
+        .task-front, .task-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .task-front {
+            background-color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            z-index: 2;
+        }
+        
+        .task-back {
+            background-color: #f8f9fa;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
+        
+        /* 图片容器测试样式 - 目标尺寸 */
+        .task-gallery-img {
+            width: 262.66px;
+            height: 259.06px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #4361ee;
+        }
+        
+        /* 对比样式 - 原始120px高度 */
+        .task-gallery-img-original {
+            width: 262.66px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #dc3545;
+        }
+        
+        .comparison-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .comparison-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 300px;
+        }
+        
+        .log-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <h1 class="text-center mb-4">📏 任务卡片图片容器高度调整验证</h1>
+        
+        <!-- 目标尺寸展示 -->
+        <div class="test-area">
+            <h3>🎯 目标尺寸</h3>
+            <div class="size-display">
+                <strong>目标尺寸:</strong> 262.66px × 259.06px<br>
+                <strong>当前问题:</strong> 高度仍为 120px<br>
+                <strong>需要调整:</strong> 高度从 120px → 259.06px
+            </div>
+        </div>
+        
+        <!-- 实际测试区域 -->
+        <div class="test-area">
+            <h3>🧪 实际测试</h3>
+            <div class="text-center mb-3">
+                <button class="btn btn-primary me-2" onclick="detectCurrentSize()">
+                    <i class="fas fa-search me-1"></i>检测当前尺寸
+                </button>
+                <button class="btn btn-success me-2" onclick="applyHeightAdjustment()">
+                    <i class="fas fa-wrench me-1"></i>应用高度调整
+                </button>
+                <button class="btn btn-warning me-2" onclick="forceAdjustment()">
+                    <i class="fas fa-hammer me-1"></i>强制调整
+                </button>
+                <button class="btn btn-info" onclick="resetTest()">
+                    <i class="fas fa-redo me-1"></i>重置测试
+                </button>
+            </div>
+            
+            <div id="statusIndicator" class="status-indicator">
+                等待检测...
+            </div>
+            
+            <div id="sizeDisplay" class="size-display">
+                点击"检测当前尺寸"按钮开始测试
+            </div>
+        </div>
+        
+        <!-- 对比展示 -->
+        <div class="test-area">
+            <h3>📊 尺寸对比</h3>
+            <div class="comparison-container">
+                <div class="comparison-card">
+                    <h5><i class="fas fa-times-circle text-danger me-2"></i>原始尺寸 (问题)</h5>
+                    <div class="task-flip-container">
+                        <div class="task-front">
+                            <div class="task-gallery-img-original">
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <i class="fas fa-image fa-2x text-muted"></i>
+                                    <div class="position-absolute bottom-0 start-0 m-2">
+                                        <small class="bg-danger text-white px-2 py-1 rounded">120px</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                                <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                    <span class="badge bg-warning">待发</span>
+                                </div>
+                                <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                    <div class="task-gallery-name">原始尺寸</div>
+                                    <div class="task-gallery-qty">数量: 3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-muted">当前存在问题的尺寸</p>
+                </div>
+                
+                <div class="comparison-card">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>目标尺寸 (修复后)</h5>
+                    <div class="task-flip-container">
+                        <div class="task-front">
+                            <div class="task-gallery-img" id="targetContainer">
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <i class="fas fa-image fa-2x text-muted"></i>
+                                    <div class="position-absolute bottom-0 start-0 m-2">
+                                        <small class="bg-success text-white px-2 py-1 rounded">259.06px</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                                <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                                    <span class="badge bg-success">已修复</span>
+                                </div>
+                                <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                    <div class="task-gallery-name">目标尺寸</div>
+                                    <div class="task-gallery-qty">数量: 5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-muted">期望达到的目标尺寸</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 操作日志 -->
+        <div class="test-area">
+            <h3>📝 操作日志</h3>
+            <div id="operationLog" class="log-container"></div>
+        </div>
+    </div>
+
+    <!-- 引入调整脚本 -->
+    <script src="adjust_gallery_img_height.js"></script>
+    <script src="check_current_img_size.js"></script>
+    
+    <script>
+        // 日志记录函数
+        function logMessage(message) {
+            const logElement = document.getElementById('operationLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        // 检测当前尺寸
+        function detectCurrentSize() {
+            const imgContainers = document.querySelectorAll('.task-gallery-img');
+            const display = document.getElementById('sizeDisplay');
+            const status = document.getElementById('statusIndicator');
+            
+            if (imgContainers.length === 0) {
+                display.innerHTML = '未找到图片容器元素';
+                status.className = 'status-indicator error';
+                status.innerHTML = '<i class="fas fa-times-circle me-2"></i>检测失败';
+                logMessage('错误: 未找到图片容器元素');
+                return;
+            }
+            
+            let results = [];
+            let successCount = 0;
+            
+            imgContainers.forEach((container, index) => {
+                const computedStyle = window.getComputedStyle(container);
+                const width = parseFloat(computedStyle.width);
+                const height = parseFloat(computedStyle.height);
+                
+                const isCorrect = Math.abs(width - 262.66) < 1 && Math.abs(height - 259.06) < 1;
+                
+                results.push({
+                    index: index + 1,
+                    width: width,
+                    height: height,
+                    isCorrect: isCorrect
+                });
+                
+                if (isCorrect) successCount++;
+            });
+            
+            // 更新显示
+            let html = '<strong>检测结果:</strong><br>';
+            results.forEach(result => {
+                const statusIcon = result.isCorrect ? 
+                    '<i class="fas fa-check-circle text-success"></i>' : 
+                    '<i class="fas fa-times-circle text-danger"></i>';
+                html += `容器 ${result.index}: ${result.width.toFixed(2)}px × ${result.height.toFixed(2)}px ${statusIcon}<br>`;
+            });
+            
+            display.innerHTML = html;
+            
+            // 更新状态指示器
+            if (successCount === results.length) {
+                status.className = 'status-indicator success';
+                status.innerHTML = `<i class="fas fa-check-circle me-2"></i>所有尺寸正确 (${successCount}/${results.length})`;
+                logMessage(`成功: 所有 ${results.length} 个容器尺寸都正确`);
+            } else {
+                status.className = 'status-indicator warning';
+                status.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>部分尺寸需要调整 (${successCount}/${results.length})`;
+                logMessage(`警告: ${results.length - successCount} 个容器尺寸不正确`);
+            }
+        }
+        
+        // 应用高度调整
+        function applyHeightAdjustment() {
+            if (typeof adjustGalleryImgHeight === 'function') {
+                adjustGalleryImgHeight('259.06px');
+                logMessage('已调用 adjustGalleryImgHeight("259.06px") 函数');
+                
+                // 等待调整完成后再检测
+                setTimeout(() => {
+                    detectCurrentSize();
+                }, 1000);
+            } else {
+                logMessage('错误: adjustGalleryImgHeight 函数不可用');
+            }
+        }
+        
+        // 强制调整
+        function forceAdjustment() {
+            const imgContainers = document.querySelectorAll('.task-gallery-img');
+            const targetHeight = '259.06px';
+            
+            imgContainers.forEach((container, index) => {
+                container.style.height = targetHeight;
+                container.style.minHeight = targetHeight;
+                container.style.maxHeight = targetHeight;
+                logMessage(`强制调整容器 ${index + 1} 高度为 ${targetHeight}`);
+            });
+            
+            logMessage(`强制调整完成，共处理 ${imgContainers.length} 个容器`);
+            
+            // 检测结果
+            setTimeout(detectCurrentSize, 500);
+        }
+        
+        // 重置测试
+        function resetTest() {
+            const imgContainers = document.querySelectorAll('.task-gallery-img');
+            imgContainers.forEach(container => {
+                container.style.cssText = '';
+            });
+            
+            document.getElementById('sizeDisplay').innerHTML = '已重置测试环境';
+            document.getElementById('statusIndicator').className = 'status-indicator';
+            document.getElementById('statusIndicator').innerHTML = '测试环境已重置';
+            
+            logMessage('测试环境已重置');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            logMessage('页面加载完成，开始初始化...');
+            
+            // 延迟执行初始检测
+            setTimeout(() => {
+                logMessage('执行初始尺寸检测...');
+                detectCurrentSize();
+            }, 2000);
+        });
+        
+        // 实时监控尺寸变化
+        setInterval(() => {
+            if (document.getElementById('operationLog').innerHTML.includes('检测')) {
+                detectCurrentSize();
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

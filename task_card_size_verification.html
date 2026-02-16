@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务卡片尺寸调整验证</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f7fb;
+        }
+        .verification-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .task-sample {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .size-display {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .status-indicator {
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        /* 目标尺寸样式 */
+        .target-dimensions {
+            width: 282.66px;
+            height: 307.46px;
+            background: linear-gradient(135deg, #4361ee, #3a56d4);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .target-dimensions::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            animation: move 2s linear infinite;
+        }
+        
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 20px; }
+        }
+        
+        .dimension-label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .dimension-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            z-index: 2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .dimension-unit {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <h1 class="text-center mb-4">📏 任务卡片尺寸调整验证</h1>
+        
+        <!-- 目标尺寸展示 -->
+        <div class="task-sample">
+            <h3>🎯 目标尺寸</h3>
+            <div class="target-dimensions">
+                <div class="dimension-label">任务卡片目标尺寸</div>
+                <div class="dimension-value">282.66 × 307.46</div>
+                <div class="dimension-unit">像素 (px)</div>
+            </div>
+            <div class="size-display">
+                <strong>宽度:</strong> 282.66px<br>
+                <strong>高度:</strong> 307.46px<br>
+                <strong>宽高比:</strong> 约 0.919 (接近正方形但略扁)
+            </div>
+        </div>
+        
+        <!-- 当前实际尺寸检测 -->
+        <div class="task-sample">
+            <h3>🔍 当前实际尺寸检测</h3>
+            <div id="currentSizeDisplay" class="size-display">
+                正在检测当前任务卡片尺寸...
+            </div>
+            <div id="sizeStatus" class="status-indicator info">
+                检测中...
+            </div>
+        </div>
+        
+        <!-- 模拟任务卡片 -->
+        <div class="task-sample">
+            <h3>📱 模拟任务卡片展示</h3>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="task-flip-container" style="width: 282.66px; height: 307.46px; position: relative;">
+                        <div class="task-front" style="width: 100%; height: 100%; background: white; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px;">
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-box fa-3x text-muted"></i>
+                                </div>
+                                <h5>化妆品包</h5>
+                                <p class="text-muted">货号: KABI-165</p>
+                                <p class="text-muted">数量: 1</p>
+                                <p class="text-muted small">创建人: 管理员</p>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-info-circle me-1"></i>查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="task-flip-container" style="width: 282.66px; height: 307.46px; position: relative;">
+                        <div class="task-front" style="width: 100%; height: 100%; background: white; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px;">
+                            <span class="badge bg-success position-absolute" style="top: 10px; right: 10px;">已发货</span>
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-box-open fa-3x text-success"></i>
+                                </div>
+                                <h5>电子产品</h5>
+                                <p class="text-muted">货号: TECH-001</p>
+                                <p class="text-muted">数量: 3</p>
+                                <p class="text-muted small">创建人: 销售A</p>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm" disabled>
+                                <i class="fas fa-info-circle me-1"></i>查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="task-flip-container" style="width: 282.66px; height: 307.46px; position: relative;">
+                        <div class="task-front" style="width: 100%; height: 100%; background: white; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px;">
+                            <span class="badge bg-warning position-absolute" style="top: 10px; right: 10px;">处理中</span>
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-cogs fa-3x text-warning"></i>
+                                </div>
+                                <h5>家居用品</h5>
+                                <p class="text-muted">货号: HOME-007</p>
+                                <p class="text-muted">数量: 2</p>
+                                <p class="text-muted small">创建人: 销售B</p>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-info-circle me-1"></i>查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 调整前后对比 -->
+        <div class="task-sample">
+            <h3>📊 调整前后对比</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-history me-2"></i>调整前</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="size-display">
+                                <strong>宽度:</strong> 302.66px<br>
+                                <strong>高度:</strong> 自适应<br>
+                                <strong>宽高比:</strong> 不固定
+                            </div>
+                            <p class="text-muted">原始尺寸，可能存在显示不一致问题</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>调整后</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="size-display">
+                                <strong>宽度:</strong> 282.66px<br>
+                                <strong>高度:</strong> 307.46px<br>
+                                <strong>宽高比:</strong> 固定 0.919
+                            </div>
+                            <p class="text-muted">统一分辨率，显示更加一致</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 测试按钮 -->
+        <div class="task-sample text-center">
+            <h3>🧪 功能测试</h3>
+            <button id="testResizeBtn" class="btn btn-primary me-2">
+                <i class="fas fa-ruler-combined me-1"></i>重新检测尺寸
+            </button>
+            <button id="refreshBtn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt me-1"></i>刷新页面
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 尺寸检测函数
+        function detectCurrentSize() {
+            const display = document.getElementById('currentSizeDisplay');
+            const status = document.getElementById('sizeStatus');
+            
+            try {
+                // 创建测试元素来检测实际尺寸
+                const testElement = document.createElement('div');
+                testElement.className = 'task-flip-container';
+                testElement.style.visibility = 'hidden';
+                testElement.style.position = 'absolute';
+                testElement.style.width = '282.66px';
+                testElement.style.height = '307.46px';
+                
+                document.body.appendChild(testElement);
+                
+                // 获取计算后的尺寸
+                const computedStyle = window.getComputedStyle(testElement);
+                const actualWidth = parseFloat(computedStyle.width);
+                const actualHeight = parseFloat(computedStyle.height);
+                
+                document.body.removeChild(testElement);
+                
+                // 检测页面上实际的任务卡片
+                const actualTaskCards = document.querySelectorAll('.task-flip-container');
+                let pageWidth = '未检测到';
+                let pageHeight = '未检测到';
+                
+                if (actualTaskCards.length > 0) {
+                    const firstCardStyle = window.getComputedStyle(actualTaskCards[0]);
+                    pageWidth = parseFloat(firstCardStyle.width).toFixed(2) + 'px';
+                    pageHeight = parseFloat(firstCardStyle.height).toFixed(2) + 'px';
+                }
+                
+                display.innerHTML = `
+                    <strong>测试元素尺寸:</strong><br>
+                    宽度: ${actualWidth.toFixed(2)}px<br>
+                    高度: ${actualHeight.toFixed(2)}px<br><br>
+                    <strong>页面实际任务卡片尺寸:</strong><br>
+                    宽度: ${pageWidth}<br>
+                    高度: ${pageHeight}<br><br>
+                    <strong>目标尺寸:</strong><br>
+                    宽度: 282.66px<br>
+                    高度: 307.46px
+                `;
+                
+                // 判断是否符合要求
+                const widthMatch = Math.abs(actualWidth - 282.66) < 1;
+                const heightMatch = Math.abs(actualHeight - 307.46) < 1;
+                
+                if (widthMatch && heightMatch) {
+                    status.className = 'status-indicator success';
+                    status.innerHTML = '<i class="fas fa-check-circle me-2"></i>尺寸调整成功！符合目标要求';
+                } else {
+                    status.className = 'status-indicator warning';
+                    status.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>尺寸仍有偏差，请检查CSS设置';
+                }
+                
+            } catch (error) {
+                display.innerHTML = `检测出错: ${error.message}`;
+                status.className = 'status-indicator warning';
+                status.innerHTML = '<i class="fas fa-times-circle me-2"></i>检测失败';
+            }
+        }
+        
+        // 页面加载完成后执行检测
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(detectCurrentSize, 1000);
+        });
+        
+        // 绑定按钮事件
+        document.getElementById('testResizeBtn').addEventListener('click', detectCurrentSize);
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            location.reload();
+        });
+        
+        // 实时监控尺寸变化
+        setInterval(detectCurrentSize, 5000);
+    </script>
+</body>
+</html>

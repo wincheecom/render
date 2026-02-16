@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务卡片修复验证页面</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f7fb;
+        }
+        .test-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .task-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .task-flip-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            perspective: 1500px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease-in-out;
+        }
+        .task-front, .task-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .task-front {
+            background-color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            z-index: 2;
+        }
+        .task-back {
+            background-color: #f8f9fa;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
+        .task-flip-container.flipped {
+            transform: rotateY(180deg);
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .btn-test {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">📋 任务卡片尺寸和翻转功能修复验证</h1>
+        
+        <!-- 测试说明 -->
+        <div class="test-section">
+            <h3>🎯 测试目标</h3>
+            <ul>
+                <li>验证任务卡片尺寸统一性</li>
+                <li>测试翻转功能正常工作</li>
+                <li>确认响应式布局正确</li>
+                <li>检查不同状态下（已发货/未发货）的行为</li>
+            </ul>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="test-section">
+            <h3>🎛️ 控制面板</h3>
+            <button class="btn btn-primary btn-test" onclick="testAllFlip()">🔄 测试全部翻转</button>
+            <button class="btn btn-success btn-test" onclick="resetAllCards()">↩️ 重置所有卡片</button>
+            <button class="btn btn-info btn-test" onclick="toggleDebug()">🔍 切换调试模式</button>
+            <button class="btn btn-warning btn-test" onclick="simulateShipped()">📦 模拟已发货状态</button>
+        </div>
+
+        <!-- 任务卡片展示区 -->
+        <div class="test-section">
+            <h3>📱 任务卡片展示</h3>
+            <div class="task-gallery" id="testGallery">
+                <!-- 任务卡片 1 - 正常状态 -->
+                <div class="task-flip-container" data-task-id="test-001">
+                    <div class="task-front">
+                        <span class="status-badge bg-primary text-white">待处理</span>
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-box fa-3x text-muted"></i>
+                            </div>
+                            <h5>化妆品包</h5>
+                            <p class="text-muted">货号: KABI-165</p>
+                            <p class="text-muted">数量: 1</p>
+                            <p class="text-muted small">创建人: 管理员</p>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" data-action="flip" data-task-id="test-001">
+                            <i class="fas fa-info-circle me-1"></i>查看详情
+                        </button>
+                    </div>
+                    <div class="task-back">
+                        <h5>📦 详细信息</h5>
+                        <div class="text-start">
+                            <p><strong>商品名称:</strong> 化妆品包</p>
+                            <p><strong>货号:</strong> KABI-165</p>
+                            <p><strong>数量:</strong> 1</p>
+                            <p><strong>创建时间:</strong> 2024-01-15</p>
+                            <p><strong>备注:</strong> 标准包装</p>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="btn btn-success btn-sm w-100 mb-2" data-action="complete-shipment" data-task-id="test-001">
+                                <i class="fas fa-truck me-1"></i>确认发货
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm w-100" data-action="flip" data-task-id="test-001">
+                                <i class="fas fa-arrow-left me-1"></i>返回
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务卡片 2 - 已发货状态 -->
+                <div class="task-flip-container" data-task-id="test-002">
+                    <div class="task-front">
+                        <span class="status-badge bg-success text-white">已发货</span>
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-box-open fa-3x text-success"></i>
+                            </div>
+                            <h5>电子产品套装</h5>
+                            <p class="text-muted">货号: TECH-001</p>
+                            <p class="text-muted">数量: 3</p>
+                            <p class="text-muted small">创建人: 销售A</p>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" data-action="flip" data-task-id="test-002" disabled>
+                            <i class="fas fa-info-circle me-1"></i>查看详情
+                        </button>
+                    </div>
+                    <div class="task-back">
+                        <h5>📦 已发货详情</h5>
+                        <div class="text-start">
+                            <p><strong>商品名称:</strong> 电子产品套装</p>
+                            <p><strong>货号:</strong> TECH-001</p>
+                            <p><strong>数量:</strong> 3</p>
+                            <p><strong>发货时间:</strong> 2024-01-15 14:30</p>
+                            <p><strong>物流单号:</strong> SF123456789CN</p>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="btn btn-secondary btn-sm w-100" disabled>
+                                <i class="fas fa-check me-1"></i>已完成发货
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务卡片 3 - 测试翻转 -->
+                <div class="task-flip-container" data-task-id="test-003">
+                    <div class="task-front">
+                        <span class="status-badge bg-warning text-dark">处理中</span>
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-cogs fa-3x text-warning"></i>
+                            </div>
+                            <h5>家居用品组合</h5>
+                            <p class="text-muted">货号: HOME-007</p>
+                            <p class="text-muted">数量: 2</p>
+                            <p class="text-muted small">创建人: 销售B</p>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" data-action="flip" data-task-id="test-003">
+                            <i class="fas fa-info-circle me-1"></i>查看详情
+                        </button>
+                    </div>
+                    <div class="task-back">
+                        <h5>🔧 处理中信息</h5>
+                        <div class="text-start">
+                            <p><strong>商品名称:</strong> 家居用品组合</p>
+                            <p><strong>货号:</strong> HOME-007</p>
+                            <p><strong>数量:</strong> 2</p>
+                            <p><strong>处理进度:</strong> 包装完成 80%</p>
+                            <p><strong>预计完成:</strong> 2024-01-16</p>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="btn btn-success btn-sm w-100 mb-2" data-action="complete-shipment" data-task-id="test-003">
+                                <i class="fas fa-truck me-1"></i>确认发货
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm w-100" data-action="flip" data-task-id="test-003">
+                                <i class="fas fa-arrow-left me-1"></i>返回
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试结果 -->
+        <div class="test-section">
+            <h3>📊 测试结果</h3>
+            <div id="testResults">
+                <p class="text-muted">点击上方按钮开始测试...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="task_card_dimension_flip_fix.js"></script>
+    <script>
+        let debugMode = false;
+        let testResults = [];
+
+        // 测试所有翻转功能
+        function testAllFlip() {
+            const containers = document.querySelectorAll('.task-flip-container');
+            let successCount = 0;
+            
+            containers.forEach((container, index) => {
+                setTimeout(() => {
+                    const taskId = container.getAttribute('data-task-id');
+                    if (typeof window.toggleTaskCardFlip === 'function') {
+                        window.toggleTaskCardFlip(taskId);
+                        successCount++;
+                    }
+                }, index * 500);
+            });
+            
+            setTimeout(() => {
+                addTestResult(`🔄 翻转测试: 成功触发 ${successCount} 个任务卡片翻转`, 'success');
+            }, containers.length * 500 + 1000);
+        }
+
+        // 重置所有卡片
+        function resetAllCards() {
+            document.querySelectorAll('.task-flip-container.flipped').forEach(container => {
+                container.classList.remove('flipped');
+                const flipButton = container.querySelector('[data-action="flip"]');
+                if (flipButton) {
+                    flipButton.innerHTML = '<i class="fas fa-info-circle me-1"></i>查看详情';
+                }
+            });
+            addTestResult('↩️ 已重置所有卡片到初始状态', 'info');
+        }
+
+        // 切换调试模式
+        function toggleDebug() {
+            debugMode = !debugMode;
+            const debugStyleId = 'task-card-debug-style';
+            let debugStyle = document.getElementById(debugStyleId);
+            
+            if (debugMode) {
+                if (!debugStyle) {
+                    debugStyle = document.createElement('style');
+                    debugStyle.id = debugStyleId;
+                    debugStyle.textContent = `
+                        .task-flip-container { outline: 2px solid #007bff !important; }
+                        .task-front { outline: 2px solid #28a745 !important; }
+                        .task-back { outline: 2px solid #dc3545 !important; }
+                    `;
+                    document.head.appendChild(debugStyle);
+                }
+                addTestResult('🔍 调试模式已开启 - 显示边界线', 'warning');
+            } else {
+                if (debugStyle) {
+                    debugStyle.remove();
+                }
+                addTestResult('🔍 调试模式已关闭', 'info');
+            }
+        }
+
+        // 模拟已发货状态
+        function simulateShipped() {
+            const containers = document.querySelectorAll('.task-flip-container');
+            containers[0].querySelector('.status-badge').className = 'status-badge bg-success text-white';
+            containers[0].querySelector('.status-badge').textContent = '已发货';
+            containers[0].querySelector('[data-action="flip"]').disabled = true;
+            addTestResult('📦 已模拟第一个任务为已发货状态', 'success');
+        }
+
+        // 添加测试结果
+        function addTestResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const resultItem = document.createElement('div');
+            resultItem.className = `alert alert-${type} mb-2`;
+            resultItem.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            resultsDiv.appendChild(resultItem);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            
+            // 限制结果显示数量
+            if (resultsDiv.children.length > 10) {
+                resultsDiv.removeChild(resultsDiv.firstChild);
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('✅ 页面加载完成，修复脚本已激活', 'success');
+            
+            // 绑定事件监听器
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-action="flip"]')) {
+                    e.preventDefault();
+                    const taskId = e.target.closest('[data-action="flip"]').getAttribute('data-task-id');
+                    addTestResult(`🖱️ 用户点击翻转按钮 - 任务: ${taskId}`, 'info');
+                }
+                
+                if (e.target.closest('[data-action="complete-shipment"]')) {
+                    e.preventDefault();
+                    const taskId = e.target.closest('[data-action="complete-shipment"]').getAttribute('data-task-id');
+                    addTestResult(`🚚 用户点击发货确认 - 任务: ${taskId}`, 'warning');
+                }
+            });
+        });
+
+        // 监听翻转事件
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const target = mutation.target;
+                    if (target.classList.contains('task-flip-container')) {
+                        const taskId = target.getAttribute('data-task-id');
+                        const isFlipped = target.classList.contains('flipped');
+                        addTestResult(`🔄 任务 ${taskId} ${isFlipped ? '翻转到背面' : '复位到正面'}`, 'info');
+                    }
+                }
+            });
+        });
+
+        // 开始观察
+        document.querySelectorAll('.task-flip-container').forEach(container => {
+            observer.observe(container, { attributes: true, attributeFilter: ['class'] });
+        });
+    </script>
+</body>
+</html>
