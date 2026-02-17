@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>终极任务96翻转修复验证</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .status-card {
+            margin-bottom: 20px;
+        }
+        .component-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .status-ok {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .status-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-success { background-color: #d4edda; }
+        .log-error { background-color: #f8d7da; }
+        .log-info { background-color: #d1ecf1; }
+        .log-warning { background-color: #fff3cd; }
+        .task-demo {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .control-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="text-center mb-4">
+            <h1>🎯 终极任务96翻转修复验证</h1>
+            <p class="text-muted">专门针对 div#task-96-front.task-front 卡片翻转功能失效问题</p>
+        </div>
+
+        <!-- 状态监控面板 -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="status-card card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>实时状态监控</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="componentStatus">
+                            <div class="component-status status-warning">
+                                <i class="fas fa-spinner fa-spin me-2"></i>正在检测组件状态...
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="checkComponents()">
+                            <i class="fas fa-sync-alt me-1"></i>刷新状态
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="status-card card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>执行日志</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="executionLog" style="height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                            <div class="log-entry log-info">🚀 终极修复验证系统已启动...</div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm mt-2" onclick="clearLogs()">
+                            <i class="fas fa-trash me-1"></i>清空日志
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel mb-4">
+            <h4><i class="fas fa-sliders-h me-2"></i>修复控制面板</h4>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100" onclick="executeUltimateFix()">
+                        <i class="fas fa-magic me-1"></i>执行终极修复
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-warning w-100" onclick="testFlipFunction()">
+                        <i class="fas fa-vial me-1"></i>测试翻转功能
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-info w-100" onclick="manualFlipTest()">
+                        <i class="fas fa-hand-point-up me-1"></i>手动翻转测试
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-secondary w-100" onclick="resetAll()">
+                        <i class="fas fa-undo me-1"></i>重置所有状态
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务96演示区域 -->
+        <div class="task-demo">
+            <h4><i class="fas fa-cube me-2"></i>任务96翻转演示</h4>
+            <div class="text-center mb-3">
+                <small class="text-muted">点击下方卡片或使用控制面板进行测试</small>
+            </div>
+            
+            <!-- 任务96翻转容器 -->
+            <div class="task-flip-container mx-auto" data-task-id="96" style="width: 282.66px; height: 307.46px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; perspective: 1500px; cursor: pointer; display: block; will-change: transform;">
+                <!-- 正面 -->
+                <div class="task-front" id="task-96-front" data-task-id="96" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; z-index: 2; background-color: white; border-radius: 10px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px; box-sizing: border-box;">
+                    <div class="task-gallery-img" style="width: 262.66px; height: 259.06px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; background-color: rgb(248, 249, 250); display: flex; align-items: center; justify-content: center; min-height: 259.06px; max-height: 259.06px;">
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                    </div>
+                    <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                        <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                            <span class="badge badge-warning" style="padding: 2px 6px; font-size: 0.7rem; min-width: 40px; text-align: center;">
+                                待发
+                            </span>
+                        </div>
+                        <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                            <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">立体拼图交通</div>
+                            <div class="task-gallery-qty" data-content="1" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">数量: 1</div>
+                            <div class="task-gallery-creator" data-content="管理员" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">创建人: 管理员</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 背面 -->
+                <div class="task-back" data-task-id="96" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); z-index: 1; background-color: white; border-radius: 10px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px; box-sizing: border-box;">
+                    <div style="text-align: center; width: 100%;">
+                        <h5 style="margin: 0 0 15px 0; color: #333;">任务详情</h5>
+                        <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">任务名称:</span>
+                                <strong>立体拼图交通</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">数量:</span>
+                                <strong>1</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">创建人:</span>
+                                <strong>管理员</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #666;">状态:</span>
+                                <span class="badge badge-warning">待发</span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                            <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <i class="fas fa-barcode fa-2x mb-2" style="color: #4361ee;"></i>
+                                <div style="font-size: 12px; font-weight: bold;">本体码</div>
+                                <div style="font-size: 11px; color: #6c757d;">123456789</div>
+                            </div>
+                            <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <i class="fas fa-qrcode fa-2x mb-2" style="color: #7209b7;"></i>
+                                <div style="font-size: 12px; font-weight: bold;">条码</div>
+                                <div style="font-size: 11px; color: #6c757d;">987654321</div>
+                            </div>
+                            <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <i class="fas fa-book fa-2x mb-2" style="color: #6f42c1;"></i>
+                                <div style="font-size: 12px; font-weight: bold;">说明书</div>
+                                <div style="font-size: 11px; color: #6c757d;">产品使用指南</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="window.toggleTaskCardFlip('96')" style="flex: 1;">
+                                <i class="fas fa-arrow-left me-1"></i>返回
+                            </button>
+                            <button class="btn btn-success btn-sm" style="flex: 1;">
+                                <i class="fas fa-paper-plane me-1"></i>确认发货
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 诊断信息 -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-diagnoses me-2"></i>技术诊断信息</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>元素结构信息</h6>
+                        <pre id="structureInfo" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 12px;">等待检测...</pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>CSS计算样式</h6>
+                        <pre id="computedStyles" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 12px; max-height: 200px; overflow-y: auto;">等待检测...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="ultimate_task96_flip_fix.js"></script>
+    <script>
+        // 日志管理
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('executionLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('executionLog').innerHTML = '';
+            addLog('日志已清空', 'info');
+        }
+
+        // 组件状态检查
+        function checkComponents() {
+            addLog('🔍 开始组件状态检查...', 'info');
+            
+            const statusContainer = document.getElementById('componentStatus');
+            statusContainer.innerHTML = '';
+            
+            // 检查各个组件
+            const components = [
+                {
+                    name: '翻转容器',
+                    selector: '.task-flip-container[data-task-id="96"]',
+                    check: () => document.querySelector('.task-flip-container[data-task-id="96"]')
+                },
+                {
+                    name: '正面元素',
+                    selector: '#task-96-front.task-front',
+                    check: () => document.querySelector('#task-96-front.task-front')
+                },
+                {
+                    name: '背面元素',
+                    selector: '.task-back[data-task-id="96"]',
+                    check: () => document.querySelector('.task-back[data-task-id="96"]')
+                },
+                {
+                    name: '翻转函数',
+                    check: () => typeof window.toggleTaskCardFlip === 'function'
+                }
+            ];
+            
+            let allGood = true;
+            
+            components.forEach(comp => {
+                const exists = comp.check();
+                const statusDiv = document.createElement('div');
+                statusDiv.className = `component-status ${exists ? 'status-ok' : 'status-error'}`;
+                statusDiv.innerHTML = `
+                    <i class="fas ${exists ? 'fa-check-circle' : 'fa-times-circle'} me-2"></i>
+                    ${comp.name}: ${exists ? '✅ 存在' : '❌ 缺失'}
+                    ${comp.selector ? `<br><small class="text-muted">${comp.selector}</small>` : ''}
+                `;
+                statusContainer.appendChild(statusDiv);
+                
+                if (!exists) allGood = false;
+                addLog(`${comp.name}: ${exists ? '存在' : '缺失'}`, exists ? 'success' : 'error');
+            });
+            
+            // 总体状态
+            const overallStatus = document.createElement('div');
+            overallStatus.className = `component-status ${allGood ? 'status-ok' : 'status-error'}`;
+            overallStatus.innerHTML = `
+                <i class="fas ${allGood ? 'fa-trophy' : 'fa-exclamation-triangle'} me-2"></i>
+                总体状态: ${allGood ? '✅ 所有组件正常' : '❌ 存在问题需要修复'}
+            `;
+            statusContainer.appendChild(overallStatus);
+            
+            addLog(`总体检查完成: ${allGood ? '所有组件正常' : '存在问题'}`, allGood ? 'success' : 'error');
+        }
+
+        // 执行终极修复
+        function executeUltimateFix() {
+            addLog('🚀 开始执行终极修复...', 'info');
+            
+            try {
+                // 如果终极修复脚本已加载，直接调用
+                if (typeof window.executeAllFixes === 'function') {
+                    window.executeAllFixes();
+                    addLog('✅ 终极修复脚本已执行', 'success');
+                } else {
+                    // 重新加载脚本
+                    const script = document.createElement('script');
+                    script.src = 'ultimate_task96_flip_fix.js';
+                    script.onload = () => {
+                        addLog('✅ 终极修复脚本加载完成', 'success');
+                        setTimeout(() => {
+                            if (typeof window.executeAllFixes === 'function') {
+                                window.executeAllFixes();
+                                addLog('✅ 终极修复已执行', 'success');
+                            }
+                        }, 1000);
+                    };
+                    document.head.appendChild(script);
+                }
+                
+                // 5秒后自动检查状态
+                setTimeout(checkComponents, 5000);
+                
+            } catch (error) {
+                addLog(`❌ 执行修复时出错: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试翻转功能
+        function testFlipFunction() {
+            addLog('🧪 开始翻转功能测试...', 'info');
+            
+            try {
+                const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+                if (!container) {
+                    addLog('❌ 未找到翻转容器', 'error');
+                    return;
+                }
+                
+                const initialState = container.classList.contains('flipped');
+                addLog(`初始状态: ${initialState ? '背面' : '正面'}`, 'info');
+                
+                // 执行翻转
+                if (typeof window.toggleTaskCardFlip === 'function') {
+                    window.toggleTaskCardFlip('96');
+                    addLog('✅ 翻转函数已调用', 'success');
+                    
+                    setTimeout(() => {
+                        const newState = container.classList.contains('flipped');
+                        if (newState !== initialState) {
+                            addLog('✅ 翻转功能正常工作', 'success');
+                        } else {
+                            addLog('❌ 翻转状态未改变', 'error');
+                        }
+                        
+                        // 恢复原始状态
+                        if (newState !== initialState) {
+                            setTimeout(() => {
+                                window.toggleTaskCardFlip('96');
+                                addLog('🔄 已恢复原始状态', 'info');
+                            }, 1000);
+                        }
+                    }, 600);
+                } else {
+                    addLog('❌ 翻转函数不存在', 'error');
+                }
+                
+            } catch (error) {
+                addLog(`❌ 测试过程中出错: ${error.message}`, 'error');
+            }
+        }
+
+        // 手动翻转测试
+        function manualFlipTest() {
+            addLog('👆 启用手动翻转测试模式...', 'info');
+            addLog('请直接点击上方的任务卡片进行测试', 'warning');
+            
+            // 为卡片添加明显的点击提示
+            const card = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (card) {
+                card.style.border = '3px solid #007bff';
+                card.style.boxShadow = '0 0 20px rgba(0,123,255,0.5)';
+                
+                setTimeout(() => {
+                    card.style.border = '';
+                    card.style.boxShadow = '';
+                }, 5000);
+            }
+        }
+
+        // 重置所有状态
+        function resetAll() {
+            addLog('🔄 开始重置所有状态...', 'info');
+            
+            try {
+                const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+                if (container) {
+                    container.classList.remove('flipped');
+                    addLog('✅ 翻转状态已重置', 'success');
+                }
+                
+                // 清理可能的内联样式
+                const front = document.querySelector('#task-96-front');
+                if (front) {
+                    front.removeAttribute('style');
+                    addLog('✅ 正面元素样式已清理', 'success');
+                }
+                
+                addLog('✅ 所有状态重置完成', 'success');
+                checkComponents();
+                
+            } catch (error) {
+                addLog(`❌ 重置过程中出错: ${error.message}`, 'error');
+            }
+        }
+
+        // 更新诊断信息
+        function updateDiagnostics() {
+            // 更新结构信息
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            const front = document.querySelector('#task-96-front');
+            const back = document.querySelector('.task-back[data-task-id="96"]');
+            
+            let structureInfo = '元素结构信息:\n';
+            structureInfo += `翻转容器: ${container ? '✅ 存在' : '❌ 不存在'}\n`;
+            structureInfo += `正面元素: ${front ? '✅ 存在' : '❌ 不存在'}\n`;
+            structureInfo += `背面元素: ${back ? '✅ 存在' : '❌ 不存在'}\n`;
+            structureInfo += `\n函数状态:\n`;
+            structureInfo += `toggleTaskCardFlip: ${typeof window.toggleTaskCardFlip === 'function' ? '✅ 存在' : '❌ 不存在'}`;
+            
+            document.getElementById('structureInfo').textContent = structureInfo;
+            
+            // 更新计算样式
+            if (container) {
+                const styles = window.getComputedStyle(container);
+                let computedInfo = '关键CSS属性:\n';
+                computedInfo += `transform-style: ${styles.transformStyle}\n`;
+                computedInfo += `perspective: ${styles.perspective}\n`;
+                computedInfo += `transition: ${styles.transition}\n`;
+                computedInfo += `position: ${styles.position}\n`;
+                computedInfo += `cursor: ${styles.cursor}`;
+                
+                document.getElementById('computedStyles').textContent = computedInfo;
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🎯 终极任务96翻转修复验证系统已就绪', 'success');
+            addLog('请使用上方控制面板进行测试', 'info');
+            
+            // 定期更新诊断信息
+            setInterval(updateDiagnostics, 2000);
+            updateDiagnostics();
+            
+            // 初始状态检查
+            setTimeout(checkComponents, 1000);
+        });
+
+        // 为任务卡片添加点击事件
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.task-flip-container[data-task-id="96"]') && 
+                !e.target.closest('button, a, input')) {
+                addLog('🖱️ 检测到卡片点击事件', 'info');
+            }
+        });
+    </script>
+</body>
+</html>
