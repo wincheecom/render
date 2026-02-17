@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紧急翻转修复测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f7fb;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .result-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .task-demo {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        .status-info { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="mb-4">
+            <i class="fas fa-tools me-2"></i>
+            紧急翻转修复测试
+        </h1>
+        
+        <!-- 控制面板 -->
+        <div class="result-panel">
+            <h3><i class="fas fa-gamepad me-2"></i>控制面板</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-primary w-100 mb-2" onclick="executeEmergencyFix()">
+                        <i class="fas fa-bolt me-2"></i>执行紧急修复
+                    </button>
+                    <button class="btn btn-info w-100 mb-2" onclick="testFlip()">
+                        <i class="fas fa-sync-alt me-2"></i>测试翻转
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-success w-100 mb-2" onclick="checkStatus()">
+                        <i class="fas fa-search me-2"></i>检查状态
+                    </button>
+                    <button class="btn btn-warning w-100 mb-2" onclick="resetDemo()">
+                        <i class="fas fa-redo me-2"></i>重置演示
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 状态显示 -->
+        <div class="result-panel">
+            <h3><i class="fas fa-clipboard-check me-2"></i>当前状态</h3>
+            <div id="status-display">
+                <p class="text-muted">点击"检查状态"开始检测...</p>
+            </div>
+        </div>
+        
+        <!-- 演示任务卡片 -->
+        <div class="task-demo">
+            <h3><i class="fas fa-tasks me-2"></i>演示任务卡片 #96</h3>
+            <p>这是一个模拟的任务卡片，用于测试翻转功能：</p>
+            
+            <div class="task-flip-container" data-task-id="96" id="demo-task-96" style="width: 282.66px; height: 307.46px; margin: 20px auto;">
+                <div class="task-front" id="task-96-front" data-task-id="96" 
+                     style="position: relative !important; width: 100% !important; max-width: 282.66px !important; height: auto !important; min-height: 307.46px !important; margin: 0px !important; padding: 10px !important; box-sizing: border-box !important; z-index: 1 !important;">
+                    <div class="task-gallery-img" style="width: 262.66px !important; height: 259.06px !important; object-fit: cover !important; border-radius: 6px !important; margin-bottom: 8px !important; background-color: rgb(248, 249, 250) !important; display: flex !important; align-items: center !important; justify-content: center !important; min-height: 259.06px !important; max-height: 259.06px !important;">
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                    </div>
+                    <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                        <div class="task-gallery-actions d-flex align-items-center gap-2 flex-shrink-0">
+                            <span class="badge bg-warning" style="padding: 2px 6px; font-size: 0.7rem; min-width: 40px; text-align: center;">
+                                待发
+                            </span>
+                        </div>
+                        <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                            <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">立体拼图交通</div>
+                            <div class="task-gallery-qty" data-content="1" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">数量: 1</div>
+                            <div class="task-gallery-creator" data-content="管理员" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">创建人: 管理员</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="task-back" data-task-id="96" style="display: none;">
+                    <div class="task-back-content" style="padding: 15px; height: 100%; display: flex; flex-direction: column;">
+                        <h5 style="margin: 0 0 15px 0;">任务详情</h5>
+                        <div class="task-files-preview" style="flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0;">
+                            <div class="file-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 6px; font-size: 0.85rem;">
+                                <i class="fas fa-barcode"></i>
+                                <span>本体码</span>
+                            </div>
+                            <div class="file-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 6px; font-size: 0.85rem;">
+                                <i class="fas fa-qrcode"></i>
+                                <span>条码</span>
+                            </div>
+                            <div class="file-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 6px; font-size: 0.85rem;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>警示码</span>
+                            </div>
+                            <div class="file-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 6px; font-size: 0.85rem;">
+                                <i class="fas fa-box"></i>
+                                <span>箱唛</span>
+                            </div>
+                            <div class="file-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 6px; font-size: 0.85rem;">
+                                <i class="fas fa-book"></i>
+                                <span>说明书</span>
+                            </div>
+                        </div>
+                        <div class="task-back-actions" style="display: flex; gap: 10px; justify-content: space-between; margin-top: auto;">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="toggleTaskCardFlip('96')" style="padding: 5px 10px; border: 1px solid #6c757d; background: white; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-arrow-left me-1"></i>返回
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="completeShipment('96')" style="padding: 5px 10px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-truck me-1"></i>确认发货
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 日志输出 -->
+        <div class="result-panel">
+            <h3><i class="fas fa-terminal me-2"></i>执行日志</h3>
+            <div id="log-output" style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; height: 300px; overflow-y: auto;">
+                <p class="text-muted">日志输出将显示在这里...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="console_fix_script.js"></script>
+    <script>
+        // 日志函数
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('log-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeClass = {
+                'success': 'text-success',
+                'error': 'text-danger',
+                'warning': 'text-warning',
+                'info': 'text-info'
+            }[type] || 'text-dark';
+            
+            logDiv.innerHTML += `<div class="${typeClass}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // 状态显示函数
+        function addStatus(title, status, message) {
+            const statusDiv = document.getElementById('status-display');
+            const statusClass = {
+                'success': 'status-success',
+                'error': 'status-error',
+                'warning': 'status-warning',
+                'info': 'status-info'
+            }[status];
+            
+            statusDiv.innerHTML += `
+                <div class="mb-2">
+                    <span class="status-indicator ${statusClass}"></span>
+                    <strong>${title}:</strong> ${message}
+                </div>
+            `;
+        }
+        
+        // 执行紧急修复
+        function executeEmergencyFix() {
+            addLog('开始执行紧急翻转修复...', 'info');
+            const statusDiv = document.getElementById('status-display');
+            statusDiv.innerHTML = '<p class="text-muted">正在执行修复中...</p>';
+            
+            try {
+                // 执行修复脚本
+                const result = (function() {
+                    // 这里复制 console_fix_script.js 的核心逻辑
+                    console.log('🚀 开始执行销售运营任务卡翻转紧急修复...');
+                    
+                    // 步骤1: 清理冲突样式
+                    const task96Front = document.querySelector('#task-96-front.task-front');
+                    if (task96Front) {
+                        const originalStyle = task96Front.getAttribute('style') || '';
+                        task96Front.setAttribute('data-original-style', originalStyle);
+                        task96Front.removeAttribute('style');
+                        addLog('✅ 冲突样式已清理', 'success');
+                    }
+                    
+                    // 步骤2: 应用修复样式
+                    let styleSheet = document.getElementById('emergency-demo-styles');
+                    if (!styleSheet) {
+                        styleSheet = document.createElement('style');
+                        styleSheet.id = 'emergency-demo-styles';
+                        styleSheet.textContent = `
+                            .task-flip-container[data-task-id="96"] {
+                                perspective: 1500px !important;
+                                transform-style: preserve-3d !important;
+                                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                                position: relative !important;
+                                cursor: pointer !important;
+                                width: 282.66px !important;
+                                height: 307.46px !important;
+                                display: block !important;
+                                will-change: transform !important;
+                                transform-origin: center center !important;
+                            }
+                            
+                            .task-flip-container[data-task-id="96"] .task-front,
+                            .task-flip-container[data-task-id="96"] .task-back {
+                                backface-visibility: hidden !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                width: 100% !important;
+                                height: 100% !important;
+                                box-sizing: border-box !important;
+                                border-radius: 10px !important;
+                                background-color: white !important;
+                            }
+                            
+                            .task-flip-container[data-task-id="96"] .task-front {
+                                z-index: 2 !important;
+                                transform: rotateY(0deg) !important;
+                            }
+                            
+                            .task-flip-container[data-task-id="96"] .task-back {
+                                transform: rotateY(180deg) !important;
+                                z-index: 1 !important;
+                                display: block !important;
+                            }
+                            
+                            .task-flip-container[data-task-id="96"].flipped {
+                                transform: rotateY(180deg) !important;
+                            }
+                            
+                            .task-flip-container[data-task-id="96"].flipped .task-front {
+                                transform: rotateY(0deg) !important;
+                                z-index: 1 !important;
+                            }
+                            
+                            .task-flip-container[data-task-id="96"].flipped .task-back {
+                                transform: rotateY(180deg) !important;
+                                z-index: 2 !important;
+                            }
+                        `;
+                        document.head.appendChild(styleSheet);
+                        addLog('✅ 修复样式已应用', 'success');
+                    }
+                    
+                    // 步骤3: 确保翻转函数
+                    window.toggleTaskCardFlip = function(taskId) {
+                        if (taskId !== '96') return;
+                        
+                        const flipContainer = document.querySelector('.task-flip-container[data-task-id="96"]');
+                        if (flipContainer) {
+                            flipContainer.classList.toggle('flipped');
+                            const isFlipped = flipContainer.classList.contains('flipped');
+                            addLog(`✅ 任务${taskId}翻转状态: ${isFlipped ? '背面' : '正面'}`, 'success');
+                        }
+                    };
+                    
+                    // 步骤4: 添加点击事件
+                    const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+                    if (container) {
+                        container.addEventListener('click', function(e) {
+                            if (!e.target.closest('button')) {
+                                window.toggleTaskCardFlip('96');
+                            }
+                        });
+                        addLog('✅ 点击事件已绑定', 'success');
+                    }
+                    
+                    return true;
+                })();
+                
+                if (result) {
+                    addLog('🎉 紧急修复执行完成！', 'success');
+                    setTimeout(checkStatus, 1000);
+                } else {
+                    addLog('❌ 紧急修复执行失败', 'error');
+                }
+                
+            } catch (error) {
+                addLog(`❌ 执行出错: ${error.message}`, 'error');
+            }
+        }
+        
+        // 测试翻转
+        function testFlip() {
+            addLog('开始测试翻转功能...', 'info');
+            
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (!container) {
+                addLog('❌ 未找到任务容器', 'error');
+                return;
+            }
+            
+            // 测试翻转到背面
+            addLog('执行翻转到背面...', 'info');
+            window.toggleTaskCardFlip('96');
+            
+            setTimeout(() => {
+                const isFlipped = container.classList.contains('flipped');
+                if (isFlipped) {
+                    addLog('✅ 翻转到背面成功', 'success');
+                    
+                    // 测试翻转回正面
+                    setTimeout(() => {
+                        addLog('执行翻转回正面...', 'info');
+                        window.toggleTaskCardFlip('96');
+                        
+                        setTimeout(() => {
+                            const isBack = container.classList.contains('flipped');
+                            if (!isBack) {
+                                addLog('✅ 翻转回正面成功', 'success');
+                                addLog('🎉 完整翻转测试通过！', 'success');
+                            } else {
+                                addLog('❌ 翻转回正面失败', 'error');
+                            }
+                        }, 600);
+                    }, 1000);
+                } else {
+                    addLog('❌ 翻转到背面失败', 'error');
+                }
+            }, 600);
+        }
+        
+        // 检查状态
+        function checkStatus() {
+            addLog('开始检查当前状态...', 'info');
+            const statusDiv = document.getElementById('status-display');
+            statusDiv.innerHTML = '';
+            
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            const front = document.querySelector('#task-96-front.task-front');
+            const back = document.querySelector('.task-back[data-task-id="96"]');
+            const hasFlipFunction = typeof window.toggleTaskCardFlip === 'function';
+            const hasStyles = !!document.getElementById('emergency-demo-styles');
+            
+            addStatus('翻转容器', container ? 'success' : 'error', container ? '存在' : '缺失');
+            addStatus('正面元素', front ? 'success' : 'error', front ? '存在' : '缺失');
+            addStatus('背面元素', back ? 'success' : 'warning', back ? '存在' : '缺失（将自动创建）');
+            addStatus('翻转函数', hasFlipFunction ? 'success' : 'error', hasFlipFunction ? '可用' : '不可用');
+            addStatus('修复样式', hasStyles ? 'success' : 'info', hasStyles ? '已加载' : '未加载');
+            
+            const issues = [];
+            if (!container) issues.push('缺少翻转容器');
+            if (!front) issues.push('缺少正面元素');
+            if (!hasFlipFunction) issues.push('翻转函数缺失');
+            
+            if (issues.length === 0) {
+                addStatus('总体评估', 'success', '✅ 系统状态良好，翻转功能应该正常工作');
+            } else {
+                addStatus('总体评估', 'warning', `⚠️ 发现 ${issues.length} 个问题: ${issues.join(', ')}`);
+            }
+            
+            addLog(`状态检查完成，发现问题: ${issues.length} 个`, issues.length === 0 ? 'success' : 'warning');
+        }
+        
+        // 重置演示
+        function resetDemo() {
+            addLog('重置演示环境...', 'info');
+            
+            // 移除修复样式
+            const fixStyles = document.getElementById('emergency-demo-styles');
+            if (fixStyles) {
+                fixStyles.remove();
+                addLog('已移除修复样式', 'info');
+            }
+            
+            // 重置翻转状态
+            const container = document.querySelector('.task-flip-container[data-task-id="96"]');
+            if (container) {
+                container.classList.remove('flipped');
+                addLog('已重置翻转状态', 'info');
+            }
+            
+            // 清空状态显示
+            document.getElementById('status-display').innerHTML = '<p class="text-muted">点击"检查状态"开始检测...</p>';
+            
+            addLog('演示环境重置完成', 'success');
+        }
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('紧急翻转修复测试页面加载完成', 'success');
+            addLog('请先点击"检查状态"，然后执行"紧急修复"', 'info');
+        });
+    </script>
+</body>
+</html>
