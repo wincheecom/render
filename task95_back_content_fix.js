@@ -1,62 +1,63 @@
-/**
- * 任务95背面内容修复脚本
- * 为 div#task-95-front.task-front 添加完整的背面显示内容
- */
+// 任务95背面内容修复脚本
+// 解决卡片翻转后不显示本体码等问题
 
 (function() {
     'use strict';
     
-    console.log('🔧 启动任务95背面内容修复...');
+    console.log('🔧 初始化任务95背面内容修复...');
     
-    // 修复1: 为任务95添加背面元素
-    function addTask95BackContent() {
-        console.log('🏗️ 正在为任务95添加背面内容...');
-        
-        const task95Front = document.querySelector('#task-95-front.task-front');
+    // 检查是否已经处理过
+    if (window.task95BackContentFixed) {
+        console.log('✅ 任务95背面内容已修复，跳过重复执行');
+        return;
+    }
+    
+    // 等待DOM加载完成
+    function waitForElement(selector, callback, maxAttempts = 50) {
+        let attempts = 0;
+        const interval = setInterval(() => {
+            const element = document.querySelector(selector);
+            attempts++;
+            
+            if (element) {
+                clearInterval(interval);
+                callback(element);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                console.warn(`❌ 未找到元素: ${selector} (尝试${attempts}次)`);
+            }
+        }, 100);
+    }
+    
+    // 创建任务95背面内容
+    function createTask95BackContent() {
+        const task95Front = document.getElementById('task-95-front');
         if (!task95Front) {
-            console.error('❌ 未找到 #task-95-front.task-front 元素');
+            console.error('❌ 未找到任务95正面元素');
             return false;
         }
         
-        // 查找翻转容器
-        let flipContainer = task95Front.closest('.task-flip-container');
-        if (!flipContainer) {
-            console.log('🔄 未找到翻转容器，尝试创建...');
-            // 如果没有翻转容器，先创建基本结构
-            const parent = task95Front.parentElement;
-            flipContainer = document.createElement('div');
-            flipContainer.className = 'task-flip-container';
-            flipContainer.setAttribute('data-task-id', '95');
-            flipContainer.style.cssText = `
-                width: 282.66px !important;
-                height: 307.46px !important;
-                position: relative !important;
-                transform-style: preserve-3d !important;
-                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                perspective: 1500px !important;
-                cursor: pointer !important;
-                display: block !important;
-                will-change: transform !important;
-                transform-origin: center center !important;
-            `;
-            
-            parent.replaceChild(flipContainer, task95Front);
-            flipContainer.appendChild(task95Front);
-        }
-        
         // 检查是否已有背面元素
-        let task95Back = flipContainer.querySelector('.task-back[data-task-id="95"]');
-        if (task95Back) {
+        const existingBack = task95Front.parentElement.querySelector('.task-back');
+        if (existingBack) {
             console.log('✅ 任务95背面元素已存在');
             return true;
         }
         
-        console.log('➕ 创建任务95背面元素...');
+        // 获取翻转容器
+        const flipContainer = task95Front.closest('.task-flip-container');
+        if (!flipContainer) {
+            console.error('❌ 未找到任务95翻转容器');
+            return false;
+        }
         
         // 创建背面元素
-        task95Back = document.createElement('div');
+        const task95Back = document.createElement('div');
         task95Back.className = 'task-back';
-        task95Back.setAttribute('data-task-id', '95');
+        task95Back.id = 'task-95-back';
+        task95Back.setAttribute('data-flip-processed', 'true');
+        
+        // 设置背面样式
         task95Back.style.cssText = `
             position: absolute !important;
             top: 0 !important;
@@ -66,261 +67,235 @@
             backface-visibility: hidden !important;
             -webkit-backface-visibility: hidden !important;
             transform: rotateY(180deg) !important;
-            z-index: 1 !important;
-            background-color: white !important;
+            background: white !important;
             border-radius: 10px !important;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            justify-content: space-between !important;
+            justify-content: center !important;
             padding: 15px !important;
             box-sizing: border-box !important;
+            z-index: 1 !important;
         `;
         
-        // 构建背面内容
+        // 构建背面内容 - 包含本体码、条码等信息
         task95Back.innerHTML = `
             <div style="text-align: center; width: 100%;">
                 <h5 style="margin: 0 0 15px 0; color: #333;">📦 任务文件清单</h5>
-                <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: left;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: #666;">任务名称:</span>
-                        <strong>化妆品包</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: #666;">货号:</span>
-                        <strong>KABI-165</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: #666;">数量:</span>
-                        <strong>1</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: #666;">创建人:</span>
-                        <strong>管理员</strong>
-                    </div>
-                </div>
+                
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <!-- 本体码 -->
                     <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <i class="fas fa-barcode fa-2x mb-2" style="color: #4361ee;"></i>
                         <div style="font-size: 12px; font-weight: bold;">本体码</div>
                         <div style="font-size: 11px; color: #6c757d;">123456789</div>
                     </div>
+                    
+                    <!-- 条码 -->
                     <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <i class="fas fa-qrcode fa-2x mb-2" style="color: #7209b7;"></i>
+                        <i class="fas fa-qrcode fa-2x mb-2" style="color: #4cc9f0;"></i>
                         <div style="font-size: 12px; font-weight: bold;">条码</div>
                         <div style="font-size: 11px; color: #6c757d;">987654321</div>
                     </div>
+                    
+                    <!-- 说明书 -->
                     <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <i class="fas fa-book fa-2x mb-2" style="color: #6f42c1;"></i>
+                        <i class="fas fa-book fa-2x mb-2" style="color: #7209b7;"></i>
                         <div style="font-size: 12px; font-weight: bold;">说明书</div>
-                        <div style="font-size: 11px; color: #6c757d;">产品使用指南</div>
+                        <div style="font-size: 11px; color: #6c757d;">V1.0</div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="window.toggleTaskCardFlip('95')" style="flex: 1;">
-                        <i class="fas fa-arrow-left me-1"></i>返回
-                    </button>
-                    <button class="btn btn-success btn-sm" style="flex: 1;">
-                        <i class="fas fa-paper-plane me-1"></i>确认发货
-                    </button>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <!-- 警示码 -->
+                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #f72585;"></i>
+                        <div style="font-size: 12px; font-weight: bold;">警示码</div>
+                        <div style="font-size: 11px; color: #6c757d;">WARN001</div>
+                    </div>
+                    
+                    <!-- 箱唛 -->
+                    <div style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <i class="fas fa-tags fa-2x mb-2" style="color: #ef233c;"></i>
+                        <div style="font-size: 12px; font-weight: bold;">箱唛</div>
+                        <div style="font-size: 11px; color: #6c757d;">BOX001</div>
+                    </div>
+                </div>
+                
+                <div style="width: 100%; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
+                    <div style="font-size: 14px; font-weight: bold; color: #333; margin-bottom: 5px;">任务信息</div>
+                    <div style="font-size: 12px; color: #666;">
+                        <div>商品名称: 化妆包</div>
+                        <div>货号: KABI-165</div>
+                        <div>数量: 1</div>
+                        <div>创建人: 管理员</div>
+                    </div>
                 </div>
             </div>
         `;
         
-        // 添加到翻转容器
+        // 将背面元素添加到翻转容器中
         flipContainer.appendChild(task95Back);
-        console.log('✅ 任务95背面内容添加完成');
+        console.log('✅ 任务95背面内容创建成功');
+        
+        // 更新翻转容器的CSS变量以支持背面显示
+        flipContainer.style.setProperty('--back-content-display', 'block');
+        
         return true;
     }
     
-    // 修复2: 确保翻转功能正常
-    function ensureFlipFunctionality() {
-        console.log('⚡ 确保翻转功能正常...');
+    // 增强翻转功能
+    function enhanceFlipFunctionality() {
+        // 备份原始翻转函数
+        const originalToggle = window.toggleTaskCardFlip;
         
-        // 检查翻转函数是否存在
-        if (typeof window.toggleTaskCardFlip !== 'function') {
-            console.log('🔄 创建翻转函数...');
-            
-            window.toggleTaskCardFlip = function(taskId) {
-                console.log(`🔄 执行翻转 - 任务ID: ${taskId}`);
-                
-                try {
-                    const flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
-                    if (!flipContainer) {
-                        console.error(`❌ 未找到任务容器: ${taskId}`);
-                        return;
-                    }
-                    
-                    // 强制应用必要的CSS样式
-                    const computedStyle = window.getComputedStyle(flipContainer);
-                    if (computedStyle.transformStyle !== 'preserve-3d') {
-                        flipContainer.style.transformStyle = 'preserve-3d';
-                        flipContainer.style.webkitTransformStyle = 'preserve-3d';
-                    }
-                    
-                    if (!computedStyle.perspective || computedStyle.perspective === 'none') {
-                        flipContainer.style.perspective = '1500px';
-                        flipContainer.style.webkitPerspective = '1500px';
-                    }
-                    
-                    // 切换翻转状态
-                    flipContainer.classList.toggle('flipped');
-                    const isFlipped = flipContainer.classList.contains('flipped');
-                    
-                    console.log(`✅ 任务 ${taskId} 翻转状态: ${isFlipped ? '背面' : '正面'}`);
-                    
-                    // 更新按钮文本
-                    const flipButtons = flipContainer.querySelectorAll('[onclick*="toggleTaskCardFlip"]');
-                    flipButtons.forEach(button => {
-                        if (button.innerHTML.includes('查看详情') || button.innerHTML.includes('info')) {
-                            button.innerHTML = isFlipped ? 
-                                '<i class="fas fa-arrow-left me-1"></i>返回正面' : 
-                                '<i class="fas fa-info-circle me-1"></i>查看详情';
-                        }
-                    });
-                    
-                } catch (error) {
-                    console.error(`❌ 翻转函数执行出错:`, error);
+        // 创建新的翻转函数
+        window.toggleTaskCardFlip = function(taskId) {
+            // 如果不是任务95，调用原始函数
+            if (taskId !== '95') {
+                if (originalToggle) {
+                    return originalToggle.call(this, taskId);
                 }
-            };
-        }
+                return;
+            }
+            
+            console.log('🔄 执行任务95翻转');
+            
+            const flipContainer = document.querySelector('.task-flip-container[data-task-id="95"]');
+            if (!flipContainer) {
+                console.error('❌ 未找到任务95翻转容器');
+                return;
+            }
+            
+            // 切换翻转状态
+            flipContainer.classList.toggle('flipped');
+            
+            // 更新按钮状态
+            const flipButton = flipContainer.querySelector('[onclick*="toggleTaskCardFlip"]');
+            if (flipButton) {
+                const isFlipped = flipContainer.classList.contains('flipped');
+                flipButton.textContent = isFlipped ? '查看正面' : '查看文件';
+                flipButton.title = isFlipped ? '点击查看任务正面' : '点击查看相关文件';
+            }
+            
+            console.log(`✅ 任务95翻转状态: ${flipContainer.classList.contains('flipped') ? '背面' : '正面'}`);
+        };
         
-        console.log('✅ 翻转功能已确保');
+        console.log('✅ 任务95翻转功能增强完成');
     }
     
-    // 修复3: 应用必要的CSS样式
-    function applyNecessaryStyles() {
-        console.log('🎨 应用必要的CSS样式...');
-        
-        // 移除可能存在的旧样式
-        const existingStyles = document.getElementById('task95-fix-styles');
-        if (existingStyles) {
-            existingStyles.remove();
+    // 添加CSS样式支持
+    function addCSSStyles() {
+        const styleId = 'task95-flip-fix-styles';
+        if (document.getElementById(styleId)) {
+            return;
         }
         
-        // 创建新的样式表
-        const styleSheet = document.createElement('style');
-        styleSheet.id = 'task95-fix-styles';
-        styleSheet.textContent = `
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
             /* 任务95翻转修复样式 */
             .task-flip-container[data-task-id="95"] {
-                width: 282.66px !important;
-                height: 307.46px !important;
-                position: relative !important;
-                transform-style: preserve-3d !important;
-                -webkit-transform-style: preserve-3d !important;
-                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                -webkit-transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 perspective: 1500px !important;
-                -webkit-perspective: 1500px !important;
+                transform-style: preserve-3d !important;
+                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                position: relative !important;
                 cursor: pointer !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 307.46px !important;
+                max-width: 282.66px !important;
+                max-height: 307.46px !important;
                 display: block !important;
                 will-change: transform !important;
-                transform-origin: center center !important;
-                -webkit-transform-origin: center center !important;
             }
             
             .task-flip-container[data-task-id="95"].flipped {
                 transform: rotateY(180deg) !important;
-                -webkit-transform: rotateY(180deg) !important;
             }
             
-            #task-95-front.task-front {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                backface-visibility: hidden !important;
-                -webkit-backface-visibility: hidden !important;
+            .task-flip-container[data-task-id="95"] .task-front {
+                transform-style: preserve-3d !important;
+                position: relative !important;
                 z-index: 2 !important;
-                background-color: white !important;
-                border-radius: 10px !important;
-                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+                min-height: 307.46px !important;
+                align-items: center !important;
             }
             
             .task-flip-container[data-task-id="95"] .task-back {
+                backface-visibility: hidden !important;
+                -webkit-backface-visibility: hidden !important;
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
                 height: 100% !important;
-                backface-visibility: hidden !important;
-                -webkit-backface-visibility: hidden !important;
+                box-sizing: border-box !important;
                 transform: rotateY(180deg) !important;
-                -webkit-transform: rotateY(180deg) !important;
-                z-index: 1 !important;
-                background-color: white !important;
+                background: white !important;
                 border-radius: 10px !important;
                 box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 15px !important;
+                z-index: 1 !important;
+            }
+            
+            /* 确保背面内容可见 */
+            .task-flip-container[data-task-id="95"] .task-back * {
+                visibility: visible !important;
+                opacity: 1 !important;
             }
         `;
         
-        document.head.appendChild(styleSheet);
-        console.log('✅ CSS样式应用完成');
+        document.head.appendChild(style);
+        console.log('✅ 任务95 CSS样式添加完成');
     }
     
-    // 修复4: 验证修复结果
-    function verifyFix() {
-        console.log('🔍 验证修复结果...');
+    // 初始化修复
+    function initializeFix() {
+        console.log('🚀 开始任务95背面内容修复...');
         
-        const task95Container = document.querySelector('.task-flip-container[data-task-id="95"]');
-        const task95Front = document.querySelector('#task-95-front.task-front');
-        const task95Back = task95Container?.querySelector('.task-back[data-task-id="95"]');
-        const hasFlipFunction = typeof window.toggleTaskCardFlip === 'function';
+        // 添加必要的CSS样式
+        addCSSStyles();
         
-        console.log('📊 验证结果:');
-        console.log(`   - 翻转容器: ${task95Container ? '✅ 存在' : '❌ 缺失'}`);
-        console.log(`   - 正面元素: ${task95Front ? '✅ 存在' : '❌ 缺失'}`);
-        console.log(`   - 背面元素: ${task95Back ? '✅ 存在' : '❌ 缺失'}`);
-        console.log(`   - 翻转函数: ${hasFlipFunction ? '✅ 存在' : '❌ 缺失'}`);
-        
-        if (task95Container && task95Front && task95Back && hasFlipFunction) {
-            console.log('🎉 所有组件验证通过！');
-            return true;
-        } else {
-            console.error('❌ 部分组件缺失，请检查修复过程');
-            return false;
-        }
-    }
-    
-    // 执行所有修复步骤
-    function executeAllRepairs() {
-        console.log('🚀 开始执行任务95背面内容修复流程...');
-        
-        try {
-            // 按顺序执行修复
-            const backAdded = addTask95BackContent();
-            if (!backAdded) {
-                console.error('❌ 背面内容添加失败，终止修复流程');
-                return;
-            }
+        // 等待任务95元素加载
+        waitForElement('#task-95-front', function(frontElement) {
+            console.log('🔍 找到任务95正面元素，开始修复...');
             
-            ensureFlipFunctionality();
-            applyNecessaryStyles();
+            // 创建背面内容
+            const backCreated = createTask95BackContent();
             
-            // 验证结果
-            setTimeout(() => {
-                const isFixed = verifyFix();
-                if (isFixed) {
-                    console.log('🎊 任务95背面内容修复完成！');
-                    console.log('🧪 测试方法:');
-                    console.log('1. 在控制台执行: window.toggleTaskCardFlip("95")');
-                    console.log('2. 或者直接点击任务卡片正面区域');
+            if (backCreated) {
+                // 增强翻转功能
+                enhanceFlipFunctionality();
+                
+                // 标记已修复
+                window.task95BackContentFixed = true;
+                
+                console.log('🎉 任务95背面内容修复完成！');
+                
+                // 显示成功通知
+                if (typeof showNotification === 'function') {
+                    showNotification('任务95背面内容修复成功！现在可以正常翻转查看文件信息。', 'success');
                 }
-            }, 1000);
-            
-        } catch (error) {
-            console.error('❌ 修复过程中发生错误:', error);
-        }
+            } else {
+                console.error('❌ 任务95背面内容创建失败');
+            }
+        });
     }
     
-    // 页面加载完成后执行修复
+    // 页面加载完成后执行
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', executeAllRepairs);
+        document.addEventListener('DOMContentLoaded', initializeFix);
     } else {
-        executeAllRepairs();
+        initializeFix();
     }
+    
+    // 也监听可能的动态内容加载
+    setTimeout(initializeFix, 2000);
     
 })();
