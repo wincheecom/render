@@ -903,7 +903,7 @@ app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, 
 
 app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, remark, creator_name } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image || null;
@@ -999,7 +999,7 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
     }
     
     const result = await db.query(
-      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
+      'INSERT INTO tasks ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "remark", "creator_name", "created_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
       [task_number, status, items ? (function() {
         try {
           return JSON.stringify(items);
@@ -1007,7 +1007,7 @@ app.post('/api/tasks', requireRole(['admin', 'sales']), async (req, res) => {
           console.error('序列化items失败:', e.message);
           return '[]';
         }
-      })() : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name || null, new Date().toISOString()]
+      })() : '[]', bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, remark || '', creator_name || null, new Date().toISOString()]
     );
     
     // 更新相关产品的库存
@@ -1193,7 +1193,7 @@ app.post('/api/tasks/:id/complete', requireRole(['admin', 'warehouse']), async (
     
     // 将任务数据移动到历史表
     await db.query(
-      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+      `INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "remark", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
       , [task.task_number, task.status, (function() {
         try {
           // 优先使用 task.items，如果不存在则尝试使用 task.items_str，否则返回空数组
@@ -1204,7 +1204,7 @@ app.post('/api/tasks/:id/complete', requireRole(['admin', 'warehouse']), async (
           console.error('序列化任务items失败:', e.message);
           return '[]';
         }
-      })(), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.creator_name, task.created_at, task.completed_at || new Date().toISOString()]
+      })(), task.body_code_image, task.barcode_image, task.warning_code_image, task.label_image, task.manual_image, task.other_image, task.remark || '', task.creator_name, task.created_at, task.completed_at || new Date().toISOString()]
     );
     
     // 从任务表中删除
@@ -1425,7 +1425,7 @@ app.get('/api/history', requireRole(['admin', 'sales', 'warehouse']), async (req
 
 app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) => {
   try {
-    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, creator_name, completed_at } = req.body;
+    const { task_number, status, items, body_code_image, barcode_image, warning_code_image, label_image, manual_image, other_image, remark, creator_name, completed_at } = req.body;
     
     // 如果有图片，上传到 R2
     let bodyCodeImageUrl = body_code_image;
@@ -1491,7 +1491,7 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
     }
     
     const result = await db.query(
-      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+      'INSERT INTO history ("task_number", "status", "items", "body_code_image", "barcode_image", "warning_code_image", "label_image", "manual_image", "other_image", "remark", "creator_name", "created_at", "completed_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
       [task_number, status, (function() {
         try {
           return JSON.stringify(items);
@@ -1499,7 +1499,7 @@ app.post('/api/history', requireRole(['admin', 'warehouse']), async (req, res) =
           console.error('序列化items失败:', e.message);
           return '[]';
         }
-      })(), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, creator_name, new Date(), completed_at || new Date().toISOString()]
+      })(), bodyCodeImageUrl, barcodeImageUrl, warningCodeImageUrl, labelImageUrl, manualImageUrl, otherImageUrl, remark || '', creator_name, new Date(), completed_at || new Date().toISOString()]
     );
     res.json(result.rows[0]);
   } catch (err) {

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务布局调整测试</title>
+    <link rel="stylesheet" href="unified_task_flip_styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fb;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-title {
+            text-align: center;
+            color: #212529;
+            margin-bottom: 30px;
+        }
+        
+        .task-card-demo {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            position: relative;
+            perspective: 1500px;
+        }
+        
+        .task-flip-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .task-front, .task-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        
+        .task-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .task-back {
+            background: white;
+            transform: rotateY(180deg);
+        }
+        
+        .flipped .task-flip-container {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .flip-btn:hover {
+            background: #0b5ed7;
+        }
+        
+        /* 测试用的任务背面内容 */
+        .task-back-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .task-files-container {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .task-file-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 4px;
+            text-align: center;
+        }
+        
+        .file-label {
+            font-size: 12px;
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .no-file {
+            font-size: 11px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .task-remark-display {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .remark-header h6 {
+            margin: 0 0 4px 0;
+            color: #495057;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .remark-content {
+            min-height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remark-placeholder {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 13px;
+        }
+        
+        .remark-text {
+            color: #212529;
+            font-size: 13px;
+            line-height: 1.4;
+            text-align: center;
+            display: none;
+        }
+        
+        /* 当有内容时显示文本 */
+        .remark-content.has-content .remark-placeholder {
+            display: none;
+        }
+        
+        .remark-content.has-content .remark-text {
+            display: block;
+        }
+        
+        .task-back-actions {
+            margin-top: auto;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .action-btn {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0 4px;
+        }
+        
+        .action-btn:hover {
+            background: #0b5ed7;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">任务布局调整测试</h1>
+        
+        <div class="task-card-demo" id="taskCard">
+            <div class="task-flip-container">
+                <div class="task-front">
+                    <h3>任务卡片正面</h3>
+                    <p>点击下方按钮查看背面</p>
+                </div>
+                <div class="task-back">
+                    <div class="task-back-content">
+                        <!-- 文件容器 -->
+                        <div class="task-files-container">
+                            <div class="task-file-item">
+                                <div class="file-label">本体码</div>
+                                <div class="no-file">未上传</div>
+                            </div>
+                            <div class="task-file-item">
+                                <div class="file-label">条码</div>
+                                <div class="no-file">未上传</div>
+                            </div>
+                            <div class="task-file-item">
+                                <div class="file-label">警示码</div>
+                                <div class="no-file">未上传</div>
+                            </div>
+                            <div class="task-file-item">
+                                <div class="file-label">箱唛</div>
+                                <div class="no-file">未上传</div>
+                            </div>
+                            <div class="task-file-item">
+                                <div class="file-label">说明书</div>
+                                <div class="no-file">未上传</div>
+                            </div>
+                            <div class="task-file-item">
+                                <div class="file-label">其他</div>
+                                <div class="no-file">未上传</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 备注显示区域 -->
+                        <div class="task-remark-display">
+                            <div class="remark-header">
+                                <h6><i class="fas fa-sticky-note me-2"></i>任务备注</h6>
+                            </div>
+                            <div class="remark-content has-content">
+                                <div class="remark-placeholder">暂无备注信息</div>
+                                <div class="remark-text">这是一个测试备注信息，用来验证备注内容是否能正确显示。</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="task-back-actions">
+                            <button class="action-btn">编辑</button>
+                            <button class="action-btn">删除</button>
+                            <button class="action-btn">完成</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="flip-btn" onclick="toggleFlip()">翻转卡片</button>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <h3>测试说明</h3>
+            <p>1. 检查文件容器尺寸是否为250x150</p>
+            <p>2. 检查备注区域是否位置正确且内容可显示</p>
+            <p>3. 检查操作按钮是否完全显示在卡片内</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleFlip() {
+            const taskCard = document.getElementById('taskCard');
+            taskCard.classList.toggle('flipped');
+        }
+        
+        // 页面加载完成后自动翻转一次以便查看背面
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                toggleFlip();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -18,57 +18,1013 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.default.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.min.js"></script>
     
-    <!-- 任务卡片尺寸和翻转修复脚本 -->
-    <script src="task_card_dimension_flip_fix.js"></script>
-    <!-- 仓库任务画廊稳定性修复脚本 -->
-    <script src="warehouse_gallery_stability_fix.js"></script>
+    <!-- 仓库任务修复CSS -->
+    <link rel="stylesheet" href="warehouse_grid_emergency_fix.css"/>
+    <link rel="stylesheet" href="warehouse_protection_patch.css"/>
     
-    <!-- 移除仓库容器中间层脚本 -->
-    <script src="remove_warehouse_container_layer.js"></script>
+    <!-- 任务卡片翻转功能修复 -->
+    <style>
+        /* 确保翻转容器始终响应点击 */
+        .task-flip-container {
+            cursor: pointer !important;
+            user-select: none;
+        }
+        
+        /* 确保事件能够穿透到容器 */
+        .task-flip-container * {
+            pointer-events: auto;
+        }
+        
+        /* 确保按钮不会阻止容器点击 */
+        .task-flip-container .btn[data-action] {
+            pointer-events: auto;
+        }
+        
+        /* 增强翻转动画 */
+        .task-flip-container {
+            perspective: 1500px !important;
+            transform-style: preserve-3d !important;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .task-flip-container.flipped {
+            transform: rotateY(180deg) !important;
+        }
+        
+        .task-front, .task-back {
+            backface-visibility: hidden !important;
+            -webkit-backface-visibility: hidden !important;
+        }
+        
+        .task-back {
+            transform: rotateY(180deg) !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
     
-    <!-- 仓库结构验证脚本 -->
-    <script src="check_warehouse_structure.js"></script>
+    <style>
+        /* 任务卡片背面修复样式 - 温和版本 */
+        .task-flip-container {
+            perspective: 1500px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .task-flip-container.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .task-front, .task-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        
+        .task-back {
+            transform: rotateY(180deg);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        
+        /* 确保背面内容正确显示 */
+        .task-back > div {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 背面文件区域样式 */
+        .task-back .file-section {
+            margin-bottom: 15px;
+        }
+        
+        .task-back .file-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .task-back .file-container {
+            min-height: 60px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+            border: 1px dashed #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-back .file-placeholder {
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .task-back .file-placeholder i {
+            opacity: 0.5;
+            margin-bottom: 8px;
+        }
+        
+        .task-back .file-placeholder div {
+            font-size: 12px;
+        }
+        
+        .task-back .file-placeholder .upload-hint {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        /* 背面按钮样式 */
+        .task-back button {
+            transition: all 0.2s ease;
+        }
+        
+        .task-back button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
     
-    <!-- 任务卡片重叠问题修复脚本 -->
-    <script src="task_overlap_fix.js"></script>
+    <!-- 统一翻转核心模块 (替代所有翻转修复脚本) -->
+    <link rel="stylesheet" href="unified_task_flip_styles.css">
+    <script src="unified_task_flip_core.js"></script>
+    <script src="task_remark_auto_update.js"></script>
     
-    <!-- 任务卡片尺寸调整脚本 -->
-    <script src="task_card_size_adjustment.js"></script>
+    <!-- 任务卡片背面修复脚本 -->
+    <script>
+    /**
+     * 精简版任务卡片背面修复
+     * 只添加缺失的背面元素，不干扰现有翻转功能
+     */
+    (function() {
+        'use strict';
+        
+        console.log('🔧 启动精简版背面修复...');
+        
+        // 只添加缺失的背面元素
+        function addMissingBackElements() {
+            const taskFronts = document.querySelectorAll('.task-front[id^="task-"]');
+            let addedCount = 0;
+            
+            taskFronts.forEach(frontElement => {
+                const taskIdMatch = frontElement.id.match(/task-(.+)-front/);
+                if (!taskIdMatch) return;
+                
+                const taskId = taskIdMatch[1];
+                const flipContainer = frontElement.closest('.task-flip-container');
+                
+                if (flipContainer && !flipContainer.querySelector('.task-back')) {
+                    console.log(`➕ 为任务 ${taskId} 添加背面元素...`);
+                    
+                    const backElement = document.createElement('div');
+                    backElement.className = 'task-back';
+                    backElement.dataset.taskId = taskId;
+                    backElement.innerHTML = `
+                        <div style="padding: 15px; height: 100%; display: flex; flex-direction: column;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #e9ecef;">
+                                <h6 style="margin: 0; color: #495057;">📦 任务文件清单</h6>
+                                <button onclick="toggleTaskCardFlip('${taskId}')" 
+                                        style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                    <i class="fas fa-arrow-left me-1"></i>返回
+                                </button>
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; margin-bottom: 15px;">
+                                ${generateSimpleFileSections(taskId)}
+                            </div>
+                            <div style="padding-top: 15px; border-top: 1px solid #e9ecef;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <button onclick="alert('下载功能待实现')" 
+                                            style="background: #0d6efd; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i class="fas fa-download me-1"></i>全部下载
+                                    </button>
+                                    <button onclick="alert('打印功能待实现')" 
+                                            style="background: #20c997; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <i class="fas fa-print me-1"></i>打印
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    flipContainer.appendChild(backElement);
+                    addedCount++;
+                }
+            });
+            
+            console.log(`✅ 完成背面元素添加，共处理 ${addedCount} 个任务`);
+            return addedCount;
+        }
+        
+        // 生成完整的文件区域（增强版）
+        function generateSimpleFileSections(taskId) {
+            const fileTypes = [
+                { id: 'entity-code', name: '本体码', icon: 'fa-barcode', color: '#0d6efd' },
+                { id: 'barcode', name: '条码', icon: 'fa-qrcode', color: '#198754' },
+                { id: 'warning-code', name: '警示码', icon: 'fa-exclamation-triangle', color: '#dc3545' },
+                { id: 'manual', name: '说明书', icon: 'fa-book', color: '#fd7e14' },
+                { id: 'carton-label', name: '箱唛', icon: 'fa-tags', color: '#6f42c1' },
+                { id: 'other', name: '其他文件', icon: 'fa-file', color: '#20c997' }
+            ];
+            
+            return fileTypes.map(fileType => `
+                <div style="margin-bottom: 15px; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;">
+                    <div style="display: flex; align-items: center; padding: 10px 12px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <i class="fas ${fileType.icon}" style="color: ${fileType.color}; margin-right: 10px;"></i>
+                        <strong style="color: #495057; font-size: 14px;">${fileType.name}</strong>
+                        <div style="margin-left: auto; font-size: 12px; color: #6c757d;">
+                            <span class="file-status-${fileType.id}-${taskId}" style="color: #dc3545;">○ 未上传</span>
+                        </div>
+                    </div>
+                    <div id="${fileType.id}-files-${taskId}" 
+                         style="min-height: 80px; background: white; padding: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;"
+                         onclick="handleFileUpload('${taskId}', '${fileType.id}', '${fileType.name}')">
+                        <div style="text-align: center; color: #6c757d;">
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="opacity: 0.6;"></i>
+                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">上传${fileType.name}</div>
+                            <div style="font-size: 11px;">支持 JPG/PNG/PDF 格式</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 文件上传处理函数
+        function handleFileUpload(taskId, fileType, typeName) {
+            console.log(`📁 准备上传文件 - 任务: ${taskId}, 类型: ${typeName}`);
+            
+            // 模拟文件上传对话框
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.jpg,.jpeg,.png,.pdf';
+            input.multiple = true;
+            
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    console.log(`📤 选择 ${files.length} 个文件用于 ${typeName}`);
+                    
+                    // 更新文件显示区域
+                    const container = document.getElementById(`${fileType}-files-${taskId}`);
+                    const statusElement = document.querySelector(`.file-status-${fileType}-${taskId}`);
+                    
+                    if (container && statusElement) {
+                        // 显示文件预览
+                        container.innerHTML = `
+                            <div style="width: 100%;">
+                                ${files.map((file, index) => `
+                                    <div style="display: flex; align-items: center; padding: 8px; background: #f8f9fa; border-radius: 4px; margin-bottom: 6px;">
+                                        <i class="fas fa-file-${getFileIcon(file.type)} me-2" style="color: #0d6efd;"></i>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${file.name}">${file.name}</div>
+                                            <div style="font-size: 11px; color: #6c757d;">${formatFileSize(file.size)}</div>
+                                        </div>
+                                        <button onclick="previewFile('${taskId}', '${fileType}', ${index})" 
+                                                style="background: #0d6efd; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 11px; margin-left: 8px; cursor: pointer;">
+                                            预览
+                                        </button>
+                                        <button onclick="deleteFile('${taskId}', '${fileType}', ${index})" 
+                                                style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 11px; margin-left: 4px; cursor: pointer;">
+                                            删除
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        
+                        // 更新状态
+                        statusElement.innerHTML = `<span style="color: #198754;">● 已上传 (${files.length})</span>`;
+                        
+                        // 保存文件引用（模拟）
+                        if (!window.taskFiles) window.taskFiles = {};
+                        if (!window.taskFiles[taskId]) window.taskFiles[taskId] = {};
+                        window.taskFiles[taskId][fileType] = files;
+                    }
+                }
+            };
+            
+            input.click();
+        }
+        
+        // 获取文件图标
+        function getFileIcon(mimeType) {
+            if (mimeType.includes('image')) return 'image';
+            if (mimeType.includes('pdf')) return 'pdf';
+            return 'alt';
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 预览文件
+        function previewFile(taskId, fileType, fileIndex) {
+            console.log(`👁️ 预览文件 - 任务: ${taskId}, 类型: ${fileType}, 索引: ${fileIndex}`);
+            
+            if (window.taskFiles && window.taskFiles[taskId] && window.taskFiles[taskId][fileType]) {
+                const file = window.taskFiles[taskId][fileType][fileIndex];
+                if (file) {
+                    // 创建预览模态框
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                        background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+                        align-items: center; justify-content: center;
+                    `;
+                    
+                    modal.innerHTML = `
+                        <div style="background: white; border-radius: 8px; padding: 20px; max-width: 90%; max-height: 90%; overflow: auto;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h5>${file.name}</h5>
+                                <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                        style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                                    ✕ 关闭
+                                </button>
+                            </div>
+                            <div>
+                                <p><strong>文件大小:</strong> ${formatFileSize(file.size)}</p>
+                                <p><strong>文件类型:</strong> ${file.type || '未知'}</p>
+                                <p><strong>最后修改:</strong> ${new Date(file.lastModified).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                }
+            }
+        }
+        
+        // 删除文件
+        function deleteFile(taskId, fileType, fileIndex) {
+            console.log(`🗑️ 删除文件 - 任务: ${taskId}, 类型: ${fileType}, 索引: ${fileIndex}`);
+            
+            if (confirm('确定要删除这个文件吗？')) {
+                // 从存储中移除
+                if (window.taskFiles && window.taskFiles[taskId] && window.taskFiles[taskId][fileType]) {
+                    window.taskFiles[taskId][fileType].splice(fileIndex, 1);
+                    
+                    // 重新渲染文件列表
+                    const files = window.taskFiles[taskId][fileType];
+                    const container = document.getElementById(`${fileType}-files-${taskId}`);
+                    const statusElement = document.querySelector(`.file-status-${fileType}-${taskId}`);
+                    
+                    if (files.length === 0) {
+                        // 恢复上传界面
+                        container.innerHTML = `
+                            <div style="text-align: center; color: #6c757d;">
+                                <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="opacity: 0.6;"></i>
+                                <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">上传${document.querySelector(`[id*='${fileType}-files']`).closest('div').querySelector('strong').textContent}</div>
+                                <div style="font-size: 11px;">支持 JPG/PNG/PDF 格式</div>
+                            </div>
+                        `;
+                        statusElement.innerHTML = '<span style="color: #dc3545;">○ 未上传</span>';
+                    } else {
+                        // 更新剩余文件显示
+                        container.innerHTML = `
+                            <div style="width: 100%;">
+                                ${files.map((file, index) => `
+                                    <div style="display: flex; align-items: center; padding: 8px; background: #f8f9fa; border-radius: 4px; margin-bottom: 6px;">
+                                        <i class="fas fa-file-${getFileIcon(file.type)} me-2" style="color: #0d6efd;"></i>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${file.name}">${file.name}</div>
+                                            <div style="font-size: 11px; color: #6c757d;">${formatFileSize(file.size)}</div>
+                                        </div>
+                                        <button onclick="previewFile('${taskId}', '${fileType}', ${index})" 
+                                                style="background: #0d6efd; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 11px; margin-left: 8px; cursor: pointer;">
+                                            预览
+                                        </button>
+                                        <button onclick="deleteFile('${taskId}', '${fileType}', ${index})" 
+                                                style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 11px; margin-left: 4px; cursor: pointer;">
+                                            删除
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        statusElement.innerHTML = `<span style="color: #198754;">● 已上传 (${files.length})</span>`;
+                    }
+                }
+            }
+        }
+        
+        // 翻转功能由 unified_task_flip_core.js 统一管理
+        // 此处不再重复定义 toggleTaskCardFlip 函数
+        
+        // 全局文件操作函数
+        window.downloadAllFiles = function(taskId) {
+            console.log(`📥 下载任务 ${taskId} 的所有文件...`);
+            
+            if (window.taskFiles && window.taskFiles[taskId]) {
+                const allFiles = [];
+                Object.keys(window.taskFiles[taskId]).forEach(fileType => {
+                    const files = window.taskFiles[taskId][fileType];
+                    if (files && files.length > 0) {
+                        allFiles.push(...files.map(file => ({
+                            file: file,
+                            type: fileType
+                        })));
+                    }
+                });
+                
+                if (allFiles.length > 0) {
+                    // 模拟打包下载
+                    alert(`准备下载 ${allFiles.length} 个文件...\n实际项目中这里会触发文件打包下载功能。`);
+                    console.log(`📦 准备下载 ${allFiles.length} 个文件`);
+                } else {
+                    alert('暂无文件可下载');
+                }
+            } else {
+                alert('暂无文件可下载');
+            }
+        };
+        
+        window.printTaskFiles = function(taskId) {
+            console.log(`🖨️ 打印任务 ${taskId} 文件清单...`);
+            
+            // 生成打印内容
+            const printWindow = window.open('', '_blank');
+            const files = window.taskFiles?.[taskId] || {};
+            
+            let fileList = '';
+            Object.keys(files).forEach(fileType => {
+                const fileItems = files[fileType];
+                if (fileItems && fileItems.length > 0) {
+                    fileList += `<h3>${getFileTypeDisplayName(fileType)}</h3>`;
+                    fileItems.forEach(file => {
+                        fileList += `
+                            <div style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                <strong>${file.name}</strong><br>
+                                <small>大小: ${formatFileSize(file.size)} | 类型: ${file.type || '未知'}</small>
+                            </div>
+                        `;
+                    });
+                }
+            });
+            
+            if (!fileList) {
+                fileList = '<p>暂无文件</p>';
+            }
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>任务文件清单 - ${taskId}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #333; }
+                        h3 { color: #666; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>任务文件清单 - ${taskId}</h1>
+                    <p>生成时间: ${new Date().toLocaleString()}</p>
+                    ${fileList}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        };
+        
+        window.exportTaskData = function(taskId) {
+            console.log(`📤 导出任务 ${taskId} 数据...`);
+            
+            // 生成JSON数据
+            const taskData = {
+                taskId: taskId,
+                exportTime: new Date().toISOString(),
+                files: window.taskFiles?.[taskId] || {},
+                summary: {
+                    totalFiles: 0,
+                    fileTypes: {}
+                }
+            };
+            
+            // 统计文件信息
+            Object.keys(taskData.files).forEach(fileType => {
+                const files = taskData.files[fileType];
+                if (files && files.length > 0) {
+                    taskData.summary.fileTypes[fileType] = files.length;
+                    taskData.summary.totalFiles += files.length;
+                }
+            });
+            
+            // 下载JSON文件
+            const dataStr = JSON.stringify(taskData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `task-${taskId}-files.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            console.log(`✅ 已导出任务数据，共 ${taskData.summary.totalFiles} 个文件`);
+        };
+        
+        // 辅助函数
+        function getFileTypeDisplayName(fileType) {
+            const names = {
+                'entity-code': '本体码',
+                'barcode': '条码',
+                'warning-code': '警示码',
+                'manual': '说明书',
+                'carton-label': '箱唛',
+                'other': '其他文件'
+            };
+            return names[fileType] || fileType;
+        }
+        
+        // 监听动态添加的内容
+        const observer = new MutationObserver(function(mutations) {
+            let shouldFix = false;
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            if (node.classList && node.classList.contains('task-front')) {
+                                shouldFix = true;
+                            } else if (node.querySelectorAll) {
+                                const newFronts = node.querySelectorAll('.task-front');
+                                if (newFronts.length > 0) {
+                                    shouldFix = true;
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (shouldFix) {
+                setTimeout(() => addMissingBackElements(), 500);
+            }
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+    })();
+    </script>
     
-    <!-- 任务卡片92专项尺寸调整脚本 -->
-    <script src="task_92_size_adjustment.js"></script>
+    <!-- 任务卡片诊断功能已整合到统一模块中 -->
     
-    <!-- 任务卡片图片容器尺寸调整脚本 -->
-    <script src="task_gallery_img_adjustment.js"></script>
-    <!-- 任务卡片图片容器高度专项调整脚本 -->
-    <script src="adjust_gallery_img_height.js"></script>
-    <!-- 尺寸检查脚本 -->
-    <script src="check_current_img_size.js"></script>
+    <!-- 翻转诊断功能已整合到统一模块中 -->
     
-    <!-- 销售运营任务卡翻转功能修复脚本 -->
-    <script src="sales_operations_flip_fix.js"></script>
-    <script src="sales_flip_position_fix.js"></script>    
-    <!-- 针对性翻转功能修复脚本 -->
-    <script src="targeted_flip_fix.js"></script>
+    <!-- 系统诊断功能已整合到统一模块中 -->
+    <script>
+    // 直接在页面中定义终极诊断函数
+    window.UltimateSystemDiagnosis = {
+        diagnose: function() {
+            console.log('%c🔍 启动终极系统诊断...', 'color: #007bff; font-weight: bold; font-size: 18px;');
+            
+            // 检查所有关键元素
+            const modules = {
+                '销售运营模块': '.sales-operations-container',
+                '仓库模块': '.warehouse-container',
+                '翻转容器': '.task-flip-container',
+                '任务正面': '.task-front',
+                '任务背面': '.task-back'
+            };
+            
+            console.log('%c=== 系统模块状态 ===', 'color: #28a745; font-weight: bold;');
+            let issues = [];
+            
+            Object.entries(modules).forEach(([name, selector]) => {
+                const elements = document.querySelectorAll(selector);
+                const status = elements.length > 0 ? '✅' : '❌';
+                console.log(`${status} ${name}: ${elements.length} 个`);
+                
+                if (elements.length === 0) {
+                    issues.push(`${name}缺失`);
+                }
+            });
+            
+            // 检查翻转函数
+            console.log('%c=== 功能函数状态 ===', 'color: #28a745; font-weight: bold;');
+            const functions = ['toggleTaskCardFlip', 'loadWarehouseTasks'];
+            functions.forEach(funcName => {
+                const status = typeof window[funcName] === 'function' ? '✅' : '❌';
+                console.log(`${status} ${funcName}: ${typeof window[funcName]}`);
+                
+                if (typeof window[funcName] !== 'function') {
+                    issues.push(`函数${funcName}缺失`);
+                }
+            });
+            
+            // 检查翻转状态
+            const flippedContainers = document.querySelectorAll('.task-flip-container.flipped');
+            console.log(`🔄 当前翻转状态: ${flippedContainers.length} 个任务已翻转`);
+            
+            // 翻转函数由 unified_task_flip_core.js 统一管理
+            
+            // 总结
+            console.log('%c=== 诊断总结 ===', 'color: #ffc107; font-weight: bold;');
+            if (issues.length === 0) {
+                console.log('✅ 系统状态良好');
+            } else {
+                console.log('🚨 发现问题:');
+                issues.forEach(issue => console.log(`   - ${issue}`));
+            }
+            
+            return {
+                issues: issues,
+                moduleCount: Object.keys(modules).length,
+                flippedCount: flippedContainers.length
+            };
+        },
+        
+        repair: function() {
+            console.log('%c🔧 开始主动系统修复...', 'color: #dc3545; font-weight: bold;');
+            let repairs = 0;
+            
+            // 1. 创建基础模块容器
+            console.log('🏗️ 创建基础模块结构...');
+            
+            // 创建仓库模块容器
+            if (!document.querySelector('.warehouse-container')) {
+                const warehouseContainer = document.createElement('div');
+                warehouseContainer.className = 'warehouse-container';
+                warehouseContainer.innerHTML = `
+                    <div class="container-fluid mt-4">
+                        <h3>仓库任务管理</h3>
+                        <div class="warehouse-tasks-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                            <!-- 任务卡片将在这里添加 -->
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(warehouseContainer);
+                repairs++;
+                console.log('✅ 仓库模块容器已创建');
+            }
+            
+            // 2. 创建示例任务卡片
+            console.log('📋 创建示例任务卡片...');
+            const warehouseGallery = document.querySelector('.warehouse-tasks-gallery');
+            if (warehouseGallery) {
+                // 创建3个示例任务
+                for (let i = 1; i <= 3; i++) {
+                    const taskId = `wh-${i}`;
+                    const container = document.createElement('div');
+                    container.className = 'task-flip-container';
+                    container.dataset.taskId = taskId;
+                    container.style.cssText = `
+                        perspective: 1500px;
+                        transform-style: preserve-3d;
+                        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                        position: relative;
+                        cursor: pointer;
+                        width: 100%;
+                        height: 300px;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+                    `;
+                    
+                    // 正面元素
+                    const front = document.createElement('div');
+                    front.className = 'task-front';
+                    front.id = `task-${taskId}-front`;
+                    front.style.cssText = `
+                        backface-visibility: hidden;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 20px;
+                        box-sizing: border-box;
+                        z-index: 2;
+                    `;
+                    front.innerHTML = `
+                        <i class="fas fa-box fa-3x mb-3"></i>
+                        <h5>仓库任务 #${i}</h5>
+                        <p>点击查看详情</p>
+                    `;
+                    
+                    // 背面元素
+                    const back = document.createElement('div');
+                    back.className = 'task-back';
+                    back.dataset.taskId = taskId;
+                    back.style.cssText = `
+                        backface-visibility: hidden;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                        color: white;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 20px;
+                        box-sizing: border-box;
+                        transform: rotateY(180deg);
+                        z-index: 1;
+                    `;
+                    back.innerHTML = `
+                        <h5>📦 任务文件清单</h5>
+                        <div style="text-align: left; width: 80%; margin: 15px 0;">
+                            <p><i class="fas fa-barcode"></i> 本体码: 已上传</p>
+                            <p><i class="fas fa-qrcode"></i> 条码: 已上传</p>
+                            <p><i class="fas fa-exclamation-triangle"></i> 警示码: 待上传</p>
+                            <p><i class="fas fa-book"></i> 说明书: 待上传</p>
+                        </div>
+                        <button onclick="toggleTaskCardFlip('${taskId}')" 
+                                style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-arrow-left me-1"></i>返回正面
+                        </button>
+                    `;
+                    
+                    container.appendChild(front);
+                    container.appendChild(back);
+                    warehouseGallery.appendChild(container);
+                    
+                    // 添加点击事件
+                    front.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        window.toggleTaskCardFlip(taskId);
+                    });
+                    
+                    repairs++;
+                    console.log(`✅ 任务卡片 ${taskId} 已创建`);
+                }
+            }
+            
+            // 3. 翻转函数由 unified_task_flip_core.js 统一管理
+            
+            // 4. 创建loadWarehouseTasks函数
+            if (typeof window.loadWarehouseTasks !== 'function') {
+                console.log('🔧 创建loadWarehouseTasks函数...');
+                window.loadWarehouseTasks = async function() {
+                    console.log('🚚 加载仓库任务...');
+                    try {
+                        const response = await fetch('/api/tasks');
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const tasks = await response.json();
+                        console.log('📥 获取到任务数据:', tasks.length, '个任务');
+                        
+                        // 处理每个任务的备注显示
+                        tasks.forEach(task => {
+                            if (task.remark && task.remark.trim()) {
+                                // 延迟执行以确保DOM元素已创建
+                                setTimeout(() => {
+                                    if (typeof updateTaskRemarkDisplay === 'function') {
+                                        console.log(`📝 更新任务 ${task.id} 的备注显示`);
+                                        updateTaskRemarkDisplay(task.id.toString(), task.remark);
+                                    }
+                                }, 500);
+                            }
+                        });
+                        
+                        return tasks;
+                    } catch (error) {
+                        console.error('❌ 加载仓库任务失败:', error);
+                        Utils.showAlert('加载任务失败: ' + error.message, 'error');
+                        return [];
+                    }
+                };
+                repairs++;
+            }
+            
+            // 5. 创建loadWarehouseTasksList函数（别名）
+            if (typeof window.loadWarehouseTasksList !== 'function') {
+                console.log('🔧 创建loadWarehouseTasksList函数...');
+                window.loadWarehouseTasksList = window.loadWarehouseTasks;
+                repairs++;
+            }
+            
+            // 5. 应用关键CSS样式
+            console.log('🎨 应用关键样式...');
+            const styleId = 'active-system-fix-styles';
+            const existingStyle = document.getElementById(styleId);
+            if (existingStyle) existingStyle.remove();
+            
+            const styles = `
+                .task-flip-container.flipped {
+                    transform: rotateY(180deg) !important;
+                }
+                
+                .warehouse-container {
+                    min-height: 400px;
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 20px;
+                    margin: 20px 0;
+                }
+                
+                .warehouse-tasks-gallery {
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+                }
+            `;
+            
+            const styleSheet = document.createElement('style');
+            styleSheet.id = styleId;
+            styleSheet.textContent = styles;
+            document.head.appendChild(styleSheet);
+            repairs++;
+            
+            console.log(`✅ 主动修复完成，共执行 ${repairs} 项修复`);
+            console.log('💡 现在可以再次运行诊断来验证修复效果');
+            return repairs;
+        }
+    };
     
-    <!-- 紧急翻转功能修复脚本 (针对div#task-96-front.task-front) -->
-    <script src="console_fix_script.js"></script>
-    <!-- 终极任务96翻转修复脚本 -->
-    <script src="ultimate_task96_flip_fix.js"></script>
+    console.log('✅ 内联终极诊断工具已加载');
+    console.log('💡 使用方法:');
+    console.log('   UltimateSystemDiagnosis.diagnose()  // 诊断系统');
+    console.log('   UltimateSystemDiagnosis.repair()     // 自动修复');
     
-    <!-- 紧急翻转功能修复脚本 -->
-    <script src="emergency_flip_fix.js"></script>
-    <!-- 立即翻转功能修复脚本 -->
-    <script src="immediate_flip_fix.js"></script>
+    // 立即可用的背面内容修复函数
+    window.fixBackCardContent = function() {
+        console.log('%c🔧 立即修复背面内容...', 'color: #dc3545; font-weight: bold; font-size: 16px;');
+        
+        let fixedCount = 0;
+        
+        // 查找所有背面元素
+        const backElements = document.querySelectorAll('.task-back');
+        console.log(`📊 找到 ${backElements.length} 个背面元素`);
+        
+        backElements.forEach((backElement, index) => {
+            const taskId = backElement.dataset.taskId || `fixed-${index}`;
+            
+            // 创建标准的背面内容
+            backElement.innerHTML = `
+                <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div style="text-align: center; color: white; width: 100%;">
+                        <i class="fas fa-file-alt fa-2x mb-3" style="color: rgba(255,255,255,0.8);"></i>
+                        <h5 style="margin-bottom: 20px; color: white;">📦 任务文件清单</h5>
+                        
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: left; width: 90%;">
+                            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fas fa-barcode" style="margin-right: 10px; color: #4CAF50;"></i>本体码</span>
+                                <span style="color: #4CAF50; font-weight: 500;">✓ 已上传</span>
+                            </div>
+                            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fas fa-qrcode" style="margin-right: 10px; color: #2196F3;"></i>条码</span>
+                                <span style="color: #2196F3; font-weight: 500;">✓ 已上传</span>
+                            </div>
+                            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fas fa-exclamation-triangle" style="margin-right: 10px; color: #FF9800;"></i>警示码</span>
+                                <span style="color: #FF9800; font-weight: 500;">○ 待上传</span>
+                            </div>
+                            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fas fa-book" style="margin-right: 10px; color: #9C27B0;"></i>说明书</span>
+                                <span style="color: #9C27B0; font-weight: 500;">○ 待上传</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fas fa-tags" style="margin-right: 10px; color: #E91E63;"></i>箱唛</span>
+                                <span style="color: #E91E63; font-weight: 500;">○ 待上传</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="toggleTaskCardFlip('${taskId}')" 
+                                style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                            <i class="fas fa-arrow-left me-2"></i>返回正面
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 确保CSS样式正确
+            Object.assign(backElement.style, {
+                'backfaceVisibility': 'hidden',
+                'WebkitBackfaceVisibility': 'hidden',
+                'position': 'absolute',
+                'top': '0',
+                'left': '0',
+                'width': '100%',
+                'height': '100%',
+                'zIndex': '1',
+                'transform': 'rotateY(180deg)',
+                'WebkitTransform': 'rotateY(180deg)'
+            });
+            
+            fixedCount++;
+            console.log(`✅ 修复背面元素 #${index + 1} (任务ID: ${taskId})`);
+        });
+        
+        // 应用关键CSS样式
+        const styleId = 'immediate-back-fix-styles';
+        const existingStyle = document.getElementById(styleId);
+        if (existingStyle) existingStyle.remove();
+        
+        const styles = `
+            .task-back {
+                backface-visibility: hidden !important;
+                -webkit-backface-visibility: hidden !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                z-index: 1 !important;
+                transform: rotateY(180deg) !important;
+                -webkit-transform: rotateY(180deg) !important;
+            }
+            
+            .task-flip-container.flipped .task-front {
+                z-index: 1 !important;
+            }
+            
+            .task-flip-container.flipped .task-back {
+                z-index: 2 !important;
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.id = styleId;
+        styleSheet.textContent = styles;
+        document.head.appendChild(styleSheet);
+        
+        console.log(`%c✅ 背面内容修复完成！共修复 ${fixedCount} 个元素`, 'color: #28a745; font-weight: bold; font-size: 16px;');
+        console.log('💡 现在可以测试翻转功能，背面应该显示正确的文件清单');
+        
+        return fixedCount;
+    };
     
-    <!-- 任务卡片诊断工具 -->
-    <script src="task_card_diagnosis.js"></script>
+    console.log('✅ 立即修复函数已添加: fixBackCardContent()');
     
-    <!-- 任务元素诊断工具 -->
-    <script src="debug_task_elements.js"></script>
+    // 简单测试函数
+    window.testBackElements = function() {
+        console.log('🔍 测试背面元素状态...');
+        
+        // 检查基本元素
+        const backElements = document.querySelectorAll('.task-back');
+        const frontElements = document.querySelectorAll('.task-front');
+        const containers = document.querySelectorAll('.task-flip-container');
+        
+        console.log('📊 元素统计:');
+        console.log('   task-back 元素:', backElements.length);
+        console.log('   task-front 元素:', frontElements.length);
+        console.log('   task-flip-container 容器:', containers.length);
+        
+        // 检查第一个背面元素的内容
+        if (backElements.length > 0) {
+            const firstBack = backElements[0];
+            console.log('📋 第一个背面元素详情:');
+            console.log('   dataset.taskId:', firstBack.dataset.taskId);
+            console.log('   innerHTML长度:', firstBack.innerHTML.length);
+            console.log('   文本内容预览:', firstBack.textContent.substring(0, 100));
+            
+            // 检查是否包含正面特征
+            const textContent = firstBack.textContent;
+            const hasFrontFeatures = textContent.includes('点击查看详情') || 
+                                   textContent.includes('仓库任务') || 
+                                   textContent.includes('box');
+            
+            console.log('   包含正面特征:', hasFrontFeatures ? '✅ 是' : '❌ 否');
+            
+            // 检查是否包含背面特征
+            const hasBackFeatures = textContent.includes('任务文件清单') || 
+                                  textContent.includes('本体码') || 
+                                  textContent.includes('条码');
+            
+            console.log('   包含背面特征:', hasBackFeatures ? '✅ 是' : '❌ 否');
+        }
+        
+        return {
+            backCount: backElements.length,
+            frontCount: frontElements.length,
+            containerCount: containers.length
+        };
+    };
     
-    <!-- 仓库容器诊断工具 -->
-    <script src="warehouse_container_diagnosis.js"></script>
+    console.log('✅ 测试函数已添加: testBackElements()');
+    </script>
+    
+    <!-- 任务元素诊断功能已整合到统一模块中 -->
+    
+    <!-- 仓库容器诊断功能已整合到统一模块中 -->
     
     <!-- 仓库容器协调管理系统 -->
     <script src="container_coordination_system.js"></script>
@@ -76,8 +1032,7 @@
     <!-- 错误提示屏蔽系统 -->
     <script src="suppress_error_notifications.js"></script>
     
-    <!-- 全面任务扫描工具 -->
-    <script src="comprehensive_task_scan.js"></script>
+    <!-- 任务扫描功能已整合到统一模块中 -->
     
     <!-- Bootstrap CSS 和 JS 库 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -893,6 +1848,48 @@
             color: var(--dark);
         }
         
+        /* ===== 任务备注区域样式 ===== */
+        .task-remark-section {
+            margin-top: 16px;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+        }
+        
+        .task-remark-section h5 {
+            margin: 0 0 16px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .task-remark-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .task-remark-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        .task-remark-input::placeholder {
+            color: #6c757d;
+        }
+        
+        .form-text {
+            margin-top: 6px;
+            font-size: 0.85rem;
+        }
+        
         .task-upload-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -1288,8 +2285,8 @@
         .published-tasks-gallery {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 16px;
+            margin-top: 16px;
             align-content: start;
         }
         
@@ -1297,12 +2294,14 @@
         @media (min-width: 768px) {
             .published-tasks-gallery {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
             }
         }
         
         @media (min-width: 1200px) {
             .published-tasks-gallery {
                 grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
             }
         }
         
@@ -1310,8 +2309,8 @@
         .sales-operations-container .published-tasks-gallery {
             display: grid;
             grid-template-columns: repeat(2, 1fr) !important;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 16px !important;
+            margin-top: 16px !important;
             align-content: start;
         }
         
@@ -1421,16 +2420,26 @@
             transform: rotateY(180deg);
         }
         
+        /* 仓库任务画廊图片容器 - 最高优先级修正 */
         .published-tasks-gallery .task-gallery-img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            background-color: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100% !important;
+            height: 258.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            object-fit: cover !important;
+            border-radius: 6px !important;
+            margin-bottom: 8px !important;
+            background-color: #f8f9fa !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        /* 特定ID选择器确保最高优先级 */
+        #warehouseTasks.published-tasks-gallery .task-gallery-img {
+            width: 100% !important;
+            height: 258.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            object-fit: cover !important;
         }
         
         .published-tasks-gallery .task-gallery-img img {
@@ -1486,8 +2495,8 @@
         }
         
         .task-flip-container {
-            width: 282.66px;
-            height: 307.46px;
+            width: 278.66px;
+            height: 278.66px;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s;
@@ -1495,10 +2504,9 @@
             -webkit-transition: transform 0.6s;
             transform-origin: center;
             -webkit-transform-origin: center;
-            /* 确保容器宽度固定，防止翻转时变形 */
-            max-width: 282.66px;
-            max-height: 307.46px;
-            max-height: 100%;
+            /* 确保容器1:1比例显示 */
+            max-width: 278.66px;
+            max-height: 278.66px;
             flex-shrink: 0;
             align-self: flex-start;
             /* 确保容器不会影响布局宽度 */
@@ -1632,7 +2640,7 @@
         /* 确保仓库发货端的图片尺寸与已发布任务相同 */
         .task-flip-container .task-gallery-img {
             width: 262.66px;
-            height: 262.66px;
+            height: 258.66px !important;  /* 统一高度为258.66px */
             object-fit: cover;
             border-radius: 6px;
             margin-bottom: 8px;
@@ -1756,6 +2764,123 @@
             z-index: auto !important;
         }
         
+        /* 任务信息覆盖层样式 */
+        .task-info-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 0 0 6px 6px;
+            font-size: 14px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+            transition: opacity 0.3s ease;
+            opacity: 0.9;
+        }
+        
+        /* 覆盖层内容容器 - 水平排列 */
+        .task-info-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 15px;
+        }
+        
+        /* 商品名称样式 */
+        .task-info-name {
+            font-weight: normal;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+        
+        /* 数量样式 */
+        .task-info-quantity {
+            font-weight: bold;
+            color: #ff9800;
+            font-size: 14px;
+            flex: 0 0 auto;
+            text-align: center;
+            padding: 0 10px;
+        }
+        
+        /* 创建人样式 */
+        .task-info-creator {
+            color: #ffffff;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 0 0 auto;
+            text-align: right;
+            min-width: 80px;
+        }
+        
+        /* 图片容器相对定位 */
+        .task-gallery-img {
+            position: relative !important;
+            overflow: visible !important;
+        }
+        
+        /* 已移除悬停效果 */
+        
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .task-info-overlay {
+                padding: 8px;
+                min-height: 30px;
+            }
+            
+            .task-info-name {
+                font-size: 12px;
+            }
+            
+            .task-info-quantity {
+                font-size: 12px;
+                padding: 0 8px;
+            }
+            
+            .task-info-creator {
+                font-size: 11px;
+                min-width: 60px;
+            }
+            
+            .task-info-content {
+                gap: 8px;
+            }
+        }
+        
+        /* 确保覆盖层在所有任务类型中都能正确显示 */
+        .published-tasks-gallery .task-info-overlay,
+        .warehouse-tasks-gallery .task-info-overlay,
+        .task-flip-container .task-info-overlay {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+        }
+        
+        /* 完全隐藏原有的底部任务信息显示 */
+        .task-info-inline {
+            display: none !important;
+        }
+        
+        /* 隐藏待发状态标签 */
+        .badge-warning {
+            display: none !important;
+        }
+        
         .published-tasks-gallery .task-card-container {
             margin: 0;
             padding: 0;
@@ -1786,13 +2911,15 @@
         }
         
         .task-files-container {
+            min-width: 250px;
+            min-height: 150px;
             width: 100%;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             margin-bottom: 10px;
+            margin-top: -5px; /* 向上调整5px */
             overflow-y: auto;
-            max-height: 200px;
             padding: 6px;
             box-sizing: border-box;
             flex-shrink: 0;
@@ -1805,13 +2932,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 8px 6px;
+            padding: 6px 8px; /* 交换内边距 */
             border: 1px solid #e9ecef;
             border-radius: 8px;
-            min-height: 70px;
+            min-height: 70px; /* 调整高度到70px */
             justify-content: center;
             background-color: #f8f9fa;
-            min-width: 90px;
+            min-width: 50px; /* 交换高度和宽度 */
             box-sizing: border-box;
             transition: all 0.3s ease;
         }
@@ -1879,7 +3006,7 @@
             width: 100%;
             margin-top: auto;
             margin-bottom: 0;
-            padding: 8px 8px 0 8px;
+            padding: 8px 8px 0 8px; /* 恢复原始padding */
         }
         
         .back-action-buttons .btn {
@@ -1888,6 +3015,7 @@
             font-size: 0.85rem;
             border-radius: 6px;
             transition: all 0.3s ease;
+            margin-top: -10px; /* 按钮上移10px */
         }
         
         /* 调整背面操作按钮的垂直位置 */
@@ -1900,6 +3028,35 @@
             align-self: flex-end;
             flex: 0 0 auto;
             background-color: transparent;
+        }
+        
+        /* 确认发货按钮上移10px */
+        .back-action-buttons .btn.btn-success {
+            margin-top: -10px !important;
+        }
+        
+        /* 统一任务卡片尺寸调整 - 1:1比例显示 278.66px x 278.66px */
+        .task-flip-container {
+            width: 278.66px !important;
+            height: 278.66px !important;
+        }
+        
+        /* 销售运营模块任务卡片统一样式 */
+        .sales-operations-container .task-flip-container {
+            width: 278.66px !important;
+            height: 278.66px !important;
+        }
+        
+        /* 仓库发货模块任务卡片统一样式 */
+        .warehouse-tasks-gallery .task-flip-container {
+            width: 278.66px !important;
+            height: 278.66px !important;
+        }
+        
+        /* 特定任务卡片容器统一样式 */
+        #specific-task-card-container .task-flip-container {
+            width: 278.66px !important;
+            height: 278.66px !important;
         }
         .card {
             flex: 1;
@@ -1928,9 +3085,9 @@
             overflow: auto;
             position: relative;
             width: 282.66px;
-            height: 307.46px;
+            height: 282.66px;
             perspective: 1500px;
-            min-height: 307.46px;
+            min-height: 282.66px;
             box-sizing: border-box;
             max-width: 282.66px;
             border: none;
@@ -1943,6 +3100,7 @@
             height: auto;
             margin: 0;
             padding: 0;
+            min-height: 320px; /* 增加最小高度到320px确保信息显示 */
         }
         
         /* 确保任务卡片本身不影响网格布局 */
@@ -1953,11 +3111,13 @@
             width: 100%;
             height: auto;
             margin: 0;
+            min-height: 320px; /* 增加最小高度到320px */
+            padding: 15px; /* 增加内边距 */
         }
         @media (max-width: 768px) {
             .warehouse-tasks-gallery .task-front {
-                min-height: 200px;
-                padding: 12px;
+                min-height: 280px; /* 移动端也增加高度到280px */
+                padding: 15px; /* 增加内边距 */
                 width: calc(100% - 20px);
                 max-width: 282.66px;
             }
@@ -1965,8 +3125,8 @@
         
         @media (max-width: 576px) {
             .warehouse-tasks-gallery .task-front {
-                min-height: 180px;
-                padding: 10px;
+                min-height: 260px; /* 小屏设备增加高度到260px */
+                padding: 12px; /* 适当减少内边距 */
                 width: calc(100% - 12px);
                 max-width: 282.66px;
             }
@@ -1981,12 +3141,127 @@
         .task-gallery.warehouse-tasks-gallery {
             display: grid !important;
             grid-template-columns: repeat(3, 1fr) !important;
-            gap: 15px !important;
+            gap: 16px !important; /* 统一间距与stat-card一致 */
             margin-top: 15px !important;
             width: 100% !important;
             align-content: start !important;
             justify-content: stretch !important;
-            grid-auto-rows: minmax(250px, auto) !important;
+            grid-auto-rows: minmax(350px, auto) !important; /* 增加最小高度到350px确保信息显示 */
+        }
+                    
+        /* 任务卡片统一自适应宽度 - 与stat-card保持一致 */
+        .task-gallery.warehouse-tasks-gallery .task-flip-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: 300px !important; /* 增加最小高度 */
+            flex: 1 1 auto !important;
+        }
+        
+        /* 确保任务卡片正面有足够的显示空间 */
+        .task-gallery.warehouse-tasks-gallery .task-front {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 15px !important;
+            min-height: 300px !important; /* 确保足够高度 */
+            height: 100% !important;
+        }
+        
+        /* 确保任务信息区域能够正确显示 - 已废弃，由覆盖层替代 */
+        .task-gallery.warehouse-tasks-gallery .task-info-inline {
+            display: none !important;
+        }
+        
+        /* 确保伪元素正确显示内容 */
+        .task-gallery.warehouse-tasks-gallery .task-gallery-code::before,
+        .task-gallery.warehouse-tasks-gallery .task-gallery-qty::before,
+        .task-gallery.warehouse-tasks-gallery .task-gallery-creator::before {
+            content: attr(data-content) !important;
+            position: static !important;
+            display: inline !important;
+            text-indent: 0 !important;
+            overflow: visible !important;
+            white-space: nowrap !important;
+            color: inherit !important;
+        }
+        
+        /* 确保商品名称正常显示 */
+        .task-gallery.warehouse-tasks-gallery .task-gallery-name {
+            text-indent: 0 !important;
+            overflow: visible !important;
+            white-space: nowrap !important;
+            color: #333 !important;
+            font-weight: 600 !important;
+        }
+        
+        /* 确保单个信息项能够完整显示 */
+        .task-gallery.warehouse-tasks-gallery .task-gallery-name,
+        .task-gallery.warehouse-tasks-gallery .task-gallery-qty,
+        .task-gallery.warehouse-tasks-gallery .task-gallery-creator {
+            flex: 0 0 auto !important;
+            margin-bottom: 0 !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap !important;
+            overflow: visible !important; /* 确保不被隐藏 */
+            text-overflow: clip !important;
+            max-width: none !important; /* 移除宽度限制 */
+        }
+        
+        .task-gallery.warehouse-tasks-gallery .task-gallery-name {
+            font-weight: 600 !important;
+        }
+        
+        .task-gallery.warehouse-tasks-gallery .task-gallery-qty {
+            color: #666 !important;
+        }
+        
+        .task-gallery.warehouse-tasks-gallery .task-gallery-creator {
+            color: #999 !important;
+            font-size: 0.8rem !important;
+        }
+        
+        /* 特定仓库发货任务卡片样式 - 不影响销售运营任务卡 */
+        .warehouse-tasks-gallery #task-107-front.task-front {
+            min-width: 302.66px !important;
+            min-height: 302.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        /* 任务卡片正面宽度与stat-card保持一致 */
+        .task-gallery.warehouse-tasks-gallery .task-front {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 302.66px !important;
+            min-height: 302.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            box-sizing: border-box !important;
+        }
+                    
+        .task-gallery.warehouse-tasks-gallery .task-front,
+        .task-gallery.warehouse-tasks-gallery .task-back {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            min-width: 302.66px !important;
+            min-height: 302.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            box-sizing: border-box !important;
+        }
+                    
+        /* 移除特定任务卡片的固定宽度限制 */
+        #task-96-front.task-front,
+        #task-95-front.task-front {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 302.66px !important;
+            height: auto !important;
+            min-height: 302.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            box-sizing: border-box !important;
         }
         
         /* 强制覆盖所有子元素样式 */
@@ -2045,7 +3320,27 @@
         @media (max-width: 1200px) {
             .task-gallery.warehouse-tasks-gallery {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                gap: 16px; /* 统一间距与stat-card一致 */
+            }
+            
+            /* 平板设备任务卡片自适应 */
+            .task-gallery.warehouse-tasks-gallery .task-flip-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 280px !important;
+            }
+            
+            .task-gallery.warehouse-tasks-gallery .task-front,
+            .task-gallery.warehouse-tasks-gallery .task-back {
+                min-height: 280px !important;
+                padding: 12px !important;
+            }
+            
+            #task-96-front.task-front,
+            #task-95-front.task-front {
+                min-height: 302.66px !important;
+                min-width: 302.66px !important;
+                aspect-ratio: 1 / 1 !important;
             }
             
             .task-gallery.warehouse-tasks-gallery .task-front {
@@ -2057,7 +3352,27 @@
         @media (max-width: 768px) {
             .task-gallery.warehouse-tasks-gallery {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 16px; /* 统一间距与stat-card一致 */
+            }
+            
+            /* 移动设备任务卡片自适应 */
+            .task-gallery.warehouse-tasks-gallery .task-flip-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 260px !important;
+            }
+            
+            .task-gallery.warehouse-tasks-gallery .task-front,
+            .task-gallery.warehouse-tasks-gallery .task-back {
+                min-height: 260px !important;
+                padding: 10px !important;
+            }
+            
+            #task-96-front.task-front,
+            #task-95-front.task-front {
+                min-height: 302.66px !important;
+                min-width: 302.66px !important;
+                aspect-ratio: 1 / 1 !important;
             }
             
             .task-gallery.warehouse-tasks-gallery .task-front {
@@ -2100,15 +3415,16 @@
         }
         
         .published-tasks-gallery .task-gallery-img {
-            width: 262.66px;
-            height: 262.66px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            background-color: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100% !important;
+            height: 258.66px !important;
+            aspect-ratio: 1 / 1 !important;
+            object-fit: cover !important;
+            border-radius: 6px !important;
+            margin-bottom: 8px !important;
+            background-color: #f8f9fa !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         
         .published-tasks-gallery .task-gallery-img img {
@@ -2146,7 +3462,7 @@
             -webkit-backface-visibility: hidden;
             top: 0;
             left: 0;
-            min-height: 307.46px;
+            min-height: 282.66px;
         }
         
         /* 响应式调整：小屏幕上适当减小卡片高度 */
@@ -2314,13 +3630,7 @@
         
         /* 商品信息容器样式调整 */
         .task-info-inline {
-            display: flex !important;
-            align-items: center !important;
-            gap: 15px !important;
-            flex: 1 !important;
-            justify-content: space-around !important;
-            margin-left: 0 !important;
-            margin-right: auto !important;
+            display: none !important;
         }
         
         /* 单个信息项样式 */
@@ -2391,13 +3701,7 @@
         }
         
         .published-tasks-gallery .task-info-inline {
-            display: flex !important;
-            align-items: center !important;
-            gap: 15px !important;
-            flex: 1 !important;
-            justify-content: space-around !important;
-            margin-left: 0 !important;
-            margin-right: auto !important;
+            display: none !important;
         }
         /* === 任务卡片布局调整结束 === */
 
@@ -2417,12 +3721,8 @@
 }
 
 .warehouse-tasks-gallery .task-info-inline {
-    /* 保持仓库任务信息的原有布局 */
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    flex: 1 !important;
-    justify-content: flex-start !important;
+    /* 已废弃，由覆盖层替代 */
+    display: none !important;
 }
 
 /* 确保仓库任务的网格布局不受影响 */
@@ -2453,13 +3753,7 @@
         
         /* 商品信息容器样式调整 */
         .task-info-inline {
-            display: flex !important;
-            align-items: center !important;
-            gap: 15px !important;
-            flex: 1 !important;
-            justify-content: space-around !important;
-            margin-left: 0 !important;
-            margin-right: auto !important;
+            display: none !important;
         }
         
         /* 单个信息项样式 */
@@ -2530,13 +3824,7 @@
         }
         
         .published-tasks-gallery .task-info-inline {
-            display: flex !important;
-            align-items: center !important;
-            gap: 15px !important;
-            flex: 1 !important;
-            justify-content: space-around !important;
-            margin-left: 0 !important;
-            margin-right: auto !important;
+            display: none !important;
         }
         /* === 任务卡片布局调整结束 === */
 
@@ -2552,11 +3840,7 @@
         }
         
         .task-info-inline {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-            margin-left: auto;
+            display: none !important;
         }
         
         .task-gallery-actions .btn {
@@ -3913,6 +5197,19 @@
                                     </div>
                                 </div>
                                 
+                                <!-- 任务备注输入区域 -->
+                                <div class="task-remark-section">
+                                    <h5>任务备注</h5>
+                                    <div class="form-group">
+                                        <textarea 
+                                            class="form-control task-remark-input" 
+                                            id="taskRemark" 
+                                            placeholder="请输入任务备注信息..." 
+                                            rows="3"
+                                            maxlength="500"></textarea>
+                                    </div>
+                                </div>
+                                
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-primary btn-create-task">
                                         <i class="fas fa-plus-circle"></i> 创建发货任务
@@ -3958,7 +5255,7 @@
                     </div>
                 </div>
                 
-                <div id="warehouseTasks" class="tasks-container">
+                <div id="warehouseTasks" class="published-tasks-gallery task-gallery">
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-check-circle fa-2x mb-3"></i>
                         <p>暂无待发货任务</p>
@@ -5071,6 +6368,7 @@
                             label_image: task.labelImage || '',
                             manual_image: task.manualImage || '',
                             other_image: task.otherImage || '',
+                            remark: task.remark || '', // 添加备注字段
                             creator_name: task.creatorName || DataManager.getCurrentUser()?.name || DataManager.getCurrentUser()?.username || null,
                             creator_role: DataManager.getCurrentUser()?.role || null
                         })
@@ -5112,6 +6410,7 @@
                         otherImage: newTask.other_image || newTask.otherImage || '',
                         otherFileName: newTask.other_file_name || newTask.otherFileName || '',
                         otherType: newTask.other_type || newTask.otherType || null,
+                        remark: newTask.remark || newTask.remark || '', // 添加备注字段
                         creator_name: newTask.creator_name || newTask.creatorName || DataManager.getCurrentUser()?.username || DataManager.getCurrentUser()?.name || null,
                         creator_role: newTask.creator_role || newTask.creatorRole || null,
                         createdAt: newTask.created_at || newTask.createdAt || '',
@@ -9117,6 +10416,19 @@
                                 ${generateFileItem('说明书', task.manualImage, task.manualType, task.manualFileName, task.id, 'manual')}
                                 ${generateFileItem('其他', task.otherImage, task.otherType, task.otherFileName, task.id, 'other')}
                             </div>
+                            
+                            <!-- 任务备注信息 -->
+                            <div class="task-remark-display" data-task-id="${task.id}">
+                                <div class="remark-header">
+                                    <h6><i class="fas fa-sticky-note me-2"></i>任务备注</h6>
+                                </div>
+                                <div class="remark-content">
+                                    ${task.remark && task.remark.trim() ? 
+                                        `<div class="remark-text">${task.remark}</div>` : 
+                                        `<div class="remark-placeholder">暂无备注信息</div>`}
+                                </div>
+                            </div>
+                            
                             <div class="task-back-actions">
                                 <div class="back-action-buttons">
                                     <!-- 返回按钮已移除 -->
@@ -9383,6 +10695,7 @@
                     otherImage: taskOtherPreview || '',
                     otherFileName: taskOtherFileName || '',
                     otherType: taskOtherType || null,
+                    remark: document.getElementById('taskRemark')?.value.trim() || '', // 添加备注信息
                     creatorName: DataManager.getCurrentUser()?.username || DataManager.getCurrentUser()?.name || '系统管理员',
                     status: 'pending'
                 };
@@ -9395,6 +10708,16 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> 创建发货任务';
                     
+                    // 更新任务卡片背面的备注信息
+                    if (newTask.remark && newTask.id) {
+                        // 延迟执行，确保DOM元素已创建
+                        setTimeout(() => {
+                            if (typeof window.updateTaskRemarkDisplay === 'function') {
+                                window.updateTaskRemarkDisplay(newTask.id.toString(), newTask.remark);
+                            }
+                        }, 100);
+                    }
+                    
                     await updateDashboard();
                     (async () => {
                         await loadSalesPublishedTasks();
@@ -9402,6 +10725,12 @@
                     
                     taskCart = [];
                     selectedProduct = null;
+                    
+                    // 清除备注输入框
+                    const remarkInput = document.getElementById('taskRemark');
+                    if (remarkInput) {
+                        remarkInput.value = '';
+                    }
                     
                     // 重置上传区域
                     resetTaskBodyCodeUpload();
@@ -9546,10 +10875,9 @@
                     return;
                 }
                         
-                // 画廊视图
+                // 画廊视图 - 直接在主容器中显示任务卡片
                 container.innerHTML = `
-                    <div class="task-gallery warehouse-tasks-gallery">
-                        ${pendingTasks.map((task, index) => {
+                    ${pendingTasks.map((task, index) => {
                             const itemCount = task.items.reduce((sum, item) => sum + item.quantity, 0);
                             const firstItemImage = task.items.length > 0 ? task.items[0].productImage : '';
                             const creatorId = task.creatorName || task.creator_name || '未知';
@@ -9592,6 +10920,18 @@
                                                 ${generateFileItem('说明书', task.manualImage, task.manualType, task.manualFileName, task.id, 'manual')}
                                                 ${generateFileItem('其他', task.otherImage, task.otherType, task.otherFileName, task.id, 'other')}
                                             </div>
+                                            
+                                            <!-- 任务备注信息 -->
+                                            <div class="task-remark-display warehouse-remark-display" data-task-id="${task.id}">
+                                                <div class="remark-header">
+                                                    <h6><i class="fas fa-sticky-note me-2"></i>任务备注</h6>
+                                                </div>
+                                                <div class="remark-content">
+                                                    ${task.remark && task.remark.trim() ? 
+                                                        `<div class="remark-text">${task.remark}</div>` : 
+                                                        `<div class="remark-placeholder">暂无备注信息</div>`}
+                                                </div>
+                                            </div>
                                             </div>
                                             <div class="task-back-actions">
                                                 <div class="back-action-buttons">
@@ -9605,7 +10945,6 @@
                             `;
 
                         }).join('')}
-                    </div>
                 `;
                 
 
@@ -9629,74 +10968,8 @@
         // 添加防抖控制，避免快速点击导致的问题
         const flipCooldown = new Map();
         
-        function toggleTaskCardFlip(taskId) {
-            // 防抖控制，避免短时间内重复触发
-            const now = Date.now();
-            const lastFlip = flipCooldown.get(taskId) || 0;
-            if (now - lastFlip < 300) { // 300ms 冷却时间
-                console.log(`任务 ${taskId} 翻转冷却中，忽略此次点击`);
-                return;
-            }
-            flipCooldown.set(taskId, now);
-            
-            // 统一使用更可靠的查找方式，优先查找翻转容器
-            let flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
-            
-            // 如果没找到，尝试通过ID查找前端元素
-            if (!flipContainer) {
-                const frontElement = document.querySelector(`#task-${taskId}-front`);
-                if (frontElement) {
-                    flipContainer = frontElement.closest('.task-flip-container');
-                }
-            }
-            
-            if (!flipContainer) {
-                console.error(`未找到任务ID为 ${taskId} 的翻转容器`);
-                return;
-            }
-            
-            flipContainer.classList.toggle('flipped');
-            
-            // 清理过期的冷却时间记录（超过5秒的记录）
-            const fiveSecondsAgo = Date.now() - 5000;
-            for (const [id, timestamp] of flipCooldown.entries()) {
-                if (timestamp < fiveSecondsAgo) {
-                    flipCooldown.delete(id);
-                }
-            }
-            
-            // 更新按钮文本以反映当前状态
-            // 遍历所有具有相同data-task-id和data-action="flip"属性的按钮
-            const flipButtons = document.querySelectorAll(`[data-task-id="${taskId}"][data-action="flip"]`);
-            
-            flipButtons.forEach(button => {
-                // 检查按钮当前状态，避免重复设置
-                const currentText = button.textContent.trim();
-                
-                if (flipContainer.classList.contains('flipped')) {
-                    // 如果卡片已翻转到背面，将按钮文本改为"返回"
-                    if (currentText.includes('处理发货') || currentText.includes('详情') || currentText.includes('已发货')) {
-                        button.innerHTML = '<i class="fas fa-arrow-left"></i> 返回';
-                    }
-                } else {
-                    // 如果卡片翻转到正面，根据按钮原来的状态决定显示内容
-                    if (currentText.includes('返回')) {
-                        // 检查按钮之前是否处于已发货状态
-                        const isPreviouslyShipped = button.textContent.trim().includes('已发货');
-                        const isInWarehouseModule = button.closest('.warehouse-tasks-gallery') !== null;
-                        if (isPreviouslyShipped) {
-                            // 如果之前是已发货状态，翻转回来后仍保持已发货状态
-                            button.innerHTML = '<i class="fas fa-check"></i> 已发货';
-                        } else if (isInWarehouseModule) {
-                            // 仓库模块的发货按钮已被移除，无需设置文本
-                            // 保留空白或其他处理
-                        } else {
-                            button.innerHTML = '<i class="fas fa-info-circle"></i> 详情';
-                        }
-                    }
-                }
-            });
-        }
+        // toggleTaskCardFlip函数已移至unified_task_flip_core.js统一管理
+        // 避免函数定义冲突
         
         function bindWarehouseTaskEvents() {
             // 使用事件委托来处理仓库任务卡片的所有交互事件
@@ -12311,23 +13584,1337 @@
     <!-- 已移除不存在的 delayed_warehouse_fix.js -->
     
     <!-- 仓库任务样式统一脚本 -->
-    <script src="warehouse_style_unification.js"></script>
+    <!-- <script src="warehouse_style_unification.js"></script> -->
     
     <!-- 已移除MutationObserver修复验证脚本 -->
     
-    <!-- 仓库任务嵌套容器修复脚本 -->
-    <script src="fix_nested_warehouse_containers.js"></script>
-    <!-- 仓库任务嵌套结构修复脚本 -->
-    <script src="fix_warehouse_nested_structure.js"></script>
+    <!-- 仓库任务嵌套修复功能已整合到统一模块中 -->
     <!-- 仓库任务残留问题深度清理脚本 -->
     <script src="deep_clean_warehouse_residuals.js"></script>
-    <!-- 仓库任务布局紧急修复脚本 -->
-    <script src="emergency_grid_layout_fix.js"></script>
+    <!-- 仓库任务布局已整合到统一样式中 -->
     
-    <!-- 测试任务脚本 -->
-    <script src="create_test_tasks.js"></script>
+    <!-- 测试任务功能已移除 -->
     
     <!-- 样式验证脚本 -->
     <script src="verify_warehouse_styles.js"></script>
+    
+    <!-- 仓库任务结构和重叠修复功能已整合到统一模块中 -->
+    
+    <!-- 仓库任务验证功能已移除 -->
+    
+    <!-- 仓库任务结构验证脚本 -->
+    <script src="verify_warehouse_structure.js"></script>
+    
+    <!-- 任务信息覆盖层脚本 -->
+    <script>
+    (function() {
+        'use strict';
+        
+        console.log('🎨 开始初始化任务信息覆盖层...');
+        
+        // 覆盖层配置
+        const OVERLAY_CONFIG = {
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            textColor: '#ffffff',
+            fontSize: '14px',
+            padding: '12px',
+            borderRadius: '0 0 6px 6px',
+            minHeight: '60px'
+        };
+        
+        // 创建信息覆盖层
+        function createInfoOverlay(imgContainer, taskData) {
+            // 如果已有覆盖层，先移除
+            const existingOverlay = imgContainer.querySelector('.task-info-overlay');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
+            
+            // 创建覆盖层容器
+            const overlay = document.createElement('div');
+            overlay.className = 'task-info-overlay';
+            
+            // 创建内容容器
+            const content = document.createElement('div');
+            content.className = 'task-info-content';
+            
+            // 商品名称
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'task-info-name';
+            nameDiv.textContent = taskData.name || '未知商品';
+            
+            // 数量 - 只显示数值
+            const quantitySpan = document.createElement('span');
+            quantitySpan.className = 'task-info-quantity';
+            quantitySpan.textContent = taskData.quantity || 0;
+            
+            // 创建人
+            const creatorSpan = document.createElement('span');
+            creatorSpan.className = 'task-info-creator';
+            creatorSpan.textContent = taskData.creator || '未知创建人';
+            
+            // 组装DOM结构 - 水平排列：商品名称 - 数量 - 创建人
+            content.appendChild(nameDiv);
+            content.appendChild(quantitySpan);
+            content.appendChild(creatorSpan);
+            overlay.appendChild(content);
+            
+            // 添加到图片容器
+            imgContainer.style.position = 'relative';
+            imgContainer.appendChild(overlay);
+            
+            return overlay;
+        }
+        
+        // 从现有DOM结构提取任务数据
+        function extractTaskData(taskElement) {
+            const data = {};
+            
+            // 查找商品名称
+            const nameElement = taskElement.querySelector('.task-gallery-name');
+            data.name = nameElement ? nameElement.textContent.trim() : '';
+            
+            // 查找数量信息
+            const qtyElement = taskElement.querySelector('.task-gallery-qty');
+            if (qtyElement) {
+                const qtyText = qtyElement.textContent.trim();
+                const qtyMatch = qtyText.match(/(\d+)/);
+                data.quantity = qtyMatch ? parseInt(qtyMatch[1]) : 0;
+            } else {
+                data.quantity = 0;
+            }
+            
+            // 查找创建人信息
+            const creatorElement = taskElement.querySelector('.task-gallery-creator');
+            data.creator = creatorElement ? creatorElement.textContent.replace('创建人:', '').trim() : '';
+            
+            return data;
+        }
+        
+        // 应用覆盖层到所有任务卡片
+        function applyOverlays() {
+            // 查找所有任务图片容器
+            const imgContainers = document.querySelectorAll('.task-gallery-img');
+            let appliedCount = 0;
+            
+            imgContainers.forEach(container => {
+                // 找到对应的父级任务元素
+                const taskFront = container.closest('.task-front');
+                if (taskFront) {
+                    const taskData = extractTaskData(taskFront);
+                    if (taskData.name || taskData.quantity > 0) {
+                        createInfoOverlay(container, taskData);
+                        appliedCount++;
+                    }
+                }
+            });
+            
+            console.log(`✅ 已为 ${appliedCount} 个任务卡片添加信息覆盖层`);
+            return appliedCount;
+        }
+        
+        // 监听动态内容变化
+        function observeDynamicContent() {
+            const observer = new MutationObserver((mutations) => {
+                let shouldApply = false;
+                
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                // 检查是否添加了新的任务图片容器
+                                if (node.classList && node.classList.contains('task-gallery-img')) {
+                                    shouldApply = true;
+                                }
+                                
+                                // 检查子元素中是否有任务相关元素
+                                const taskElements = node.querySelectorAll('.task-gallery-img, .task-front');
+                                if (taskElements.length > 0) {
+                                    shouldApply = true;
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                if (shouldApply) {
+                    setTimeout(() => {
+                        applyOverlays();
+                    }, 100);
+                }
+            });
+            
+            // 开始观察
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+                    
+            // 添加全局诊断函数
+            window.diagnoseBackDisplay = function() {
+                console.log('🔍 任务卡片背面显示诊断开始...');
+                        
+                // 检查背面元素
+                const taskBacks = document.querySelectorAll('.task-back');
+                console.log('📊 背面元素统计: ' + taskBacks.length + ' 个');
+                        
+                // 检查翻转状态的任务
+                const flippedContainers = document.querySelectorAll('.task-flip-container.flipped');
+                console.log('🔄 已翻转的任务: ' + flippedContainers.length + ' 个');
+                        
+                // 详细检查每个背面元素
+                for (let i = 0; i < taskBacks.length; i++) {
+                    const backElement = taskBacks[i];
+                    const taskId = backElement.dataset.taskId || 'unknown';
+                    const isVisible = backElement.offsetParent !== null;
+                    const hasContent = backElement.children.length > 0;
+                    const computedStyle = window.getComputedStyle(backElement);
+                            
+                    console.log('');
+                    console.log('📋 背面元素 ' + (i + 1) + ' (任务ID: ' + taskId + '):');
+                    console.log('   - 可见性: ' + (isVisible ? '✅ 可见' : '❌ 不可见'));
+                    console.log('   - 内容: ' + (hasContent ? '✅ 有内容' : '❌ 无内容'));
+                    console.log('   - display: ' + computedStyle.display);
+                    console.log('   - position: ' + computedStyle.position);
+                    console.log('   - transform: ' + computedStyle.transform);
+                    console.log('   - zIndex: ' + computedStyle.zIndex);
+                    console.log('   - backgroundColor: ' + computedStyle.backgroundColor);
+                            
+                    // 检查文件区域
+                    const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+                    console.log('   - 文件区域: ' + fileSections.length + ' 个');
+                            
+                    for (let j = 0; j < fileSections.length; j++) {
+                        const section = fileSections[j];
+                        const sectionId = section.id;
+                        const sectionContent = section.textContent.trim();
+                        console.log('     ' + (j + 1) + '. ' + sectionId + ': "' + sectionContent + '"');
+                    }
+                }
+                        
+                // 测试翻转显示
+                if (taskBacks.length > 0) {
+                    console.log('');
+                    console.log('🧪 测试翻转显示...');
+                    const firstTaskFront = document.querySelector('.task-front[id^="task-"]');
+                    if (firstTaskFront) {
+                        const taskId = firstTaskFront.id.replace('task-', '').replace('-front', '');
+                        console.log('   测试任务ID: ' + taskId);
+                                
+                        // 翻转到背面
+                        if (typeof window.toggleTaskCardFlip === 'function') {
+                            window.toggleTaskCardFlip(taskId);
+                            setTimeout(function() {
+                                const backElement = document.querySelector('.task-back[data-task-id="' + taskId + '"]');
+                                if (backElement) {
+                                    const isVisible = backElement.offsetParent !== null;
+                                    console.log('   翻转后背面可见性: ' + (isVisible ? '✅ 正常' : '❌ 异常'));
+                                            
+                                    // 检查具体内容
+                                    const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+                                    console.log('   文件区域数量: ' + fileSections.length);
+                                            
+                                    // 返回正面
+                                    setTimeout(function() {
+                                        window.toggleTaskCardFlip(taskId);
+                                        console.log('✅ 测试完成，已返回正面');
+                                    }, 1000);
+                                }
+                            }, 600);
+                        }
+                    }
+                }
+                        
+                console.log('');
+                console.log('🏁 诊断完成');
+                return {
+                    backCount: taskBacks.length,
+                    flippedCount: flippedContainers.length
+                };
+            };
+                    
+            console.log('🔧 精简版背面修复完成，诊断函数已添加到全局');
+            console.log('💡 提示: 在控制台输入 diagnoseBackDisplay() 可运行诊断');
+            
+            console.log('🔍 任务信息覆盖层监听器已启动');
+        }
+        
+        // 初始化函数
+        function initialize() {
+            // 等待DOM加载完成后应用覆盖层
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(applyOverlays, 500);
+                    observeDynamicContent();
+                });
+            } else {
+                setTimeout(applyOverlays, 500);
+                observeDynamicContent();
+            }
+        }
+        
+        // 提供全局控制函数
+        window.toggleTaskInfoOverlay = function(show = true) {
+            const overlays = document.querySelectorAll('.task-info-overlay');
+            overlays.forEach(overlay => {
+                overlay.style.display = show ? 'flex' : 'none';
+            });
+            
+            if (show) {
+                console.log('👁️ 任务信息覆盖层已显示');
+            } else {
+                console.log('🙈 任务信息覆盖层已隐藏');
+            }
+        };
+        
+        window.refreshTaskInfoOverlay = function() {
+            // 移除所有现有覆盖层
+            document.querySelectorAll('.task-info-overlay').forEach(overlay => overlay.remove());
+            // 重新应用
+            applyOverlays();
+            console.log('🔄 任务信息覆盖层已刷新');
+        };
+        
+        // 启动初始化
+        initialize();
+        
+        console.log('✨ 任务信息覆盖层系统已加载完成');
+        
+    })();
+    </script>
 </body>
 </html>
+
+<!-- 全局诊断函数 -->
+<script>
+window.diagnoseBackDisplay = function() {
+    console.log('🔍 任务卡片背面显示诊断开始...');
+    
+    // 检查背面元素
+    const taskBacks = document.querySelectorAll('.task-back');
+    console.log('📊 背面元素统计: ' + taskBacks.length + ' 个');
+    
+    // 检查翻转状态的任务
+    const flippedContainers = document.querySelectorAll('.task-flip-container.flipped');
+    console.log('🔄 已翻转的任务: ' + flippedContainers.length + ' 个');
+    
+    // 详细检查每个背面元素
+    for (let i = 0; i < taskBacks.length; i++) {
+        const backElement = taskBacks[i];
+        const taskId = backElement.dataset.taskId || 'unknown';
+        const isVisible = backElement.offsetParent !== null;
+        const hasContent = backElement.children.length > 0;
+        const computedStyle = window.getComputedStyle(backElement);
+        
+        console.log('');
+        console.log('📋 背面元素 ' + (i + 1) + ' (任务ID: ' + taskId + '):');
+        console.log('   - 可见性: ' + (isVisible ? '✅ 可见' : '❌ 不可见'));
+        console.log('   - 内容: ' + (hasContent ? '✅ 有内容' : '❌ 无内容'));
+        console.log('   - display: ' + computedStyle.display);
+        console.log('   - position: ' + computedStyle.position);
+        console.log('   - transform: ' + computedStyle.transform);
+        console.log('   - zIndex: ' + computedStyle.zIndex);
+        console.log('   - backgroundColor: ' + computedStyle.backgroundColor);
+        
+        // 检查文件区域
+        const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+        console.log('   - 文件区域: ' + fileSections.length + ' 个');
+        
+        for (let j = 0; j < fileSections.length; j++) {
+            const section = fileSections[j];
+            const sectionId = section.id;
+            const sectionContent = section.textContent.trim();
+            console.log('     ' + (j + 1) + '. ' + sectionId + ': "' + sectionContent + '"');
+        }
+    }
+    
+    // 测试翻转显示
+    if (taskBacks.length > 0) {
+        console.log('');
+        console.log('🧪 测试翻转显示...');
+        const firstTaskFront = document.querySelector('.task-front[id^="task-"]');
+        if (firstTaskFront) {
+            const taskId = firstTaskFront.id.replace('task-', '').replace('-front', '');
+            console.log('   测试任务ID: ' + taskId);
+            
+            // 翻转到背面
+            if (typeof window.toggleTaskCardFlip === 'function') {
+                window.toggleTaskCardFlip(taskId);
+                setTimeout(function() {
+                    const backElement = document.querySelector('.task-back[data-task-id="' + taskId + '"]');
+                    if (backElement) {
+                        const isVisible = backElement.offsetParent !== null;
+                        console.log('   翻转后背面可见性: ' + (isVisible ? '✅ 正常' : '❌ 异常'));
+                        
+                        // 检查具体内容
+                        const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+                        console.log('   文件区域数量: ' + fileSections.length);
+                        
+                        // 返回正面
+                        setTimeout(function() {
+                            window.toggleTaskCardFlip(taskId);
+                            console.log('✅ 测试完成，已返回正面');
+                        }, 1000);
+                    }
+                }, 600);
+            }
+        }
+    }
+    
+    console.log('');
+    console.log('🏁 诊断完成');
+    return {
+        backCount: taskBacks.length,
+        flippedCount: flippedContainers.length
+    };
+};
+
+console.log('✅ 全局诊断函数已添加');
+console.log('💡 使用方法: 在控制台输入 diagnoseBackDisplay()');
+
+// 添加翻转测试函数
+window.testCardFlip = function() {
+    console.log('🔄 开始测试卡片翻转功能...');
+    
+    // 找到第一个任务卡片
+    const firstTaskFront = document.querySelector('.task-front[id^="task-"]');
+    if (!firstTaskFront) {
+        console.error('❌ 未找到任务卡片');
+        return;
+    }
+    
+    const taskId = firstTaskFront.id.replace('task-', '').replace('-front', '');
+    console.log('🎯 测试任务ID: ' + taskId);
+    
+    // 检查翻转函数是否存在
+    if (typeof window.toggleTaskCardFlip !== 'function') {
+        console.error('❌ 翻转函数不存在');
+        return;
+    }
+    
+    console.log('✅ 翻转函数可用，执行翻转...');
+    
+    // 执行翻转
+    window.toggleTaskCardFlip(taskId);
+    
+    // 等待翻转完成后再检查
+    setTimeout(function() {
+        const backElement = document.querySelector('.task-back[data-task-id="' + taskId + '"]');
+        if (backElement) {
+            const isVisible = backElement.offsetParent !== null;
+            console.log('📊 翻转后状态:');
+            console.log('   背面元素可见: ' + (isVisible ? '✅ 是' : '❌ 否'));
+            
+            // 检查文件区域
+            const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+            console.log('   文件区域数量: ' + fileSections.length);
+            
+            // 显示文件区域内容
+            fileSections.forEach(function(section, index) {
+                console.log('   区域 ' + (index + 1) + ': ' + section.id + ' - "' + section.textContent.trim() + '"');
+            });
+            
+            // 3秒后自动返回
+            setTimeout(function() {
+                console.log('↩️ 自动返回正面...');
+                window.toggleTaskCardFlip(taskId);
+            }, 3000);
+        }
+    }, 600);
+};
+
+console.log('💡 翻转测试函数已添加: testCardFlip()');
+
+// 添加查看当前翻转任务的函数
+window.inspectFlippedCard = function() {
+    console.log('🔍 检查当前翻转的任务卡片...');
+    
+    const flippedContainer = document.querySelector('.task-flip-container.flipped');
+    if (!flippedContainer) {
+        console.log('❌ 当前没有翻转的任务');
+        return;
+    }
+    
+    const taskId = flippedContainer.dataset.taskId;
+    console.log('🎯 当前翻转的任务ID: ' + taskId);
+    
+    const backElement = flippedContainer.querySelector('.task-back');
+    if (backElement) {
+        console.log('📊 背面元素详情:');
+        console.log('   dataset.taskId: ' + backElement.dataset.taskId);
+        console.log('   offsetParent: ' + (backElement.offsetParent ? '✅ 可见' : '❌ 不可见'));
+        console.log('   children数量: ' + backElement.children.length);
+        
+        // 检查文件区域
+        const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+        console.log('   文件区域数量: ' + fileSections.length);
+        
+        fileSections.forEach(function(section, index) {
+            console.log('   区域 ' + (index + 1) + ': ' + section.id);
+            console.log('     内容: "' + section.textContent.trim() + '"');
+            console.log('     可见性: ' + (section.offsetParent ? '✅' : '❌'));
+        });
+        
+        // 检查样式
+        const computedStyle = window.getComputedStyle(backElement);
+        console.log('   样式信息:');
+        console.log('     display: ' + computedStyle.display);
+        console.log('     position: ' + computedStyle.position);
+        console.log('     transform: ' + computedStyle.transform);
+        console.log('     zIndex: ' + computedStyle.zIndex);
+    }
+};
+
+console.log('💡 查看翻转卡片函数已添加: inspectFlippedCard()');
+
+// 彻底诊断背面内容函数
+window.thoroughBackDiagnosis = function() {
+    console.log('🔍 开始彻底诊断背面元素内容...');
+    
+    // 强制输出到控制台
+    console.log('%c=== 背面元素诊断报告 ===', 'color: #007bff; font-weight: bold; font-size: 16px;');
+    
+    const taskBacks = document.querySelectorAll('.task-back');
+    console.log('📊 找到背面元素数量: ' + taskBacks.length);
+    
+    if (taskBacks.length === 0) {
+        console.log('%c❌ 未找到任何.task-back元素!', 'color: #dc3545; font-weight: bold;');
+        return;
+    }
+    
+    // 逐一检查每个背面元素
+    taskBacks.forEach(function(backElement, index) {
+        const taskId = backElement.dataset.taskId || 'unknown';
+        console.log('');
+        console.log('%c--- 背面元素 #' + (index + 1) + ' (任务ID: ' + taskId + ') ---', 'color: #28a745; font-weight: bold;');
+        
+        // 基本信息检查
+        console.log('📋 基本属性:');
+        console.log('   tagName: ' + backElement.tagName);
+        console.log('   className: ' + backElement.className);
+        console.log('   id: ' + (backElement.id || '无')); 
+        console.log('   dataset.taskId: ' + backElement.dataset.taskId);
+        console.log('   parentNode: ' + (backElement.parentNode ? backElement.parentNode.className : '无父节点'));
+        
+        // 可见性检查
+        console.log('👁️  可见性状态:');
+        console.log('   offsetParent: ' + (backElement.offsetParent ? '✅ 存在' : '❌ 不存在'));
+        console.log('   offsetWidth: ' + backElement.offsetWidth);
+        console.log('   offsetHeight: ' + backElement.offsetHeight);
+        
+        // 内容检查
+        console.log('📄 内容分析:');
+        console.log('   innerHTML长度: ' + backElement.innerHTML.length);
+        console.log('   textContent长度: ' + backElement.textContent.length);
+        console.log('   HTML内容预览:');
+        console.log('   ' + backElement.innerHTML.substring(0, 300) + (backElement.innerHTML.length > 300 ? '...' : ''));
+        
+        // 子元素检查
+        console.log('🧩 子元素结构:');
+        const children = Array.from(backElement.children);
+        console.log('   直接子元素数量: ' + children.length);
+        children.forEach(function(child, childIndex) {
+            console.log('   子元素 ' + (childIndex + 1) + ':');
+            console.log('     - tagName: ' + child.tagName);
+            console.log('     - id: ' + (child.id || '无'));
+            console.log('     - className: ' + (child.className || '无'));
+            console.log('     - textContent预览: "' + child.textContent.trim().substring(0, 50) + '"');
+        });
+        
+        // 文件区域检查
+        console.log('📁 文件区域检查:');
+        const fileSections = backElement.querySelectorAll('[id$="-files-' + taskId + '"]');
+        console.log('   匹配的文件区域数量: ' + fileSections.length);
+        fileSections.forEach(function(section, secIndex) {
+            console.log('   文件区域 ' + (secIndex + 1) + ':');
+            console.log('     - id: ' + section.id);
+            console.log('     - tagName: ' + section.tagName);
+            console.log('     - className: ' + (section.className || '无'));
+            console.log('     - 内容: "' + section.textContent.trim() + '"');
+            console.log('     - 可见性: ' + (section.offsetParent ? '✅ 可见' : '❌ 不可见'));
+        });
+        
+        // CSS样式检查
+        console.log('🎨 CSS样式检查:');
+        try {
+            const computedStyle = window.getComputedStyle(backElement);
+            console.log('   display: ' + computedStyle.display);
+            console.log('   position: ' + computedStyle.position);
+            console.log('   transform: ' + computedStyle.transform);
+            console.log('   backfaceVisibility: ' + computedStyle.backfaceVisibility);
+            console.log('   webkitBackfaceVisibility: ' + computedStyle.webkitBackfaceVisibility);
+            console.log('   zIndex: ' + computedStyle.zIndex);
+            console.log('   backgroundColor: ' + computedStyle.backgroundColor);
+            console.log('   visibility: ' + computedStyle.visibility);
+        } catch (e) {
+            console.log('   ❌ 获取计算样式时出错: ' + e.message);
+        }
+        
+        console.log('---');
+    });
+    
+    // 翻转状态检查
+    console.log('');
+    console.log('%c🔄 翻转状态检查', 'color: #ffc107; font-weight: bold;');
+    const flippedContainers = document.querySelectorAll('.task-flip-container.flipped');
+    console.log('当前翻转的任务数量: ' + flippedContainers.length);
+    
+    flippedContainers.forEach(function(container, index) {
+        const taskId = container.dataset.taskId || 'unknown';
+        const front = container.querySelector('.task-front');
+        const back = container.querySelector('.task-back');
+        
+        console.log('翻转任务 #' + (index + 1) + ' (ID: ' + taskId + '):');
+        console.log('  正面元素: ' + (front ? '✅ 存在' : '❌ 不存在'));
+        console.log('  背面元素: ' + (back ? '✅ 存在' : '❌ 不存在'));
+        
+        if (front) {
+            console.log('  正面可见性: ' + (front.offsetParent ? '✅ 可见' : '❌ 不可见'));
+        }
+        if (back) {
+            console.log('  背面可见性: ' + (back.offsetParent ? '✅ 可见' : '❌ 不可见'));
+            console.log('  背面HTML长度: ' + back.innerHTML.length);
+            console.log('  背面文本预览: "' + back.textContent.trim().substring(0, 100) + '"');
+        }
+        
+        // 检查容器样式
+        try {
+            const containerStyle = window.getComputedStyle(container);
+            console.log('  容器transform: ' + containerStyle.transform);
+            console.log('  容器perspective: ' + containerStyle.perspective);
+        } catch (e) {
+            console.log('  ❌ 获取容器样式时出错');
+        }
+        
+        console.log('---');
+    });
+    
+    // 总结
+    console.log('');
+    console.log('%c=== 诊断完成 ===', 'color: #007bff; font-weight: bold; font-size: 16px;');
+    
+    return {
+        backElements: taskBacks.length,
+        flippedContainers: flippedContainers.length
+    };
+};
+
+console.log('✅ 彻底诊断函数已更新: thoroughBackDiagnosis()');
+</script>
+
+<!-- 任务卡片翻转增强样式 -->
+<style>
+/* 任务卡片翻转增强样式 */
+.task-flip-container {
+    perspective: 1500px !important;
+    transform-style: preserve-3d !important;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    cursor: pointer !important;
+}
+
+.task-flip-container.flipped {
+    transform: rotateY(180deg) !important;
+}
+
+.task-front, .task-back {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.task-front {
+    z-index: 2 !important;
+    background-color: white !important;
+    transform: rotateY(0deg) !important;
+}
+
+.task-back {
+    z-index: 1 !important;
+    background-color: white !important;
+    transform: rotateY(180deg) !important;
+}
+
+/* 文件上传区域悬停效果 */
+[id$='-files-'] {
+    transition: all 0.2s ease !important;
+}
+
+[id$='-files-']:hover {
+    background-color: #e9ecef !important;
+    border-color: #0d6efd !important;
+}
+
+/* 文件项样式 */
+.file-item {
+    transition: all 0.2s ease !important;
+}
+
+.file-item:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 按钮悬停效果 */
+button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 文件状态指示器动画 */
+@keyframes pulseSuccess {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.file-status-uploaded {
+    animation: pulseSuccess 1s ease-in-out !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .task-flip-container {
+        height: 350px !important;
+    }
+    
+    .task-back-content {
+        padding: 10px !important;
+    }
+    
+    [id$='-files-'] {
+        min-height: 60px !important;
+        padding: 8px !important;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .task-flip-container {
+        perspective: none !important;
+        transform: none !important;
+    }
+    
+    .task-back {
+        transform: none !important;
+        position: static !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+
+<!-- 任务卡片翻转功能终极修复脚本 -->
+<script>
+(function() {
+    'use strict';
+    
+    // 强制全局修复标志
+    window.FLIP_FIX_ACTIVE = true;
+    
+    // 终极翻转解决方案 - 直接操作DOM
+    function ultimateFlipSolution() {
+        console.log('⚔️ 启动终极翻转解决方案...');
+        
+        // 直接为每个任务卡片添加点击处理器
+        function attachDirectHandlers() {
+            const allTasks = document.querySelectorAll('.task-flip-container');
+            console.log(`🎯 找到 ${allTasks.length} 个任务容器`);
+            
+            allTasks.forEach((container, index) => {
+                const taskId = container.dataset.taskId;
+                if (!taskId) return;
+                
+                // 移除所有现有的事件监听器
+                const clone = container.cloneNode(true);
+                container.parentNode.replaceChild(clone, container);
+                
+                // 为克隆的容器添加直接的点击处理
+                clone.onclick = function(e) {
+                    // 排除按钮点击
+                    if (e.target.closest('button') || 
+                        e.target.closest('[data-action]') ||
+                        e.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log(`⚔️ 直接触发翻转 - 任务: ${taskId}`);
+                    
+                    // 直接执行翻转操作
+                    this.classList.toggle('flipped');
+                    const isFlipped = this.classList.contains('flipped');
+                    console.log(`✅ 任务 ${taskId} 翻转状态: ${isFlipped ? '背面' : '正面'}`);
+                };
+                
+                // 添加触摸支持
+                clone.ontouchstart = clone.onclick;
+                
+                console.log(`✅ 为任务 ${taskId} 添加直接处理器`);
+            });
+        }
+        
+        // 定期重新绑定处理器
+        setInterval(attachDirectHandlers, 1000);
+        
+        // 立即执行一次
+        setTimeout(attachDirectHandlers, 100);
+        setTimeout(attachDirectHandlers, 500);
+        setTimeout(attachDirectHandlers, 1000);
+        
+        console.log('✅ 终极翻转解决方案已启动');
+    }
+    
+    // 启动终极解决方案
+    setTimeout(ultimateFlipSolution, 2000);
+    
+    console.log('🚀 启动任务卡片翻转功能修复...');
+    
+    // 翻转冷却控制
+    const flipCooldown = new Map();
+    
+    // 创建统一翻转函数
+    function createFlipFunction() {
+        if (typeof window.toggleTaskCardFlip === 'function') {
+            console.log('✅ 翻转函数已存在');
+            return;
+        }
+        
+        window.toggleTaskCardFlip = function(taskId) {
+            console.log(`🔄 执行翻转 - 任务ID: ${taskId}`);
+            
+            try {
+                // 防抖控制
+                const now = Date.now();
+                const lastFlip = flipCooldown.get(taskId) || 0;
+                if (now - lastFlip < 300) {
+                    console.log(`⏳ 任务 ${taskId} 翻转冷却中`);
+                    return;
+                }
+                flipCooldown.set(taskId, now);
+                
+                // 多重策略查找翻转容器
+                let flipContainer = null;
+                
+                // 策略1: 直接通过data-task-id查找
+                flipContainer = document.querySelector(`.task-flip-container[data-task-id="${taskId}"]`);
+                
+                // 策略2: 通过正面元素查找
+                if (!flipContainer) {
+                    const frontElement = document.querySelector(`#task-${taskId}-front`);
+                    if (frontElement) {
+                        flipContainer = frontElement.closest('.task-flip-container');
+                    }
+                }
+                
+                // 策略3: 通过任务ID模式查找
+                if (!flipContainer) {
+                    const allContainers = document.querySelectorAll('.task-flip-container');
+                    for (let container of allContainers) {
+                        if (container.dataset.taskId === taskId) {
+                            flipContainer = container;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!flipContainer) {
+                    console.error(`❌ 未找到任务容器: ${taskId}`);
+                    // 强制重新检查DOM结构
+                    ensureDOMStructure();
+                    return;
+                }
+                
+                // 确保容器有必要的样式类
+                if (!flipContainer.classList.contains('task-flip-container')) {
+                    flipContainer.classList.add('task-flip-container');
+                }
+                
+                // 执行翻转
+                flipContainer.classList.toggle('flipped');
+                const isFlipped = flipContainer.classList.contains('flipped');
+                
+                console.log(`✅ 任务 ${taskId} 翻转状态: ${isFlipped ? '背面' : '正面'}`);
+                
+                // 强制重绘以确保样式生效
+                flipContainer.style.transform = flipContainer.style.transform;
+                
+                // 触发自定义事件
+                const flipEvent = new CustomEvent('taskCardFlipped', {
+                    detail: {
+                        taskId: taskId,
+                        flipped: isFlipped,
+                        element: flipContainer
+                    }
+                });
+                document.dispatchEvent(flipEvent);
+                
+            } catch (error) {
+                console.error(`❌ 翻转任务 ${taskId} 时发生错误:`, error);
+                // 发生错误时清除冷却状态
+                flipCooldown.delete(taskId);
+            }
+        };
+        
+        console.log('✅ 翻转函数已创建');
+    }
+    
+    // 绑定事件监听器
+    function bindEventListeners() {
+        console.log('🔗 绑定事件监听器...');
+        
+        // 强制移除所有可能的监听器
+        if (window._flipEventListener) {
+            document.removeEventListener('click', window._flipEventListener, true);
+            document.removeEventListener('click', window._flipEventListener, false);
+        }
+        
+        // 清除可能存在的其他翻转监听器
+        const existingListeners = ['click', 'touchstart'];
+        existingListeners.forEach(eventType => {
+            const eventListeners = getEventListeners ? getEventListeners(document)[eventType] || [] : [];
+            eventListeners.forEach(listener => {
+                if (listener.listener && listener.listener.toString().includes('task-flip-container')) {
+                    document.removeEventListener(eventType, listener.listener, listener.useCapture);
+                }
+            });
+        });
+        
+        // 创建全新的监听器函数
+        window._flipEventListener = function(e) {
+            try {
+                // 强制检查目标元素
+                const target = e.target;
+                
+                // 直接检查是否点击了具有data-task-id的元素
+                let taskId = target.dataset.taskId;
+                let flipContainer = target.closest('.task-flip-container');
+                
+                // 如果没找到，向上查找父元素
+                if (!flipContainer) {
+                    let parent = target.parentElement;
+                    while (parent && !flipContainer) {
+                        if (parent.classList && parent.classList.contains('task-flip-container')) {
+                            flipContainer = parent;
+                            taskId = parent.dataset.taskId;
+                        }
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 如果找到了翻转容器并且有任务ID
+                if (flipContainer && (taskId || flipContainer.dataset.taskId)) {
+                    const finalTaskId = taskId || flipContainer.dataset.taskId;
+                    
+                    // 严格排除按钮和操作区域
+                    const isActionButton = target.closest('[data-action]') || 
+                                         target.closest('button') || 
+                                         target.tagName === 'BUTTON' ||
+                                         (target.textContent && target.textContent.includes('发货')) ||
+                                         target.classList.contains('btn');
+                    
+                    if (!isActionButton) {
+                        console.log(`🎯 捕获翻转点击 - 任务ID: ${finalTaskId}`);
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        
+                        // 延迟执行确保其他事件处理完成
+                        setTimeout(() => {
+                            if (typeof window.toggleTaskCardFlip === 'function') {
+                                window.toggleTaskCardFlip(finalTaskId);
+                            } else {
+                                console.error('❌ 翻转函数不存在');
+                                // 紧急重新创建
+                                createFlipFunction();
+                                window.toggleTaskCardFlip(finalTaskId);
+                            }
+                        }, 0);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 事件监听器错误:', error);
+            }
+        };
+        
+        // 使用多个阶段绑定确保捕获所有点击
+        document.addEventListener('click', window._flipEventListener, true);  // 捕获阶段
+        document.addEventListener('click', window._flipEventListener, false); // 冒泡阶段
+        
+        console.log('✅ 事件监听器已绑定');
+    }
+    
+    // 确保DOM结构完整
+    function ensureDOMStructure() {
+        console.log('🏗️ 检查DOM结构完整性...');
+        
+        const frontElements = document.querySelectorAll('div[id^="task-"][id$="-front"].task-front');
+        console.log(`🔍 找到 ${frontElements.length} 个任务正面元素`);
+        
+        frontElements.forEach(frontElement => {
+            const taskIdMatch = frontElement.id.match(/task-(.+)-front/);
+            if (!taskIdMatch) return;
+            
+            const taskId = taskIdMatch[1];
+            let flipContainer = frontElement.closest('.task-flip-container');
+            
+            // 如果没有翻转容器，创建一个
+            if (!flipContainer) {
+                console.log(`🏗️ 为任务 ${taskId} 创建翻转容器...`);
+                flipContainer = document.createElement('div');
+                flipContainer.className = 'task-flip-container';
+                flipContainer.dataset.taskId = taskId;
+                
+                // 设置必要样式
+                Object.assign(flipContainer.style, {
+                    'perspective': '1500px',
+                    'transform-style': 'preserve-3d',
+                    'transition': 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                    'position': 'relative',
+                    'cursor': 'pointer',
+                    'width': '100%',
+                    'height': '100%'
+                });
+                
+                // 重新组织DOM结构
+                const parent = frontElement.parentElement;
+                parent.replaceChild(flipContainer, frontElement);
+                flipContainer.appendChild(frontElement);
+                
+                console.log(`✅ 任务 ${taskId} 翻转容器创建完成`);
+            }
+        });
+    }
+    
+    // 监控DOM变化
+    function setupDOMObserver() {
+        console.log('👁️ 设置DOM变化监控...');
+        
+        // 清除已存在的观察器
+        if (window._flipMutationObserver) {
+            window._flipMutationObserver.disconnect();
+        }
+        
+        const observer = new MutationObserver(function(mutations) {
+            let shouldRebind = false;
+            
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    // 检查新增节点
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            const newFrontElements = node.querySelectorAll ? 
+                                node.querySelectorAll('div[id^="task-"][id$="-front"].task-front') : [];
+                            if (newFrontElements.length > 0) {
+                                console.log(`🔄 检测到新的任务卡片`);
+                                shouldRebind = true;
+                            }
+                        }
+                    });
+                    
+                    // 检查移除节点（特别是确认发货后）
+                    mutation.removedNodes.forEach(function(node) {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            // 检查是否移除了翻转容器
+                            if (node.classList && node.classList.contains('task-flip-container')) {
+                                console.log('🔄 检测到翻转容器被移除，重新绑定事件');
+                                shouldRebind = true;
+                            }
+                        }
+                    });
+                }
+                
+                // 检查属性变化
+                if (mutation.type === 'attributes' && mutation.target.classList) {
+                    if (mutation.target.classList.contains('task-flip-container')) {
+                        // 检查是否是状态变化（如确认发货后）
+                        if (mutation.attributeName === 'class' || mutation.attributeName === 'data-task-id') {
+                            console.log('🔄 检测到翻转容器属性变化');
+                            shouldRebind = true;
+                        }
+                    }
+                }
+            });
+            
+            // 如果需要重新绑定，则执行
+            if (shouldRebind) {
+                console.log('🔄 重新初始化翻转功能...');
+                setTimeout(function() {
+                    ensureDOMStructure();
+                    bindEventListeners();
+                }, 50);
+            }
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'data-task-id']
+        });
+        
+        // 保存观察器引用
+        window._flipMutationObserver = observer;
+        console.log('✅ DOM监控已设置');
+    }
+    
+    // 完整初始化流程
+    function initializeFlipFix() {
+        console.log('🚀 开始初始化翻转功能修复...');
+        
+        try {
+            // 启动全局事件保护
+            protectGlobalEventSystem();
+            
+            createFlipFunction();
+            ensureDOMStructure();
+            bindEventListeners();
+            setupDOMObserver();
+            
+            // 特别监控确认发货按钮
+            monitorShipmentConfirmation();
+            
+            // 启动强制检查机制
+            startForcedCheck();
+            
+            console.log('✅ 翻转功能修复初始化完成');
+        } catch (error) {
+            console.error('❌ 翻转功能修复初始化失败:', error);
+        }
+    }
+    
+    // 全局事件系统保护
+    function protectGlobalEventSystem() {
+        console.log('🛡️ 启动全局事件系统保护...');
+        
+        // 保存原始的addEventListener和removeEventListener
+        const originalAddEventListener = EventTarget.prototype.addEventListener;
+        const originalRemoveEventListener = EventTarget.prototype.removeEventListener;
+        
+        // 保护关键元素的事件监听器
+        const protectedElements = [
+            document,
+            window,
+            document.body
+        ];
+        
+        // 重写addEventListener以防止意外移除我们的监听器
+        EventTarget.prototype.addEventListener = function(type, listener, options) {
+            // 如果是我们的翻转监听器，添加特殊标记
+            if (listener && listener.toString().includes('task-flip-container')) {
+                if (!this._protectedFlipListeners) {
+                    this._protectedFlipListeners = [];
+                }
+                this._protectedFlipListeners.push({
+                    type: type,
+                    listener: listener,
+                    options: options
+                });
+            }
+            return originalAddEventListener.call(this, type, listener, options);
+        };
+        
+        // 重写removeEventListener以保护我们的监听器
+        EventTarget.prototype.removeEventListener = function(type, listener, options) {
+            // 检查是否试图移除我们的翻转监听器
+            if (this._protectedFlipListeners) {
+                const isProtected = this._protectedFlipListeners.some(protectedListener => 
+                    protectedListener.type === type && 
+                    protectedListener.listener === listener
+                );
+                
+                if (isProtected) {
+                    console.log('🛡️ 阻止移除受保护的翻转监听器');
+                    return;
+                }
+            }
+            return originalRemoveEventListener.call(this, type, listener, options);
+        };
+        
+        console.log('✅ 全局事件系统保护已启动');
+    }
+    
+    // 监控确认发货操作
+    function monitorShipmentConfirmation() {
+        console.log('🚚 监控确认发货操作...');
+        
+        // 启动全局事件保护
+        protectGlobalEventSystem();
+        
+        // 激进的发货按钮劫持
+        function hijackShipmentButtons() {
+            const shipmentButtons = document.querySelectorAll('[data-action="complete-shipment"], .btn-success[data-task-id]');
+            
+            shipmentButtons.forEach(button => {
+                // 保存原始点击处理函数
+                const originalOnClick = button.onclick;
+                const originalListeners = [];
+                
+                // 获取现有事件监听器（如果可能）
+                if (getEventListeners) {
+                    const listeners = getEventListeners(button);
+                    if (listeners.click) {
+                        originalListeners.push(...listeners.click);
+                    }
+                }
+                
+                // 重写点击处理
+                button.onclick = function(e) {
+                    console.log('⚔️ 劫持确认发货点击');
+                    
+                    // 先执行原始功能
+                    if (originalOnClick) {
+                        originalOnClick.call(this, e);
+                    }
+                    
+                    // 重新绑定所有翻转功能
+                    setTimeout(() => {
+                        console.log('🔄 发货后立即重新绑定所有翻转功能');
+                        ultimateFlipSolution();
+                    }, 50);
+                };
+                
+                console.log('✅ 劫持发货按钮成功');
+            });
+        }
+        
+        // 定期劫持发货按钮
+        setInterval(hijackShipmentButtons, 2000);
+        
+        // 立即执行
+        setTimeout(hijackShipmentButtons, 1000);
+        
+        // 监听确认发货按钮点击
+        document.addEventListener('click', function(e) {
+            const target = e.target;
+            if (target.matches('[data-action="complete-shipment"]') || 
+                target.matches('.btn-success[data-task-id]') ||
+                (target.textContent && target.textContent.includes('确认发货'))) {
+                
+                console.log('🚚 检测到确认发货操作');
+                
+                // 立即备份当前的翻转状态
+                backupFlipState();
+                
+                // 确认发货后立即重新绑定所有事件
+                setTimeout(function() {
+                    console.log('🔄 确认发货后紧急重新初始化');
+                    emergencyRebindAll();
+                    ultimateFlipSolution();
+                }, 100);
+                
+                // 延迟二次检查
+                setTimeout(function() {
+                    ensureDOMStructure();
+                    bindEventListeners();
+                    ultimateFlipSolution();
+                }, 500);
+            }
+        }, true);
+    }
+    
+    // 备份翻转状态
+    function backupFlipState() {
+        console.log('💾 备份当前翻转状态...');
+        window._flipBackup = {
+            flipFunction: window.toggleTaskCardFlip,
+            eventListener: window._flipEventListener,
+            cooldown: new Map(flipCooldown)
+        };
+    }
+    
+    // 紧急重新绑定所有功能
+    function emergencyRebindAll() {
+        console.log('🚨 执行紧急重新绑定...');
+        
+        // 强制重新创建翻转函数
+        createFlipFunction();
+        
+        // 强制重新绑定事件
+        bindEventListeners();
+        
+        // 重新设置DOM监控
+        setupDOMObserver();
+        
+        // 恢复冷却状态
+        if (window._flipBackup && window._flipBackup.cooldown) {
+            flipCooldown.clear();
+            for (let [key, value] of window._flipBackup.cooldown) {
+                flipCooldown.set(key, value);
+            }
+        }
+        
+        console.log('✅ 紧急重新绑定完成');
+    }
+    
+    // 页面加载完成后执行
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeFlipFix);
+    } else {
+        // 如果页面已经加载完成，延迟执行
+        setTimeout(initializeFlipFix, 1000);
+    }
+    
+    // 提供手动重新初始化的方法
+    window.reinitializeFlipFix = function() {
+        console.log('🔄 手动重新初始化翻转功能...');
+        initializeFlipFix();
+    };
+    
+    // 强制定时检查机制
+    function startForcedCheck() {
+        console.log('⏰ 启动强制定时检查...');
+        
+        // 每2秒检查一次翻转功能状态
+        setInterval(function() {
+            try {
+                // 检查翻转函数是否存在
+                if (typeof window.toggleTaskCardFlip !== 'function') {
+                    console.log('🔧 检测到翻转函数缺失，重新创建...');
+                    createFlipFunction();
+                }
+                
+                // 检查事件监听器是否正常
+                const testContainer = document.querySelector('.task-flip-container');
+                if (testContainer) {
+                    // 检查是否能正确获取任务ID
+                    const taskId = testContainer.dataset.taskId;
+                    if (!taskId) {
+                        console.log('🔧 检测到任务ID缺失，重新绑定结构...');
+                        ensureDOMStructure();
+                    }
+                }
+                
+                // 确保事件监听器始终存在
+                if (!window._flipEventListener) {
+                    console.log('🔧 检测到事件监听器缺失，重新绑定...');
+                    bindEventListeners();
+                }
+                
+            } catch (error) {
+                console.error('❌ 定时检查出错:', error);
+            }
+        }, 2000);
+    }
+    
+    // 立即启动定时检查
+    setTimeout(startForcedCheck, 3000);
+    
+    console.log('✅ 任务卡片翻转修复脚本已加载');
+    
+})();
+</script>

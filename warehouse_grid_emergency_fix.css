@@ -47,7 +47,9 @@
     overflow: auto !important;
     position: relative !important;
     perspective: 1500px !important;
-    min-height: 220px !important;
+    min-width: 302.66px !important;
+    min-height: 302.66px !important;
+    aspect-ratio: 1 / 1 !important;
 }
 
 /* 特别处理正面卡片的定位问题 */

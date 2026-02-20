@@ -1,0 +1,612 @@
+/**
+ * 统一翻转样式模块
+ * 为统一翻转核心提供完整的样式支持
+ */
+
+.unified-back {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+    background-color: white !important;
+    transform: rotateY(180deg) !important;
+    z-index: 1 !important;
+    padding: 15px !important;
+}
+
+.unified-back-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 头部样式 */
+.back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.back-header h6 {
+    margin: 0;
+    color: #495057;
+    font-size: 16px;
+}
+
+.back-return-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.back-return-btn:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* 文件管理区域 */
+.file-management-area {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.file-section {
+    margin-bottom: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.file-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.file-header strong {
+    color: #495057;
+    font-size: 14px;
+    margin: 0 10px;
+    flex: 1;
+}
+
+.file-status {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* 文件上传区域 */
+.file-upload-area {
+    min-height: 80px;
+    background: white;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-upload-area:hover {
+    background-color: #e9ecef;
+    border-color: #0d6efd;
+}
+
+.upload-placeholder {
+    text-align: center;
+    color: #6c757d;
+}
+
+.upload-placeholder i {
+    opacity: 0.6;
+    margin-bottom: 8px;
+}
+
+.upload-placeholder div {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.upload-placeholder small {
+    font-size: 11px;
+}
+
+/* 已上传文件列表 */
+.uploaded-files-list {
+    width: 100%;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+    margin: 0 10px;
+}
+
+.file-name {
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.file-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.file-action-btn {
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-action-btn:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+}
+
+.file-action-btn.danger {
+    background: #dc3545;
+}
+
+.file-action-btn.danger:hover {
+    background: #bb2d3b;
+}
+
+/* 操作按钮区域 */
+.back-action-buttons {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 0;
+    padding: 8px 8px 0 8px;
+    border-top: none !important;
+    padding-top: 0 !important;
+}
+
+.action-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn.primary {
+    background: #0d6efd;
+}
+
+.action-btn.primary:hover {
+    background: #0b5ed7;
+}
+
+.action-btn.secondary {
+    background: #20c997;
+}
+
+.action-btn.secondary:hover {
+    background: #1aa179;
+}
+
+.action-btn.success {
+    background: #6f42c1;
+}
+
+.action-btn.success:hover {
+    background: #5d36a5;
+}
+
+/* 底部提示 */
+.back-footer {
+    text-align: center;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+/* 动画效果 */
+@keyframes pulseSuccess {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.file-status-uploaded {
+    animation: pulseSuccess 1s ease-in-out !important;
+}
+
+/* 仓库任务网格布局 */
+#warehouseTasks {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15px !important;
+    margin-top: 15px !important;
+    align-content: start !important;
+    justify-content: stretch !important;
+    width: 100% !important;
+    grid-auto-rows: minmax(250px, auto) !important;
+}
+
+.warehouse-tasks-gallery {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 15px !important;
+    margin-top: 15px !important;
+}
+
+/* 响应式调整 */
+
+/* 修复任务卡背面文件遮挡问题 - 30px最终方案 */
+.task-back-actions {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    flex-shrink: 0; /* 防止被压缩 */
+    margin-top: auto; /* 推到容器底部 */
+}
+
+/* 危险按钮往下调整3px */
+.btn.btn-sm.btn-danger {
+    margin-top: 3px !important;
+}
+
+.back-action-buttons {
+    border-top: none !important;
+    padding-top: 0 !important;
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+/* 确保销售运营模块也应用相同调整 */
+.sales-operations .task-back-actions {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+}
+
+.sales-operations .back-action-buttons {
+    border-top: none !important;
+    padding-top: 0 !important;
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+/* 优化文件容器对齐 */
+.task-back-content {
+    padding-top: 0 !important; /* 移除顶部内边距 */
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    padding-bottom: 6px !important;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 30px); /* 为底部操作按钮预留空间 */
+    overflow: hidden; /* 防止内容溢出 */
+    align-items: center; /* 实现左右对齐 */
+}
+
+.task-files-container {
+    min-width: 250px !important;
+    min-height: 150px !important; /* 调整高度为150px */
+    max-height: 150px !important; /* 限制最大高度为150px */
+    width: 242.66px !important; /* 固定宽度实现对齐 */
+    margin: 0 0 0 0 !important; /* 往上调整3px（从3px调整到0px）*/
+    padding-top: 0 !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    padding-bottom: 6px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+    overflow: hidden !important; /* 防止内容溢出 */
+}
+
+/* ===== 任务备注显示区域样式 ===== */
+.task-remark-display {
+    width: 242.66px; /* 固定宽度实现对齐 */
+    margin: 0 0 -21px 0; /* 往上调整3px（从-18px调整到-21px） */
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2; /* 确保在其他元素之上 */
+    overflow: hidden; /* 防止内容溢出 */
+}
+
+.warehouse-remark-display {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.remark-header {
+    margin-bottom: 4px;
+    display: none !important; /* 隐藏备注标题 */
+}
+
+.remark-header h6 {
+    margin: 0;
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: none !important; /* 隐藏标题文字 */
+}
+
+.warehouse-remark-display .remark-header h6 {
+    color: #856404;
+}
+
+.remark-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    width: 100%;
+    text-align: center;
+    overflow: hidden; /* 防止内容溢出 */
+    position: relative;
+}
+
+.remark-placeholder {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.85rem;
+    display: none; /* 默认隐藏占位符 */
+}
+
+.remark-text {
+    color: #212529;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    width: 100%;
+    text-align: center;
+    display: block; /* 默认显示实际文本 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 4px; /* 添加内边距确保文本显示完整 */
+    position: relative;
+    z-index: 1;
+}
+
+.warehouse-remark-display .remark-text {
+    color: #856404;
+}
+
+/* 仓库模块备注显示增强 */
+.warehouse-remark-display .remark-content {
+    background-color: #fff3cd;
+}
+
+/* 强制显示备注文本的通用规则 */
+.remark-text {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #495057 !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    word-wrap: break-word !important;
+}
+
+.remark-placeholder {
+    display: none !important;
+}
+
+/* 确保备注内容区域可见 */
+.remark-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* 删除按钮往上调整3px并调整尺寸 */
+.btn.btn-sm.btn-danger {
+    margin-top: -3px !important;
+    width: 242.66px !important; /* 调整宽度为242.66px */
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+}
+
+/* 任务文件容器和备注显示区域往上调整3px */
+.task-files-container {
+    margin-top: -5px !important; /* 向上调整5px */
+}
+
+.task-remark-display.warehouse-remark-display {
+    margin-top: -3px !important; /* 往上调整3px */
+}
+
+/* ===== 任务备注显示区域样式结束 ===== */
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .unified-back {
+        padding: 10px !important;
+    }
+    
+    .back-action-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .file-upload-area {
+        min-height: 60px;
+        padding: 8px;
+    }
+    
+    .btn.btn-sm.btn-danger {
+        width: 100% !important;
+    }
+    
+    .task-remark-display {
+        width: 100%;
+    }
+    
+    .file-actions {
+        align-self: flex-end;
+    }
+}
+
+/* 仓库模块专用样式 */
+.warehouse-header {
+    border-bottom: 2px solid #0d6efd !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+}
+
+.warehouse-return-btn {
+    background: #0d6efd !important;
+}
+
+.warehouse-return-btn:hover {
+    background: #0b5ed7 !important;
+}
+
+.warehouse-file-area {
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+}
+
+.warehouse-file-section {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    background: white !important;
+}
+
+.warehouse-file-header {
+    background: #e7f1ff !important;
+    border-bottom: 1px solid #bfd7ff !important;
+}
+
+.warehouse-upload-area {
+    background: #f8f9fa !important;
+}
+
+.warehouse-upload-area:hover {
+    background: #e9ecef !important;
+    border-color: #0d6efd !important;
+}
+
+.warehouse-placeholder {
+    color: #495057 !important;
+}
+
+.warehouse-placeholder i {
+    opacity: 0.8 !important;
+    color: #0d6efd !important;
+}
+
+.warehouse-action-buttons {
+    background: #f8f9fa !important;
+    border-top: 1px solid #dee2e6 !important;
+    padding-top: 15px !important;
+}
+
+.warehouse-footer {
+    color: #6c757d !important;
+    font-style: italic !important;
+}
+
+/* 仓库文件列表样式 */
+.warehouse-file-list {
+    background: white !important;
+    border-radius: 4px !important;
+}
+
+.warehouse-file-item {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+}
+
+.warehouse-file-info {
+    color: #495057 !important;
+}
+
+.warehouse-file-actions {
+    gap: 6px !important;
+}
+
+/* 打印样式 */
+@media print {
+    .task-flip-container {
+        perspective: none !important;
+        transform: none !important;
+        width: 278.66px !important;
+        height: 278.66px !important;
+    }
+    
+    .unified-back {
+        transform: none !important;
+        position: static !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+}

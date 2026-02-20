@@ -138,6 +138,9 @@
             #warehouseTasks.published-tasks-gallery .task-back {
                 width: 100% !important;
                 height: 100% !important;
+                min-width: 302.66px !important;
+                min-height: 302.66px !important;
+                aspect-ratio: 1 / 1 !important;
                 backface-visibility: hidden !important;
                 border-radius: var(--card-radius) !important;
                 display: flex !important;
@@ -229,6 +232,16 @@
                 flex: 1 !important;
                 min-height: 0 !important;
                 padding: 10px 0 !important;
+            }
+            
+            /* 仓库任务文件容器往上调整3px */
+            #warehouseTasks .task-files-container {
+                margin-top: -5px !important; /* 向上调整5px */
+            }
+            
+            /* 仓库任务备注显示区域往上调整3px */
+            #warehouseTasks .task-remark-display.warehouse-remark-display {
+                margin-top: -3px !important; /* 往上调整3px */
             }
             
             #warehouseTasks.published-tasks-gallery .task-back-actions {

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务布局调整测试</title>
+    <link rel="stylesheet" href="unified_task_flip_styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fb;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .task-card-demo {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            perspective: 1500px;
+            position: relative;
+        }
+        
+        .task-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+        }
+        
+        .task-back-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .test-instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .test-instructions h3 {
+            margin-top: 0;
+            color: #0d6efd;
+        }
+        
+        .test-instructions ul {
+            margin-bottom: 0;
+        }
+        
+        .test-instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">任务布局调整测试页面</h1>
+        
+        <div class="test-instructions">
+            <h3>测试说明：</h3>
+            <ul>
+                <li>✅ <strong>任务文件容器</strong>：检查尺寸是否为250x150</li>
+                <li>✅ <strong>备注显示区域</strong>：检查位置是否上移（margin-bottom: 4px）</li>
+                <li>✅ <strong>备注内容</strong>：检查是否能正常显示备注信息</li>
+                <li>✅ <strong>整体布局</strong>：检查任务文件和删除按钮是否在卡片内</li>
+            </ul>
+        </div>
+        
+        <!-- 测试任务卡片 -->
+        <div class="task-card-demo">
+            <div class="task-back">
+                <div class="task-back-content">
+                    <!-- 文件容器区域 -->
+                    <div class="task-files-container">
+                        <div class="task-file-item">
+                            <div class="file-label">本体码</div>
+                            <div class="no-file">未上传</div>
+                        </div>
+                        <div class="task-file-item">
+                            <div class="file-label">条码</div>
+                            <div class="no-file">未上传</div>
+                        </div>
+                        <div class="task-file-item">
+                            <div class="file-label">警告码</div>
+                            <div class="no-file">未上传</div>
+                        </div>
+                        <div class="task-file-item">
+                            <div class="file-label">箱唛</div>
+                            <div class="no-file">未上传</div>
+                        </div>
+                        <div class="task-file-item">
+                            <div class="file-label">说明书</div>
+                            <div class="no-file">未上传</div>
+                        </div>
+                        <div class="task-file-item">
+                            <div class="file-label">其他</div>
+                            <div class="no-file">未上传</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 备注显示区域 -->
+                    <div class="task-remark-display" data-task-id="101">
+                        <div class="remark-header">
+                            <h6><i class="fas fa-sticky-note me-2"></i>任务备注</h6>
+                        </div>
+                        <div class="remark-content has-content">
+                            <div class="remark-placeholder">暂无备注信息</div>
+                            <div class="remark-text">这是一个测试备注信息，用来验证备注内容的显示效果。</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮区域 -->
+                    <div class="task-back-actions">
+                        <div class="back-action-buttons">
+                            <button class="action-btn primary">
+                                <i class="fas fa-check"></i>完成
+                            </button>
+                            <button class="action-btn secondary">
+                                <i class="fas fa-edit"></i>编辑
+                            </button>
+                            <button class="action-btn danger">
+                                <i class="fas fa-trash"></i>删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: #666;">
+            <p>请检查以上布局是否符合要求：</p>
+            <p>1. 文件容器高度应为150px</p>
+            <p>2. 备注区域应紧贴文件容器上方</p>
+            <p>3. 所有元素应在卡片边界内</p>
+        </div>
+    </div>
+</body>
+</html>

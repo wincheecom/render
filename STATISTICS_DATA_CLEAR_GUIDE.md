@@ -19,7 +19,7 @@
 ### 方法一：使用命令行脚本（推荐）
 ```bash
 cd /Users/zhouyun/Downloads/funseeks
-node clear_statistics_data.js
+使用 reset_system.js 进行完整系统重置
 ```
 
 脚本会提示确认操作，输入 `YES` 确认清空。
@@ -81,6 +81,6 @@ checkData();
 5. 需要管理员权限才能通过API接口清空数据
 
 ## 相关文件
-- `clear_statistics_data.js` - 命令行清空脚本
+- `reset_system.js` - 系统集成重置脚本（推荐使用）
 - `server.js` - 包含 `/api/clear-statistics-data` API端点
 - `STATISTICS_DATA_CLEAR_GUIDE.md` - 本使用说明文档
