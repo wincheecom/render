@@ -31,23 +31,59 @@
         // 扫描现有容器
         scanContainers() {
             console.log('🔍 扫描现有容器...');
-            const galleryContainers = document.querySelectorAll('.task-gallery.warehouse-tasks-gallery');
             
-            galleryContainers.forEach((container, index) => {
-                const containerId = container.id || `container-${Date.now()}-${index}`;
-                this.containers.set(containerId, {
-                    element: container,
-                    id: containerId,
-                    parent: container.parentElement?.id || 'unknown',
-                    taskCount: container.querySelectorAll('.task-flip-container').length,
+            // 清空之前的扫描结果
+            this.containers.clear();
+            
+            // 首先检查主仓库容器
+            const warehouseContainer = document.getElementById('warehouseTasks');
+            if (warehouseContainer) {
+                console.log('✅ 发现主仓库容器: #warehouseTasks');
+                
+                // 检查是否有任务画廊容器
+                const galleryContainers = warehouseContainer.querySelectorAll('.task-gallery.warehouse-tasks-gallery');
+                
+                if (galleryContainers.length > 0) {
+                    galleryContainers.forEach((container, index) => {
+                        const containerId = container.id || `container-${Date.now()}-${index}`;
+                        this.containers.set(containerId, {
+                            element: container,
+                            id: containerId,
+                            parent: container.parentElement?.id || 'unknown',
+                            taskCount: container.querySelectorAll('.task-flip-container').length,
+                            lastSeen: Date.now()
+                        });
+                        
+                        console.log(`  ✅ 发现任务画廊容器: ${containerId} (${container.querySelectorAll('.task-flip-container').length} 个任务)`);
+                    });
+                } else {
+                    // 如果没有任务画廊容器，但主容器存在，记录主容器
+                    console.log('  ℹ️ 主仓库容器存在但暂无任务画廊容器');
+                    this.containers.set('warehouseTasks', {
+                        element: warehouseContainer,
+                        id: 'warehouseTasks',
+                        parent: 'root',
+                        taskCount: 0,
+                        lastSeen: Date.now()
+                    });
+                }
+            } else {
+                console.warn('⚠️ 未发现主仓库容器 #warehouseTasks');
+                // 即使没找到主容器，也记录这个状态
+                this.containers.set('not-found', {
+                    element: null,
+                    id: 'not-found',
+                    parent: 'none',
+                    taskCount: 0,
                     lastSeen: Date.now()
                 });
-                
-                console.log(`  ✅ 发现容器: ${containerId} (${container.querySelectorAll('.task-flip-container').length} 个任务)`);
-            });
+            }
             
-            if (this.containers.size === 0) {
-                console.warn('⚠️ 未发现任何仓库任务容器');
+            // 不再显示警告，改为信息级别日志
+            if (this.containers.size <= 1 && !this.containers.has('warehouseTasks')) {
+                console.info('ℹ️ 当前未发现活跃的仓库任务容器');
+            } else {
+                console.log(`✅ 共发现 ${this.containers.size} 个仓库相关容器`);
             }
         },
         

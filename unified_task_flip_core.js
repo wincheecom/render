@@ -113,6 +113,11 @@
         }
     }
     
+    // 防抖和去重控制
+    let rebindTimeout = null;
+    let lastRebindTime = 0;
+    const REBIND_DEBOUNCE_DELAY = 2000; // 2秒防抖延迟
+    
     // 设置动态内容观察器
     function setupDynamicContentObserver() {
         const observer = new MutationObserver((mutations) => {
@@ -142,18 +147,55 @@
             });
             
             if (shouldRebind) {
-                // 延迟执行以确保DOM完全更新
-                setTimeout(() => {
-                    console.log('🔄 检测到动态内容变化，重新绑定事件');
-                }, 100);
+                const now = Date.now();
+                // 防止过于频繁的重新绑定
+                if (now - lastRebindTime > REBIND_DEBOUNCE_DELAY) {
+                    // 清除之前的定时器
+                    if (rebindTimeout) {
+                        clearTimeout(rebindTimeout);
+                    }
+                    
+                    // 设置新的防抖定时器
+                    rebindTimeout = setTimeout(() => {
+                        console.log('🔄 检测到动态内容变化，重新绑定事件');
+                        lastRebindTime = Date.now();
+                        // 实际的重新绑定逻辑应该在这里调用
+                        if (typeof bindTaskFlipEvents === 'function') {
+                            bindTaskFlipEvents();
+                        }
+                    }, 500); // 500ms延迟执行
+                } else {
+                    console.log('⏭️ 跳过频繁的重新绑定请求');
+                }
             }
         });
         
         // 观察整个文档的变化
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+        // 添加安全检查，确保document.body存在
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        } else {
+            // 如果body不存在，等待DOM加载完成后再设置观察器
+            const setupObserver = () => {
+                if (document.body) {
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                    console.log('✅ 动态内容观察器已设置');
+                }
+            };
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupObserver);
+            } else {
+                // DOM已加载完成，但body仍不存在，稍后重试
+                setTimeout(setupObserver, 100);
+            }
+        }
         
         console.log('✅ 动态内容观察器已设置');
     }

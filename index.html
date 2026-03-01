@@ -3,7 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <title>泛趣跨境发货管理系统</title>
+    
+    <!-- Chrome扩展错误屏蔽 -->
+    <script>
+        // 屏蔽Chrome扩展相关的错误
+        (function() {
+            // 更全面的错误信息匹配
+            const extensionErrorPatterns = [
+                'runtime.lastError',
+                'message port closed',
+                'Unchecked runtime.lastError',
+                'extensions',
+                'chrome-extension',
+                'A listener indicated an asynchronous response',
+                'channel closed before a response'
+            ];
+            
+            // 捕获并忽略Chrome扩展错误
+            window.addEventListener('error', function(e) {
+                const errorMessage = e.message || '';
+                const errorSource = e.filename || '';
+                
+                // 检查是否为Chrome扩展相关错误
+                const isExtensionError = extensionErrorPatterns.some(pattern => 
+                    errorMessage.includes(pattern) || errorSource.includes(pattern)
+                );
+                
+                if (isExtensionError) {
+                    console.debug('🔇 已屏蔽Chrome扩展错误:', errorMessage);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+            
+            // 捕获Promise rejection中的扩展错误
+            window.addEventListener('unhandledrejection', function(e) {
+                const reason = e.reason || '';
+                const reasonStr = reason.toString ? reason.toString() : String(reason);
+                
+                const isExtensionError = extensionErrorPatterns.some(pattern => 
+                    reasonStr.includes(pattern)
+                );
+                
+                if (isExtensionError) {
+                    console.debug('🔇 已屏蔽Chrome扩展Promise错误:', reasonStr);
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            console.log('🛡️ Chrome扩展错误屏蔽系统已启动');
+        })();
+    </script>
     
     <!-- Font Awesome 图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -578,10 +632,30 @@
             }
         });
         
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+        // 添加安全检查，确保document.body存在
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        } else {
+            // 如果body不存在，等待DOM加载完成后再设置观察器
+            const setupObserver = () => {
+                if (document.body) {
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            };
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupObserver);
+            } else {
+                // DOM已加载完成，但body仍不存在，稍后重试
+                setTimeout(setupObserver, 100);
+            }
+        }
         
     })();
     </script>
@@ -1873,6 +1947,7 @@
             resize: vertical;
             min-height: 80px;
             transition: border-color 0.2s ease;
+            margin-top: -20px; /* 再往上调整10px，总计20px */
         }
         
         .task-remark-input:focus {
@@ -2918,7 +2993,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             margin-bottom: 10px;
-            margin-top: -5px; /* 向上调整5px */
+            margin-top: -2px; /* 向下调整3px */
             overflow-y: auto;
             padding: 6px;
             box-sizing: border-box;
@@ -7937,6 +8012,31 @@
             });
             
             window.addEventListener('unhandledrejection', function(event) {
+                const reason = event.reason || '';
+                const reasonStr = reason.toString ? reason.toString() : String(reason);
+                
+                // 更全面的Chrome扩展错误匹配
+                const extensionErrorPatterns = [
+                    'runtime.lastError',
+                    'message port closed',
+                    'Unchecked runtime.lastError',
+                    'extensions',
+                    'chrome-extension',
+                    'A listener indicated an asynchronous response',
+                    'channel closed before a response'
+                ];
+                
+                const isExtensionError = extensionErrorPatterns.some(pattern => 
+                    reasonStr.includes(pattern)
+                );
+                
+                // 屏蔽Chrome扩展相关的错误
+                if (isExtensionError) {
+                    console.debug('🔇 已屏蔽Chrome扩展Promise错误:', reasonStr);
+                    event.preventDefault();
+                    return false;
+                }
+                
                 console.error('未处理的Promise拒绝:', event.reason);
                 Utils.showAlert('操作失败，请重试', 'error');
                 event.preventDefault();
@@ -10859,7 +10959,19 @@
             await updateWarehouseStats();
                     
             try {
-                const tasks = await DataManager.getAllTasks();
+                // 首先尝试使用DataManager获取任务
+                let tasks = [];
+                try {
+                    tasks = await DataManager.getAllTasks();
+                } catch (dmError) {
+                    console.warn('DataManager获取任务失败，尝试直接API调用:', dmError);
+                    // 如果DataManager失败，直接调用API
+                    const response = await fetch('/api/tasks');
+                    if (response.ok) {
+                        tasks = await response.json();
+                    }
+                }
+                
                 const pendingTasks = tasks.filter(t => t.status === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 const container = document.getElementById('warehouseTasks');
                         
@@ -10953,7 +11065,18 @@
                 bindWarehouseTaskEvents();
             } catch (error) {
                 console.error('加载仓库任务列表失败:', error);
-                Utils.showAlert('加载仓库任务列表失败，请稍后重试', 'error');
+                const container = document.getElementById('warehouseTasks');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="text-center py-5 text-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <p>加载任务失败: ${error.message}</p>
+                            <button class="btn btn-primary mt-3" onclick="loadWarehouseTasksList()">
+                                <i class="fas fa-redo"></i> 重新加载
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
                 
@@ -14329,14 +14452,28 @@ button:hover {
     function ultimateFlipSolution() {
         console.log('⚔️ 启动终极翻转解决方案...');
         
+        // 防止重复处理的标记
+        const processedTasks = new Set();
+        let handlerInterval = null;
+        
         // 直接为每个任务卡片添加点击处理器
         function attachDirectHandlers() {
             const allTasks = document.querySelectorAll('.task-flip-container');
-            console.log(`🎯 找到 ${allTasks.length} 个任务容器`);
+            
+            // 只在有新任务时才输出日志
+            if (allTasks.length > processedTasks.size) {
+                console.log(`🎯 找到 ${allTasks.length} 个任务容器`);
+            }
+            
+            let newTasksAdded = false;
             
             allTasks.forEach((container, index) => {
                 const taskId = container.dataset.taskId;
-                if (!taskId) return;
+                if (!taskId || processedTasks.has(taskId)) return;
+                
+                // 标记为已处理
+                processedTasks.add(taskId);
+                newTasksAdded = true;
                 
                 // 移除所有现有的事件监听器
                 const clone = container.cloneNode(true);
@@ -14354,12 +14491,17 @@ button:hover {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    console.log(`⚔️ 直接触发翻转 - 任务: ${taskId}`);
+                    // 减少日志输出频率
+                    if (Math.random() < 0.1) { // 10%的概率输出日志
+                        console.log(`⚔️ 直接触发翻转 - 任务: ${taskId}`);
+                    }
                     
                     // 直接执行翻转操作
                     this.classList.toggle('flipped');
                     const isFlipped = this.classList.contains('flipped');
-                    console.log(`✅ 任务 ${taskId} 翻转状态: ${isFlipped ? '背面' : '正面'}`);
+                    if (Math.random() < 0.05) { // 5%的概率输出状态日志
+                        console.log(`✅ 任务 ${taskId} 翻转状态: ${isFlipped ? '背面' : '正面'}`);
+                    }
                 };
                 
                 // 添加触摸支持
@@ -14367,15 +14509,35 @@ button:hover {
                 
                 console.log(`✅ 为任务 ${taskId} 添加直接处理器`);
             });
+            
+            // 如果没有新任务添加，减少日志输出
+            if (!newTasksAdded && allTasks.length > 0) {
+                if (Math.random() < 0.02) { // 2%的概率输出维护日志
+                    console.log(`🛡️ 维护翻转处理器 - 当前任务数: ${allTasks.length}`);
+                }
+            }
         }
         
-        // 定期重新绑定处理器
-        setInterval(attachDirectHandlers, 1000);
+        // 使用更长的间隔，并添加条件检查
+        if (handlerInterval) {
+            clearInterval(handlerInterval);
+        }
         
-        // 立即执行一次
+        handlerInterval = setInterval(() => {
+            // 只在需要时才执行
+            const currentTasks = document.querySelectorAll('.task-flip-container');
+            if (currentTasks.length !== processedTasks.size) {
+                attachDirectHandlers();
+            }
+        }, 3000); // 3秒检查一次，而不是1秒
+        
+        // 立即执行一次，但减少重复调用
         setTimeout(attachDirectHandlers, 100);
-        setTimeout(attachDirectHandlers, 500);
-        setTimeout(attachDirectHandlers, 1000);
+        setTimeout(() => {
+            if (document.querySelectorAll('.task-flip-container').length !== processedTasks.size) {
+                attachDirectHandlers();
+            }
+        }, 1000);
         
         console.log('✅ 终极翻转解决方案已启动');
     }
@@ -14485,15 +14647,8 @@ button:hover {
         }
         
         // 清除可能存在的其他翻转监听器
-        const existingListeners = ['click', 'touchstart'];
-        existingListeners.forEach(eventType => {
-            const eventListeners = getEventListeners ? getEventListeners(document)[eventType] || [] : [];
-            eventListeners.forEach(listener => {
-                if (listener.listener && listener.listener.toString().includes('task-flip-container')) {
-                    document.removeEventListener(eventType, listener.listener, listener.useCapture);
-                }
-            });
-        });
+        // 注：移除了对getEventListeners的依赖，该函数仅在开发者工具中可用
+        console.log('🧹 清理现有翻转监听器...');
         
         // 创建全新的监听器函数
         window._flipEventListener = function(e) {
@@ -14529,7 +14684,10 @@ button:hover {
                                          target.classList.contains('btn');
                     
                     if (!isActionButton) {
-                        console.log(`🎯 捕获翻转点击 - 任务ID: ${finalTaskId}`);
+                        // 减少日志输出频率
+                        if (Math.random() < 0.05) { // 5%概率输出日志
+                            console.log(`🎯 捕获翻转点击 - 任务ID: ${finalTaskId}`);
+                        }
                         e.preventDefault();
                         e.stopImmediatePropagation();
                         
@@ -14538,7 +14696,9 @@ button:hover {
                             if (typeof window.toggleTaskCardFlip === 'function') {
                                 window.toggleTaskCardFlip(finalTaskId);
                             } else {
-                                console.error('❌ 翻转函数不存在');
+                                if (Math.random() < 0.1) { // 10%概率输出错误日志
+                                    console.error('❌ 翻转函数不存在');
+                                }
                                 // 紧急重新创建
                                 createFlipFunction();
                                 window.toggleTaskCardFlip(finalTaskId);
@@ -14560,10 +14720,16 @@ button:hover {
     
     // 确保DOM结构完整
     function ensureDOMStructure() {
-        console.log('🏗️ 检查DOM结构完整性...');
+        // 减少日志输出频率
+        if (Math.random() < 0.1) { // 10%概率输出日志
+            console.log('🏗️ 检查DOM结构完整性...');
+        }
         
         const frontElements = document.querySelectorAll('div[id^="task-"][id$="-front"].task-front');
-        console.log(`🔍 找到 ${frontElements.length} 个任务正面元素`);
+        // 只在元素数量变化时输出日志
+        if (frontElements.length > 0 && Math.random() < 0.05) { // 5%概率输出
+            console.log(`🔍 找到 ${frontElements.length} 个任务正面元素`);
+        }
         
         frontElements.forEach(frontElement => {
             const taskIdMatch = frontElement.id.match(/task-(.+)-front/);
@@ -14764,13 +14930,8 @@ button:hover {
                 const originalOnClick = button.onclick;
                 const originalListeners = [];
                 
-                // 获取现有事件监听器（如果可能）
-                if (getEventListeners) {
-                    const listeners = getEventListeners(button);
-                    if (listeners.click) {
-                        originalListeners.push(...listeners.click);
-                    }
-                }
+                // 注：移除了对getEventListeners的依赖，该函数仅在开发者工具中可用
+                console.log('📋 保存发货按钮的原始事件处理器');
                 
                 // 重写点击处理
                 button.onclick = function(e) {
@@ -14915,6 +15076,105 @@ button:hover {
     setTimeout(startForcedCheck, 3000);
     
     console.log('✅ 任务卡片翻转修复脚本已加载');
+    
+    // 添加强制刷新仓库任务函数
+    window.forceRefreshWarehouseTasks = async function() {
+        console.log('🔄 强制刷新仓库任务...');
+        try {
+            const response = await fetch('/api/tasks');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const tasks = await response.json();
+            const pendingTasks = tasks.filter(t => t.status === 'pending');
+            
+            console.log('📋 获取到待发货任务:', pendingTasks.length, '个');
+            
+            const container = document.getElementById('warehouseTasks');
+            if (!container) {
+                console.error('❌ 未找到仓库任务容器');
+                return;
+            }
+            
+            if (pendingTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                        <p>暂无待发货任务</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            pendingTasks.forEach((task, index) => {
+                const taskId = task.id || `task-${index}`;
+                const firstItem = task.items && task.items[0];
+                const productName = firstItem ? firstItem.productName : '未知商品';
+                const productCode = firstItem ? firstItem.productCode : '无货号';
+                const quantity = firstItem ? firstItem.quantity : 0;
+                const productImage = firstItem ? firstItem.productImage : null;
+                const creatorName = task.creator_name || task.creatorName || '未知';
+                
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-flip-container warehouse-task-initialized';
+                taskElement.dataset.taskId = taskId;
+                
+                taskElement.innerHTML = `
+                    <div class="task-front" id="task-${taskId}-front">
+                        <div class="task-gallery-img">
+                            ${productImage ? 
+                                `<img src="${productImage}" alt="产品图片" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                '<div class="d-flex align-items-center justify-content-center h-100"><i class="fas fa-image fa-2x text-muted"></i></div>'
+                            }
+                        </div>
+                        <div class="task-card-content d-flex align-items-center gap-2 w-100">
+                            <div class="task-info-inline d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                <div class="task-gallery-name" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
+                                    ${productName}
+                                </div>
+                                <div class="task-gallery-code" data-content="${productCode}" style="font-size: 0.75rem; color: #666; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">
+                                    货号: ${productCode}
+                                </div>
+                                <div class="task-gallery-qty" data-content="${quantity}" style="font-size: 0.75rem; color: #888; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">
+                                    数量: ${quantity}
+                                </div>
+                                <div class="task-gallery-creator" data-content="${creatorName}" style="font-size: 0.7rem; color: #999; margin-bottom: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">
+                                    创建人: ${creatorName}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-back">
+                        <div class="task-back-content">
+                            <div class="task-back-header">
+                                <h5>${productName}</h5>
+                                <p>货号: ${productCode} | 数量: ${quantity}</p>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn btn-primary btn-sm confirm-shipment-btn" data-task-id="${taskId}">
+                                    <i class="fas fa-truck"></i> 确认发货
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-task-btn" data-task-id="${taskId}">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(taskElement);
+            });
+            
+            bindWarehouseTaskEvents();
+            console.log('✅ 仓库任务刷新完成');
+            
+        } catch (error) {
+            console.error('❌ 强制刷新失败:', error);
+            alert('刷新失败: ' + error.message);
+        }
+    };
+    
+    console.log('✅ 强制刷新函数已添加: window.forceRefreshWarehouseTasks()');
     
 })();
 </script>

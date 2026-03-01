@@ -475,7 +475,7 @@
 
 /* 任务文件容器和备注显示区域往上调整3px */
 .task-files-container {
-    margin-top: -5px !important; /* 向上调整5px */
+    margin-top: -2px !important; /* 向下调整3px */
 }
 
 .task-remark-display.warehouse-remark-display {

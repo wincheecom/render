@@ -24,14 +24,56 @@
         
         function checkUtils() {
             attempts++;
-            if (window.Utils && typeof window.Utils.showAlert === 'function') {
-                console.log('✅ Utils对象已加载，激活屏蔽系统');
-                callback();
-            } else if (attempts < maxAttempts) {
-                setTimeout(checkUtils, 100);
-            } else {
-                console.warn('⚠️ Utils对象加载超时，屏蔽系统未激活');
+            
+            // 检查多种可能的Utils对象
+            const utilsCandidates = [
+                window.Utils,
+                window.utils,
+                window.AppUtils, 
+                window.ApplicationUtils,
+                window.globalUtils,
+                window.utilities
+            ];
+            
+            // 寻找有效的Utils对象
+            let foundUtils = null;
+            for (const candidate of utilsCandidates) {
+                if (candidate && typeof candidate.showAlert === 'function') {
+                    foundUtils = candidate;
+                    break;
+                }
             }
+            
+            if (foundUtils) {
+                console.log('✅ Utils对象已加载，激活屏蔽系统');
+                // 确保全局引用一致
+                window.Utils = foundUtils;
+                callback();
+                return;
+            }
+            
+            // 检查是否超时
+            if (attempts >= maxAttempts) {
+                console.info('ℹ️ Utils对象未找到，使用备用方案');
+                // 创建基础的Utils对象以避免错误
+                if (!window.Utils) {
+                    window.Utils = {
+                        showAlert: function(message, type) {
+                            // 基础实现，避免错误
+                            if (type === 'error') {
+                                console.error('Error:', message);
+                            } else {
+                                console.log(type + ':', message);
+                            }
+                        }
+                    };
+                }
+                callback();
+                return;
+            }
+            
+            // 继续等待
+            setTimeout(checkUtils, 200);
         }
         
         checkUtils();

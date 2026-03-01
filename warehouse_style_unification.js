@@ -234,9 +234,9 @@
                 padding: 10px 0 !important;
             }
             
-            /* 仓库任务文件容器往上调整3px */
+            /* 仓库任务文件容器往下调整3px */
             #warehouseTasks .task-files-container {
-                margin-top: -5px !important; /* 向上调整5px */
+                margin-top: -2px !important; /* 向下调整3px */
             }
             
             /* 仓库任务备注显示区域往上调整3px */
