@@ -329,6 +329,14 @@
 }
 
 /* 优化文件容器对齐 */
+/* 让 task-back 容器居中显示内容 */
+.task-back {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important; /* 水平居中 */
+    justify-content: flex-start !important; /* 垂直对齐顶端 */
+    padding: 15px !important;
+}
 .task-back-content {
     padding-top: 0 !important; /* 移除顶部内边距 */
     padding-left: 6px !important;
@@ -339,6 +347,8 @@
     height: calc(100% - 30px); /* 为底部操作按钮预留空间 */
     overflow: hidden; /* 防止内容溢出 */
     align-items: center; /* 实现左右对齐 */
+    justify-content: flex-start; /* 对齐顶端 */
+    width: 100%; /* 占满容器宽度 */
 }
 
 .task-files-container {
@@ -346,7 +356,10 @@
     min-height: 150px !important; /* 调整高度为150px */
     max-height: 150px !important; /* 限制最大高度为150px */
     width: 242.66px !important; /* 固定宽度实现对齐 */
-    margin: 3px 0 0 0 !important; /* 往下调整3px */
+    margin-top: 0 !important; /* 对齐到顶端边框 */
+    margin-left: -5px !important; /* 往左调整5px */
+    margin-right: auto !important; /* 右侧自动对齐 */
+    margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-left: 6px !important;
     padding-right: 6px !important;
@@ -424,7 +437,7 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     width: 100%;
-    text-align: center;
+    text-align: left; /* 改为左对齐 */
     display: block; /* 默认显示实际文本 */
     overflow: hidden;
     text-overflow: ellipsis;
@@ -451,6 +464,7 @@
     font-size: 14px !important;
     line-height: 1.4 !important;
     word-wrap: break-word !important;
+    width: 232.66px !important; /* 调整宽度从224.66px到232.66px */
 }
 
 .remark-placeholder {
@@ -473,13 +487,9 @@
     max-height: 36px !important;
 }
 
-/* 任务文件容器和备注显示区域往下调整3px */
-.task-files-container {
-    margin-top: 3px !important; /* 往下调整3px */
-}
-
+/* 任务文件容器和备注显示区域往上调整3px */
 .task-remark-display.warehouse-remark-display {
-    margin-top: -3px !important; /* 往上调整3px */
+    margin-top: -7px !important; /* 往上调整7px */
 }
 
 /* ===== 任务备注显示区域样式结束 ===== */
@@ -591,6 +601,8 @@
 .warehouse-file-actions {
     gap: 6px !important;
 }
+
+
 
 /* 打印样式 */
 @media print {

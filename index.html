@@ -908,6 +908,75 @@
                     transform: rotateY(180deg) !important;
                 }
                 
+                /* 仓库发货模块任务卡翻转样式 - 参照销售运营模块 */
+                #warehouseTasks .task-flip-container {
+                    perspective: 1500px !important;
+                    transform-style: preserve-3d !important;
+                    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    position: relative !important;
+                    cursor: pointer !important;
+                    width: 278.66px !important;
+                    height: 278.66px !important;
+                    min-height: 278.66px !important;
+                    max-width: 278.66px !important;
+                    max-height: 278.66px !important;
+                    display: block !important;
+                    border-radius: 10px !important;
+                    overflow: hidden !important;
+                    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+                    box-sizing: border-box !important;
+                }
+                
+                #warehouseTasks .task-flip-container.flipped {
+                    transform: rotateY(180deg) !important;
+                }
+                
+                #warehouseTasks .task-front,
+                #warehouseTasks .task-back {
+                    backface-visibility: hidden !important;
+                    -webkit-backface-visibility: hidden !important;
+                    position: absolute !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    border-radius: 10px !important;
+                    box-sizing: border-box !important;
+                }
+                
+                #warehouseTasks .task-front {
+                    z-index: 2 !important;
+                    transform: rotateY(0deg) !important;
+                    background: white !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    text-align: center !important;
+                    padding: 15px !important;
+                    overflow: auto !important;
+                }
+                
+                #warehouseTasks .task-back {
+                    z-index: 1 !important;
+                    transform: rotateY(180deg) !important;
+                    background: white !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    text-align: center !important;
+                    padding: 15px !important;
+                    overflow: auto !important;
+                }
+                
+                #warehouseTasks .task-flip-container.flipped .task-front {
+                    z-index: 1 !important;
+                }
+                
+                #warehouseTasks .task-flip-container.flipped .task-back {
+                    z-index: 2 !important;
+                    transform: rotateY(0deg) !important;
+                }
+                
                 .warehouse-container {
                     min-height: 400px;
                     background: #f8f9fa;
