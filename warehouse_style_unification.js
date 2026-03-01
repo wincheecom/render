@@ -236,7 +236,7 @@
             
             /* 仓库任务文件容器往下调整3px */
             #warehouseTasks .task-files-container {
-                margin-top: -2px !important; /* 向下调整3px */
+                margin-top: 3px !important; /* 往下调整3px */
             }
             
             /* 仓库任务备注显示区域往上调整3px */

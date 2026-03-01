@@ -346,7 +346,7 @@
     min-height: 150px !important; /* 调整高度为150px */
     max-height: 150px !important; /* 限制最大高度为150px */
     width: 242.66px !important; /* 固定宽度实现对齐 */
-    margin: 0 0 0 0 !important; /* 往上调整3px（从3px调整到0px）*/
+    margin: 3px 0 0 0 !important; /* 往下调整3px */
     padding-top: 0 !important;
     padding-left: 6px !important;
     padding-right: 6px !important;
@@ -473,9 +473,9 @@
     max-height: 36px !important;
 }
 
-/* 任务文件容器和备注显示区域往上调整3px */
+/* 任务文件容器和备注显示区域往下调整3px */
 .task-files-container {
-    margin-top: -2px !important; /* 向下调整3px */
+    margin-top: 3px !important; /* 往下调整3px */
 }
 
 .task-remark-display.warehouse-remark-display {
