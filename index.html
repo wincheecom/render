@@ -915,16 +915,16 @@
                     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
                     position: relative !important;
                     cursor: pointer !important;
-                    width: 278.66px !important;
-                    height: 278.66px !important;
-                    min-height: 278.66px !important;
-                    max-width: 278.66px !important;
-                    max-height: 278.66px !important;
+                    width: 100% !important;
+                    height: auto !important;
+                    min-height: 280px !important;
+                    max-width: 100% !important;
                     display: block !important;
                     border-radius: 10px !important;
                     overflow: hidden !important;
                     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
                     box-sizing: border-box !important;
+                    aspect-ratio: 1 / 1 !important;
                 }
                 
                 #warehouseTasks .task-flip-container.flipped {
@@ -942,6 +942,12 @@
                     height: 100% !important;
                     border-radius: 10px !important;
                     box-sizing: border-box !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    text-align: center !important;
+                    padding: 15px !important;
+                    overflow: auto !important;
                 }
                 
                 #warehouseTasks .task-front {
@@ -986,7 +992,10 @@
                 }
                 
                 .warehouse-tasks-gallery {
-                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+                    display: grid !important;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+                    gap: 20px !important;
+                    width: 100% !important;
                 }
             `;
             
@@ -1663,6 +1672,13 @@
             box-shadow: none !important;
             outline: none !important;
             background: transparent;
+            margin-top: 0 !important;
+        }
+
+        /* 特别针对发布任务主体画廊的顶端对齐 */
+        #publishedTasksBody.published-tasks-gallery {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
         }
 
         .table-title {
@@ -2430,7 +2446,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
-            margin-top: 16px;
+            margin-top: 0;
             align-content: start;
         }
         
