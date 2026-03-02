@@ -73,8 +73,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.min.js"></script>
     
     <!-- 仓库任务修复CSS -->
-    <link rel="stylesheet" href="warehouse_grid_emergency_fix.css"/>
-    <link rel="stylesheet" href="warehouse_protection_patch.css"/>
+    <!-- 注释掉可能导致冲突的外部CSS文件 -->
+    <!-- <link rel="stylesheet" href="warehouse_grid_emergency_fix.css"/> -->
+    <!-- <link rel="stylesheet" href="warehouse_protection_patch.css"/> -->
     
     <!-- 任务卡片翻转功能修复 -->
     <style>
@@ -991,12 +992,7 @@
                     margin: 20px 0;
                 }
                 
-                .warehouse-tasks-gallery {
-                    display: grid !important;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-                    gap: 20px !important;
-                    width: 100% !important;
-                }
+                /* 仓库任务画廊样式已统一管理，此处留空 */
             `;
             
             const styleSheet = document.createElement('style');
@@ -1587,6 +1583,47 @@
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
             margin-bottom: 25px;
+        }
+        
+        /* === 统一仓库任务样式 === */
+        /* 仓库任务画廊 - 与统计卡片完全一致的标准布局 */
+        .warehouse-tasks-gallery,
+        #warehouseTasks {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+            gap: 16px !important;
+            margin-top: 15px !important;
+            align-content: start !important;
+            justify-content: stretch !important;
+            width: 100% !important;
+            min-height: 300px !important;
+        }
+        
+        /* 仓库任务卡片容器样式 */
+        .warehouse-tasks-gallery > .task-flip-container,
+        #warehouseTasks > .task-flip-container {
+            display: block !important;
+            width: 100% !important;
+            min-height: 250px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* 响应式断点 - 与统计卡片保持一致 */
+        @media (max-width: 1200px) {
+            .warehouse-tasks-gallery,
+            #warehouseTasks {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .warehouse-tasks-gallery,
+            #warehouseTasks {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
         }
 
         .card {
@@ -3885,12 +3922,7 @@
     display: none !important;
 }
 
-/* 确保仓库任务的网格布局不受影响 */
-.warehouse-tasks-gallery {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 15px !important;
-}
+/* 仓库任务样式已统一管理至上方标准区域 */
 /* === 仓库任务保护补丁结束 === */
 
 
@@ -4832,6 +4864,7 @@
             color: var(--gray);
             text-decoration: none;
             font-size: 0.9rem;
+            display: none !important; /* 隐藏注册链接 */
         }
         
         .link-secondary:hover {
@@ -4911,7 +4944,16 @@
         .modal-footer {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 12px;
+        }
+        
+        /* 模态框按钮统一样式 */
+        .modal-footer .btn {
+            min-width: 80px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* 用户管理模块模态框宽度调整 */
@@ -5063,7 +5105,7 @@
         <!-- 主内容区 -->
         <div class="main-content">
             <!-- 总览模块 -->
-            <div class="module-content active" id="dashboard">
+            <div class="module-content" id="dashboard">
                 <!-- 已移除：<h1 class="page-title">总览</h1> -->
                 
                 <div class="card-container">
@@ -5486,25 +5528,23 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- 账户管理模块 -->
-    <div class="module-content" id="user-management" style="display: none;">
-        <div class="table-container">
-            <div class="table-header">
-                <div class="table-title">账户管理</div>
-                <div class="d-flex align-center gap-12" style="align-items: stretch;">
-                    <button class="btn btn-primary" onclick="showAddUserModal()">
-                        <i class="fas fa-plus"></i> 添加用户
-                    </button>
-                    <button class="btn btn-outline" onclick="refreshUserList()">
-                        <i class="fas fa-sync"></i> 刷新
-                    </button>
-                </div>
-            </div>
             
-            <div class="table-responsive">
+            <!-- 账户管理模块 -->
+            <div class="module-content active" id="user-management">
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">账户管理</div>
+                        <div class="d-flex align-center gap-12" style="align-items: stretch;">
+                            <button class="btn btn-primary" onclick="showAddUserModal()">
+                                <i class="fas fa-plus"></i> 添加用户
+                            </button>
+                            <button class="btn btn-outline" onclick="refreshUserList()">
+                                <i class="fas fa-sync"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
                 <table class="equal-width-columns">
                     <thead>
                         <tr>
@@ -5824,13 +5864,10 @@
             flex: 1 1 auto;
         }
         
-        /* 调整用户管理模块以与总览区域顶部对齐 */
+        /* 调整用户管理模块 - 由于已在 main-content 内，不需要额外的 margin */
         #user-management {
-            padding: 20px;
-            margin-left: var(--sidebar-width);
-            margin-top: calc(var(--header-height) + 20px); /* 与总览模块顶部对齐: header-height(70px) + main-content padding(20px) */
-            min-height: 100vh;
-            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
         }
         
         /* 确保表格容器居中显示 */
@@ -8377,7 +8414,8 @@
             const moduleContents = document.querySelectorAll('.module-content');
             moduleContents.forEach(content => {
                 content.classList.remove('active');
-                content.style.display = 'none';
+                // 不再通过内联样式控制显示，完全交给 CSS 管理
+                content.style.removeProperty('display');
             });
             
             // 清理可能影响当前模块的全局状态
@@ -8386,7 +8424,7 @@
             // 显示目标模块
             const targetModule = document.getElementById(moduleId);
             if (targetModule) {
-                targetModule.style.display = 'block';
+                // 通过添加 active 类来显示，让 CSS 控制 display 值
                 targetModule.classList.add('active');
             }
             
