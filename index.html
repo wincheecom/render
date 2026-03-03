@@ -2599,6 +2599,85 @@
             text-align: center;
         }
         
+        /* ===== 任务备注显示区域样式 ===== */
+        .task-remark-display {
+            width: 242.66px;
+            margin: 0 0 -21px 0;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            height: 48px;
+            min-height: 48px;
+            max-height: 48px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        
+        /* 仓库任务备注显示区域 - 黄色背景 */
+        .warehouse-remark-display {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        
+        /* 调整仓库任务备注的顶部边距 */
+        .task-remark-display.warehouse-remark-display {
+            margin-top: -7px !important;
+        }
+        
+        .remark-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .remark-header h6 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .remark-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .remark-text {
+            font-size: 0.7rem;
+            color: #212529;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-all;
+            white-space: normal;
+        }
+        
+        .remark-placeholder {
+            font-size: 0.65rem;
+            color: #adb5bd;
+            font-style: italic;
+        }
+        
         .published-tasks-gallery .task-back-actions {
             width: 100%;
             padding: 0;
