@@ -10760,7 +10760,7 @@
                     fileHtml = `
                         <div class="task-file-item">
                             <div class="file-label">${label}</div>
-                            <div class="pdf-preview" title="${fileName || 'PDF文件'}" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}')" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
+                            <div class="pdf-preview" title="${fileName || 'PDF 文件'}" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}', event)" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
                                 <i class="fas fa-file-pdf"></i>
                                 <div class="pdf-filename">${fileName ? fileName.substring(0, 12) + (fileName.length > 12 ? '...' : '') : 'PDF'}</div>
                             </div>
@@ -10769,7 +10769,7 @@
                     fileHtml = `
                         <div class="task-file-item">
                             <div class="file-label">${label}</div>
-                            <img src="${imageUrl}" alt="${label}" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}')" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
+                            <img src="${imageUrl}" alt="${label}" class="file-preview" onerror="Utils.onImageError(this)" onclick="handleFilePreviewClick('${taskId}', '${fileTypeKey}', event)" oncontextmenu="replaceTaskFile('${taskId}', '${fileTypeKey}'); return false;">
                         </div>`;
                 }
             } else {
@@ -12352,7 +12352,11 @@
         }
                     
         // 处理文件预览点击下载事件
-        function handleFilePreviewClick(taskId, fileType) {
+        function handleFilePreviewClick(taskId, fileType, event) {
+            // 阻止事件冒泡，防止触发卡片翻转
+            if (event) {
+                event.stopPropagation();
+            }
             downloadTaskFile(taskId, fileType);
         }
                     
