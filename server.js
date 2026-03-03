@@ -891,6 +891,22 @@ app.post('/api/products', requireRole(['admin']), async (req, res) => {
 app.get('/api/tasks', requireRole(['admin', 'sales', 'warehouse']), async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM tasks ORDER BY "created_at" DESC');
+    
+    // 调试：检查备注数据
+    console.log('\n📊 任务数据检查:');
+    console.log(`   总任务数：${result.rows.length}`);
+    const withRemark = result.rows.filter(t => t.remark && t.remark.trim()).length;
+    const withoutRemark = result.rows.length - withRemark;
+    console.log(`   有备注任务：${withRemark}`);
+    console.log(`   无备注任务：${withoutRemark}`);
+    if (withRemark > 0) {
+      console.log('\n   有备注的任务详情:');
+      result.rows.filter(t => t.remark).forEach(t => {
+        console.log(`   - ID:${t.id} 任务号:${t.task_number} 备注:"${t.remark.substring(0, 30)}${t.remark.length > 30 ? '...' : ''}"`);
+      });
+    }
+    console.log('');
+    
     res.json(Array.isArray(result.rows) ? result.rows : (result.rows || []));
   } catch (err) { 
     console.error(err);
