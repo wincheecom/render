@@ -1746,8 +1746,33 @@ app.get('/api/task/:taskId/file/:fileType', requireRole(['admin', 'sales', 'ware
         return res.send(imageData);
       }
     } else if (fileData.startsWith('http')) {
-      // 如果是 URL，重定向到该 URL（适用于 R2 存储的文件）
-      return res.redirect(fileData);
+      // 如果是 URL，从 R2 下载并代理文件（适用于 R2 存储的文件）
+      try {
+        const axios = require('axios');
+        const response = await axios.get(fileData, {
+          responseType: 'arraybuffer'
+        });
+        
+        // 提取文件名
+        let filename = `task_${taskId}_${fileType}`;
+        const contentDisposition = response.headers['content-disposition'];
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/i);
+          if (filenameMatch && filenameMatch[1]) {
+            filename = filenameMatch[1];
+          }
+        }
+        
+        // 设置响应头，强制下载而不是预览
+        res.set('Content-Type', response.headers['content-type'] || 'application/octet-stream');
+        res.set('Content-Disposition', `attachment; filename="${filename}"`);
+        res.set('Content-Length', response.data.length);
+        
+        return res.send(response.data);
+      } catch (err) {
+        console.error('从 R2 下载文件失败:', err.message);
+        return res.status(500).json({ error: '从 R2 下载文件失败', message: err.message });
+      }
     } else {
       // 其他情况返回错误
       return res.status(404).json({ error: '文件格式不支持' });

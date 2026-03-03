@@ -12381,7 +12381,7 @@
                 }
                             
                 // 使用后端 API 下载文件，避免跨域问题
-                const token = localStorage.getItem('auth_token');
+                const token = localStorage.getItem(DataManager.STORAGE_KEYS.TOKEN);
                 const headers = {};
                 if (token) {
                     headers['Authorization'] = `Bearer ${token}`;
