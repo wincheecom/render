@@ -12380,17 +12380,40 @@
                     return;
                 }
                             
+                // 使用后端 API 下载文件，避免跨域问题
+                const token = localStorage.getItem('auth_token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                const response = await fetch(`${DataManager.API_BASE}/api/task/${taskId}/file/${fileType}`, {
+                    headers: headers
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || '下载失败');
+                }
+                
+                // 获取文件内容并创建 Blob
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
                 // 创建临时链接下载文件
                 const link = document.createElement('a');
-                link.href = fileData;
-                link.download = fileName;
+                link.href = url;
+                link.download = fileName || `${fileType}_${taskId}`;
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                
+                // 释放 URL 对象
+                window.URL.revokeObjectURL(url);
             } catch (error) {
                 console.error('下载文件失败:', error);
-                Utils.showAlert('下载文件失败', 'error');
+                Utils.showAlert('下载文件失败：' + error.message, 'error');
             }
         }
         
